@@ -1,5 +1,5 @@
 //Connect to socket.io, using the io_host given by the server
-var socket = io.connect(io_host);
+var socket = io();
 
 // Call this when the server sends io packet 'SendHandsForClasses' (basically
 // sending students for given class)

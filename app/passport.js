@@ -6,7 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 // load up the user model
 var User = require('../app/models/user');
 
-var ActionLog = require('../app/models/action_log')
+var Action_Log = require('../app/models/action_log')
 
 var Handler = require('../app/action_log_handler');
 
@@ -219,7 +219,7 @@ module.exports = function(passport) {
 			// return the message
 			if (!user || !user.validPassword(password))
 				return done(null, false, req.flash('loginMessage',
-						'Username/password combo doesn not exist.')); // req.flash
+						'That username/password combination does not exist.')); // req.flash
 			// is
 			// the
 			// way
