@@ -2,8 +2,6 @@ var pug = require("pug");
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
-var io_host = process.env.VH_IO_HOST;
-
 module.exports = function(app, passport){
 	
 	// =====================================
@@ -23,7 +21,6 @@ module.exports = function(app, passport){
 	app.get('/', function(req, res) {
 		console.log('Test!')
 		res.send(landingPage({ 
-			io_host : io_host 
 		}));
 	});
 	
@@ -54,7 +51,6 @@ module.exports = function(app, passport){
 		// render the page and pass in any flash data if it exists
 		res.send(signupPage( {
 			message : req.flash('signupMessage'),
-			io_host : io_host
 		}));
 	});
 
@@ -68,7 +64,6 @@ module.exports = function(app, passport){
 	
 	app.get('/recoverpassword', isNotLoggedIn, function(req, res) {
 		res.send(passwordRecoveryPage({
-			io_host : io_host
 		}));
 	});
 }

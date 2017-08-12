@@ -1,7 +1,5 @@
 var pug = require('pug');
 
-var io_host = process.env.VH_IO_HOST;
-
 module.exports = function(app){
 const homePage = pug.compileFile('./client/pug/student_home.pug');
 	
@@ -9,7 +7,6 @@ const homePage = pug.compileFile('./client/pug/student_home.pug');
 		res.send(homePage({
 			user : req.user,
 			session : req.session,
-			io_host : io_host,
 		}));
 	});
 }

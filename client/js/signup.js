@@ -1,4 +1,4 @@
-var socket = io.connect(io_host)
+var socket = io.connect()
 socket.on('SendSchools', function(data) {
 	document.getElementById("schools").innerHTML += data.schools;
 });
