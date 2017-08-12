@@ -31,7 +31,8 @@ html
 							each teacher_class in user.teacher_classes
 								option(value=teacher_class.id) #{teacher_class.classname}
 					br
-					br
+					h5(class="center_text") Select a random student:
+					div(id="randomStudentButtons")
 				div(class="col-sm-6 well", style="")
 					audio(id="ding",style="display: none; width: 0px; height: 0px", src="/notification_audio" preload="auto")
 

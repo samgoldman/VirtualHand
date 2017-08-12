@@ -384,17 +384,6 @@ module.exports = function(io) {
 		});
 		
 		/**
-		 * @IO_Request GetCustomer -
-		 * @IO_Param
-		 * @param data -
-		 *            collection of IO_Params provided by socket.io
-		 */
-		socket.on('GetCustomer', function(data) {
-			Handler.create_action_log_and_handle('Action', 0, 'io.js:GetCustomer', JSON.stringify(data));
-			sendCustomer(socket, data.uid);
-		});
-
-		/**
 		 * @IO_Request CreateMessage -
 		 * @IO_Param
 		 * @param data -
@@ -403,6 +392,16 @@ module.exports = function(io) {
 		socket.on('CreateMessage', function(data) {
 			Handler.create_action_log_and_handle('Action', 0, 'io.js:CreateMessage', JSON.stringify(data));
 			createMessage(socket, data.name, data.message);
+		});
+		
+		/**
+		 * @IO_Request CreateMessage -
+		 * @IO_Param
+		 * @param data -
+		 *            collection of IO_Params provided by socket.io
+		 */
+		socket.on('GetRandomStudent', function(data){
+			sendRandomStudent(socket, data.classes)
 		});
 	});
 
@@ -1459,6 +1458,25 @@ module.exports = function(io) {
 					count++;
 				}
 			}
+		});
+	}
+	
+	function sendRandomStudent(socket, classes) {
+		var terms = [];
+		for (var i = 0; i < classes.length; i++) {
+			terms.push({
+				class_id : classes[i]
+			});
+		}
+		Hand_State.find().or(terms).populate("user").exec(function(err, hands) {
+			if (err) {
+				Handler.create_action_log_and_handle('Database Error', 1, 'io.js:sendRandomStudent', err);
+			}
+			var count = hands.length
+			var random = Math.floor(Math.random() * count)
+			socket.emit('SendRandomStudent', {
+				randomStudentName:hands[random].user.username
+			});
 		});
 	}
 
