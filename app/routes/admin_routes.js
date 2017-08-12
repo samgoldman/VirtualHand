@@ -1,10 +1,6 @@
 var pug = require('pug');
 var fs = require('fs');
 
-
-
-var io_host = process.env.VH_IO_HOST;
-
 module.exports = function(app, startup_time){
 	
 	const homePage = pug.compileFile('./client/pug/admin_home.pug');
@@ -13,7 +9,6 @@ module.exports = function(app, startup_time){
 		res.send(homePage({
 			user : req.user,
 			session : req.session,
-			io_host : io_host,
 			env : process.env.NODE_ENV
 		}));
 	});

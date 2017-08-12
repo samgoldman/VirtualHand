@@ -1,4 +1,4 @@
-var socket = io.connect(io_host);
+var socket = io.connect();
 
 function createMessage() {
 	socket.emit('CreateMessage', {

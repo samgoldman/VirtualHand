@@ -1,4 +1,4 @@
-var socket = io.connect(io_host);
+var socket = io.connect();
 $(window).scroll(function() {
 	var windscroll = $(window).scrollTop();
 	if (windscroll >= 100) {

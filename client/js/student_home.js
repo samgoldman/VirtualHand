@@ -1,4 +1,4 @@
-var socket = io.connect(io_host);
+var socket = io.connect();
 
 socket.on('HandRemoved', function(data) {
 	var class_list = document.getElementById('class_selector'), classes = class_list.getElementsByTagName('option');
