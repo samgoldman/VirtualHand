@@ -63,11 +63,14 @@ function getHands() {
 	var select = document.getElementById('class_selector'), options = select.getElementsByTagName('option'), values = [];
 
 	document.getElementById('student_list').innerHTML = "";
+	document.getElementById('randomStudentButtons').innerHTML = "";
 	updateDivs();
 
 	for (var i = options.length; i--;) {
-		if (options[i].selected)
+		if (options[i].selected){
 			values.splice(-1, 0, options[i].value);
+			document.getElementById('randomStudentButtons').innerHTML = '<div onclick="getRandomStudent(\''+options[i].value+'\')" unselectable="on" class="unselectable listItem">'+options[i].innerHTML+'</div><br />' + document.getElementById('randomStudentButtons').innerHTML;
+		}
 	}
 
 	socket.emit("GetHandsForClasses", {
@@ -76,6 +79,22 @@ function getHands() {
 		user_id : document.getElementById("user_id").value
 	});
 }
+
+function getRandomStudent(class_id){
+	socket.emit("GetRandomStudent", {classes:[class_id]})
+}
+
+socket.on("SendRandomStudent", function(data){
+	if(document.getElementById('random_student') != null){
+		document.getElementById('random_student').innerHTML = 'Random student: ' + data.randomStudentName
+	}
+	else{
+		var html = '<div id="random_student" class="alert alert-info alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>	  Random student: '+data.randomStudentName+'</div>'
+		document.getElementById('randomStudentButtons').innerHTML += html;
+	}
+	
+	
+});
 
 function updateDivs() {
 	var options = document.getElementById('student_list').getElementsByTagName('option');
