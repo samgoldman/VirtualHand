@@ -6,7 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 // load up the user model
 var User = require('../app/models/user');
 
-var ActionLog = require('../app/models/action_log')
+var Action_Log = require('../app/models/action_log')
 
 var Handler = require('../app/action_log_handler');
 
