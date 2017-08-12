@@ -45,3 +45,31 @@ require('./app/io.js')(io);
 server.listen(port, function () {
   console.log('Example app listening on port '+port+'!')
 });
+
+var User = require('./app/models/user.js');
+
+User.findOne({
+	'username' : 'admin'
+}, function(err, user) {
+	// if there are any errors, log the error
+	if (err) {
+		return;
+	}
+
+	// check to see if theres already a user with that email
+	if (user) {
+		return;
+	} else {
+		var newUser = new User();
+		
+		// set the admin's credentials
+		newUser.username = 'admin';
+		// All admins should change this password right away
+		newUser.password = newUser.generateHash(process.env.ADMIN_INITIAL_PASSWORD);
+		newUser.is_admin = true;
+
+		// save the user
+		newUser.save(function(err) {});
+	}
+
+});

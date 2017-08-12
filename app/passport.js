@@ -219,7 +219,7 @@ module.exports = function(passport) {
 			// return the message
 			if (!user || !user.validPassword(password))
 				return done(null, false, req.flash('loginMessage',
-						'Username/password combo doesn not exist.')); // req.flash
+						'That username/password combination does not exist.')); // req.flash
 			// is
 			// the
 			// way
