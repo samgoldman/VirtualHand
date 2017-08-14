@@ -401,7 +401,7 @@ module.exports = function(io) {
 		 *            collection of IO_Params provided by socket.io
 		 */
 		socket.on('GetRandomStudent', function(data){
-			sendRandomStudent(socket, data.classes)
+			sendRandomStudent(socket, data.classes);
 		});
 	});
 
@@ -1473,10 +1473,16 @@ module.exports = function(io) {
 				Handler.create_action_log_and_handle('Database Error', 1, 'io.js:sendRandomStudent', err);
 			}
 			var count = hands.length
-			var random = Math.floor(Math.random() * count)
-			socket.emit('SendRandomStudent', {
-				randomStudentName:hands[random].user.username
-			});
+			if(count > 0){
+				var random = Math.floor(Math.random() * count)
+				socket.emit('SendRandomStudent', {
+					randomStudentName:hands[random].user.username
+				});
+			} else {
+				socket.emit('SendRandomStudent', {
+					randomStudentName:'Class is empty!'
+				});
+			}
 		});
 	}
 
