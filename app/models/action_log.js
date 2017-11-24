@@ -4,18 +4,18 @@ var deepPopulate = require('mongoose-deep-populate');
 
 // define the schema for our action_log model
 var action_LogSchema = mongoose.Schema({
-	//Time stamp for when the action occured
+	//Time stamp for when the action occurred
 	time_stamp : {type: Date, default: Date.now},
 	//A short description of the action
 	title : String,
 	//Where the action was created
 	author : String,
 	//Current two states:
-	//0 = action, no notificiation needed
-	//1 = error, notify admins immediatly
+	//0 = action, no notification needed
+	//1 = error, notify admins immediately
 	alert_level : Number,
 	//The message for the actions
-	message : String,
+	message : String
 });
 
 action_LogSchema.pre('save', function(next){

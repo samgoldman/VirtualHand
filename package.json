@@ -1,14 +1,12 @@
 {
-  "name": "node-authentication",
+  "name": "virtual_hand",
   "main": "server.js",
   "dependencies": {
     "bcrypt-nodejs": "latest",
     "body-parser": "^1.14.1",
-    "config": "^1.25.1",
     "connect-flash": "~0.1.1",
-    "ejs": "~0.8.5",
     "express": "^3.4.8",
-    "mongoose": "~3.8.1",
+    "mongoose": "4.13.4",
     "mongoose-deep-populate": "1.1.0",
     "nodemailer": "1.4.0",
     "passport": "~0.1.17",
@@ -16,8 +14,7 @@
     "pug": "^2.0.0-beta10",
     "randomstring": "^1.1.0",
     "request": "^2.66.0",
-    "socket.io": "^1.3.6",
-    "stripe": "4.0.0"
+    "socket.io": "^1.3.6"
   },
   "scripts": {
     "start": "node server.js"
