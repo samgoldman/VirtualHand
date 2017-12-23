@@ -49,32 +49,24 @@ module.exports = function (passport) {
                 newUser.password = newUser.generateHash(password);
                 newUser.email = req.body.email;
 
-                if (req.body.account_type === "student") {
-                    return done(null, false, req.flash('signupMessage', 'You must select a school or create a new one if you are a teacher.'));
-                } else {
-                    if (req.body.account_type === "teacher") {
-
+                if (req.body.account_type === "teacher") {
                         newUser.is_admin = false;
                         newUser.is_teacher = true;
                         newUser.is_student = false;
-                    } else {
-                        newUser.school = req.body.school;
-                        newUser.is_admin = false;
-                        newUser.is_teacher = false;
-                        newUser.is_student = true;
-                    }
-
-                    newUser.save(function (err) {
-                        if (err) {
-                            return done(err, newUser);
-                        } else {
-                            return done(null, newUser);
-                        }
-                    });
+                } else {
+                    newUser.is_admin = false;
+                    newUser.is_teacher = false;
+                    newUser.is_student = true;
                 }
 
+                newUser.save(function (err) {
+                    if (err) {
+                        return done(err, newUser);
+                    } else {
+                        return done(null, newUser);
+                    }
+                });
             }
-
         });
     }));
 
