@@ -2,8 +2,8 @@
 // load the things we need
 var mongoose = require('mongoose'), Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
-var Class = require('./class');
-var deepPopulate = require('mongoose-deep-populate');
+var Room = require('./room').model;
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 // define the schema for our user model
 var userSchema = mongoose.Schema({
@@ -11,8 +11,8 @@ var userSchema = mongoose.Schema({
 	username : String,
 	password : String,
 	email : String,
-	student_classes : [{type : Schema.Types.ObjectId, ref: 'Class'}],
-	teacher_classes : [{type : Schema.Types.ObjectId, ref: 'Class'}],
+	student_classes : [{type : Schema.Types.ObjectId, ref: 'Room'}],
+	teacher_classes : [{type : Schema.Types.ObjectId, ref: 'Room'}],
 	metaData : [{
 	    name : String,
 	    message : String,
@@ -21,16 +21,13 @@ var userSchema = mongoose.Schema({
 	last_login : String,
 	time_stamp : {type: Date, default: Date.now},
 	
-	is_admin : Boolean, // Use more
-	is_student : Boolean, // Implement
-	is_teacher : Boolean, // Implement
-
-	school : String, // Eventually Delete
+	is_admin : Boolean,
+	is_student : Boolean,
+	is_teacher : Boolean
 });
 
 userSchema.pre('save', function(next){
-	  now = new Date();
-	  this.time_stamp = now;
+	  this.time_stamp = new Date();
 	  next();
 });
 
@@ -48,4 +45,4 @@ userSchema.methods.validPassword = function(password) {
 };
 
 // create the model for users and expose it to our app
-module.exports = mongoose.model('User', userSchema);
+module.exports = { model: mongoose.model('User', userSchema)};

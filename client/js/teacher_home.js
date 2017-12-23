@@ -5,7 +5,7 @@ var socket = io();
 // sending students for given class)
 socket.on('SendHandsForClasses', function(data) {
 	// Verify this data belongs to this session (old and unneccessary, I think)
-	if (data.id == document.getElementById("session_id").value) {
+	if (data.id === document.getElementById("session_id").value) {
 		// Add the option element sent to the document (Should stop sending
 		// options and build them here)
 		document.getElementById("student_list").innerHTML += data.hand;
@@ -21,7 +21,7 @@ socket.on('HandRemoved', function(data) {
 	.getElementById('student_list'), students = student_list.getElementsByTagName('option');
 
 	for (var j = 0; j < students.length; j++) {
-		if (students[j].value == data.hand_state) {
+		if (students[j].value === data.hand_state) {
 			student_list.remove(j);
 			updateDivs();
 		}
@@ -34,7 +34,7 @@ socket.on('HandStateChange', function(data) {
 	var class_list = document.getElementById('class_selector'), classes = class_list.getElementsByTagName('option');
 
 	for (var i = 0; i < classes.length; i++) {
-		if (classes[i].value == data.class_id && classes[i].selected) {
+		if (classes[i].value === data.class_id && classes[i].selected) {
 			if (data.hand_state) {
 				var option = document.createElement("option");
 				option.text = data.username;
@@ -47,7 +47,7 @@ socket.on('HandStateChange', function(data) {
 				}
 			} else {
 				for (var j = 0; j < students.length; j++) {
-					if (students[j].value == data.hand_state_id) {
+					if (students[j].value === data.hand_state_id) {
 						student_list.remove(j);
 						updateDivs();
 					}
@@ -69,7 +69,7 @@ function getHands() {
 	for (var i = options.length; i--;) {
 		if (options[i].selected){
 			values.splice(-1, 0, options[i].value);
-			document.getElementById('randomStudentButtons').innerHTML = '<div onclick="getRandomStudent(\''+options[i].value+'\')" unselectable="on" class="unselectable listItem">'+options[i].innerHTML+'</div><br />' + document.getElementById('randomStudentButtons').innerHTML;
+			document.getElementById('randomStudentButtons').innerHTML = '<div onclick="getRandomStudent(\''+options[i].value+'\')" class="unselectable listItem">'+options[i].innerHTML+'</div><br />' + document.getElementById('randomStudentButtons').innerHTML;
 		}
 	}
 
@@ -85,12 +85,11 @@ function getRandomStudent(class_id){
 }
 
 socket.on("SendRandomStudent", function(data){
-	if(document.getElementById('random_student') != null){
-		document.getElementById('random_student').innerHTML = 'Random student: ' + data.randomStudentName
+	if(document.getElementById('random_student') !== null){
+		document.getElementById('random_student').innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ' + data.randomStudentName
 	}
 	else{
-		var html = '<div id="random_student" class="alert alert-info alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>	  Random student: '+data.randomStudentName+'</div>'
-		document.getElementById('randomStudentButtons').innerHTML += html;
+        document.getElementById('randomStudentButtons').innerHTML += '<div id="random_student" class="alert alert-info alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: '+data.randomStudentName+'</div>';
 	}
 	
 	
@@ -114,7 +113,7 @@ function updateDivs() {
 }
 
 function putDownHand() {
-	var select = document.getElementById('student_list'), options = select.getElementsByTagName('option'), value;
+	var select = document.getElementById('student_list'), options = select.getElementsByTagName('option');
 
 	for (var i = options.length; i--;) {
 		if (options[i].selected) {
@@ -141,15 +140,15 @@ function KeyPress(e) {
 		keynum = e.which;
 	}
 	var key = String.fromCharCode(keynum);
-	if (key == '1') {
+	if (key === '1') {
 		handDown(0);
-	} else if (key == '2') {
+	} else if (key === '2') {
 		handDown(1);
-	} else if (key == '3') {
+	} else if (key === '3') {
 		handDown(2);
-	} else if (key == '4') {
+	} else if (key === '4') {
 		handDown(3);
-	} else if (key == '5') {
+	} else if (key === '5') {
 		handDown(4);
 	}
 }
@@ -228,7 +227,7 @@ setTimeout(function() {
 // == Student & Class Management Code =================
 // ====================================================
 socket.on('SendAdmittedHand', function(data) {
-	if (data.id == document.getElementById("session_id").value) {
+	if (data.id === document.getElementById("session_id").value) {
 		document.getElementById("student_list_manage").innerHTML += data.hand;
 		if (document.getElementById("student_list_manage").length > 1) {
 			sortList();
@@ -240,7 +239,7 @@ socket.on('HandRemoved', function(data) {
 	var student_list = document.getElementById('student_list_manage'), students = student_list.getElementsByTagName('option');
 
 	for (var j = 0; j < students.length; j++) {
-		if (students[j].value == data.hand_state) {
+		if (students[j].value === data.hand_state) {
 			student_list.remove(j);
 		}
 	}
@@ -279,7 +278,7 @@ function getAllHands() {
 			values.splice(-1, 0, options[i].value);
 	}
 
-	if (values.length != 0) {
+	if (values.length !== 0) {
 		document.getElementById('navbar').style.display = 'block';
 	}
 
@@ -312,11 +311,11 @@ socket.on('HandStateChange', function(data) {
 	var class_list = document.getElementById('class_selector_manage'), classes = class_list.getElementsByTagName('option');
 
 	for (var i = 0; i < classes.length; i++) {
-		if (classes[i].value == data.class_id) {
+		if (classes[i].value === data.class_id) {
 			if (data.hand_admitted) {
 				var contains = false;
 				for (var j = 0; j < students.length; j++) {
-					if (students[j].value == data.hand_state_id) {
+					if (students[j].value === data.hand_state_id) {
 						contains = true;
 					}
 				}
@@ -328,7 +327,7 @@ socket.on('HandStateChange', function(data) {
 				}
 			} else {
 				for (var j = 0; j < students.length; j++) {
-					if (students[j].value == data.hand_state_id) {
+					if (students[j].value === data.hand_state_id) {
 						student_list.remove(j);
 					}
 				}
@@ -362,9 +361,8 @@ socket.on('ChangeClassNameResponse', function(data) {
 });
 
 function activate(num) {
-	var i = 0;
-	for (i = 0; i < 4; i++) {
-		if (i == num) {
+	for (var i = 0; i < 4; i++) {
+		if (i === num) {
 			document.getElementById("nav_" + i).className = "active";
 			document.getElementById("div_" + i).style.display = "block";
 		} else {
@@ -388,20 +386,20 @@ socket.on('ChangeClassKeyResponse', function(data) {
 function changeKey() {
 	socket.emit('ChangeClassKey', {
 		class_id : document.getElementById('class_selector_manage').value,
-		newkey : document.getElementById('newkey').value,
+		newkey : document.getElementById('newkey').value
 	});
 }
 
 function processStudents2() {
-	if (document.getElementById('class_selector_manage').value == "" || document.getElementById('class_selector_manage').value == null) {
+	if (document.getElementById('class_selector_manage').value === "" || document.getElementById('class_selector_manage').value === null) {
 		document.getElementById('enrollAlert').innerHTML += "Please select a class before continuing.</br>";
-	} else if (document.getElementById('defaultpassword').value == null) {
+	} else if (document.getElementById('defaultpassword').value === null) {
 		document.getElementById('enrollAlert').innerHTML += " Please select a default password before continuing.</br>";
 	} else {
 		var students = document.getElementById("csv").value.split(",");
 		var num = students.length;
 		for (var i = 0; i < num; i++) {
-			if (students[i] == "") {
+			if (students[i] === "") {
 				continue;
 			}
 			setTimeout(emitCreate, i * 1000, students[i], document.getElementById('class_selector_manage').value, document.getElementById('user_id').value, document.getElementById('defaultpassword').value, document
@@ -430,9 +428,9 @@ socket.on('TeacherCreateStudentResponse', function(data) {
 
 function sortList() {
 	var list = document.getElementById("student_list_manage");
-	var listTexts = new Array();
+	var listTexts = [];
 
-	for (i = 0; i < list.length; i++) {
+	for (var i = 0; i < list.length; i++) {
 		listTexts[i] = list.options[i].text + "," + list.options[i].text + "," + list.options[i].value + "," + list.options[i].selected;
 	}
 
@@ -443,7 +441,7 @@ function sortList() {
 
 		list.options[i].text = parts[1];
 		list.options[i].value = parts[2];
-		list.options[i].selected = (parts[3] == "true");
+		list.options[i].selected = (parts[3] === "true");
 	}
 }
 function submitChangePass() {

@@ -7,27 +7,12 @@ function createMessage() {
 	});
 }
 
-function getLogFiles() {
-	socket.emit('GetLogFileNames', {});
-}
-
 if (!String.prototype.includes) {
 	String.prototype.includes = function() {
 		'use strict';
 		return String.prototype.indexOf.apply(this, arguments) !== -1;
 	};
 }
-
-socket.on('SendLogFileNames', function(data) {
-	var files = data.list;
-	for (var i = 0; i < files.length; i++) {
-		if (files[i].includes('app-') || files[i].includes('debug-')) {
-			var seconds = files[i].substring(files[i].indexOf("-") + 1, files[i].indexOf('.'));
-			var date = new Date(Math.round(seconds));
-			document.getElementById('logs').innerHTML += '<a href="/get_log?q=' + files[i] + '" >' + files[i].substring(0, files[i].indexOf('-')) + ': ' + date.toString() + '</a></br>';
-		}
-	}
-});
 
 function getUserCount() {
 	socket.emit('GetLoggedInCount', {});

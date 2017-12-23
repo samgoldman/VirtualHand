@@ -4,14 +4,14 @@ socket.on('HandRemoved', function(data) {
 	var class_list = document.getElementById('class_selector'), classes = class_list.getElementsByTagName('option');
 
 	for (var j = 0; j < classes.length; j++) {
-		if (classes[j].value == data.hand_state) {
+		if (classes[j].value === data.hand_state) {
 			class_list.remove(j);
 		}
 	}
 });
 
 socket.on('SendInitialHand', function(data) {
-	if (data.id == document.getElementById("session_id").value) {
+	if (data.id === document.getElementById("session_id").value) {
 		if (data.hand_admitted) {
 			if (data.hand_state) {
 				document.getElementById("hand_status").innerHTML = "Your hand is: UP";
@@ -35,7 +35,7 @@ socket.on('HandStateChange', function(data) {
 			value = options[i].value;
 	}
 
-	if (value == data.hand_state_id) {
+	if (value === data.hand_state_id) {
 		document.getElementById("handchangebutton").disabled = false;
 		if (data.hand_state) {
 			document.getElementById("hand_status").innerHTML = "Your hand is: UP";
@@ -116,9 +116,9 @@ function toggleEnroll() {
 }
 
 socket.on('EnrollResponse', function(data) {
-	if (data.id == document.getElementById("session_id").value) {
+	if (data.id === document.getElementById("session_id").value) {
 		if (data.message.indexOf("Success") > -1) {
-			setTimeout(window.location.reload(), 10);
+			setTimeout(window.location.reload, 10);
 		} else {
 			alert(data.message);
 		}
@@ -129,6 +129,6 @@ function enroll() {
 	socket.emit("Enroll", {
 		id : document.getElementById("session_id").value,
 		user_id : document.getElementById("user_id").value,
-		class_key : document.getElementById("class_key").value,
+		class_key : document.getElementById("class_key").value
 	});
 }

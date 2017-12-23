@@ -1,29 +1,13 @@
-.row-eq-height {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-}
-
 *.unselectable {
 	-moz-user-select: -moz-none;
-	-khtml-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
 	cursor: default;
 }
 
-*.def_cursor {
-	cursor: default;
-}
-
 .navbar-default {
 	background-color: #ffffff;
-}
-
-.navbar-default .navbar-brand {
-	font-size: 28px;
 }
 
 .navbar-default .navbar-nav>li>a {
@@ -44,24 +28,15 @@
 		color: #ffffff;
 		background-color: #262525;
 	}
-	.vh_logo {
-		max-width: 60%;
-	}
 }
 
-.btn-default, .nav-btn {
-	color: #77cc77;
-	font-size: 16px;
-}
-
-h1, h2, h3, a, p, .navbar-brand {
+h1, h2, h3, a, p {
 	font-family: 'Arvo', serif;
 }
 
-.header {
-	color: #36A0FF;
-	font-size: 27px;
-	padding: 10px;
+.btn-default {
+	color: #77cc77;
+	font-size: 16px;
 }
 
 .bigicon {

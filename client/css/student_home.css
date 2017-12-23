@@ -1,5 +1,5 @@
 body {
-	padding-top: 0px;
+	padding-top: 0;
 }
 
 * {
@@ -9,10 +9,6 @@ body {
 
 html, body {
 	height: 100%;
-}
-
-#wrap {
-	min-height: 100%;
 }
 
 #main {

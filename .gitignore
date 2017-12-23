@@ -14,6 +14,8 @@ results
 npm-debug.log
 node_modules
 
-config/secretDatabase.js
-config/secretAuth.js
-views/archived_views
+.gitignore
+
+.settings
+.project
+run.bat
