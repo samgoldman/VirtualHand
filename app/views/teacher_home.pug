@@ -19,17 +19,13 @@ html
         div(id="main", class="container", style="")
             .col-xs-12.col-lg-6.col-lg-offset-3
                 h1 Welcome #{user.username}!
-                if message.length > 0
-                    div(class="alert alert-info")
-                        p #{message}
-                input(type="hidden" value=session.id id="session_id")
                 input(type="hidden" value=user.id id="user_id")
                 div(class="col-sm-6", style="")
                     h3(class="center_text") Select a class:
                     form
                         select(multiple, size="5", id="class_selector", class="form-control", onchange="getHands()")
-                            each teacher_class in user.teacher_classes
-                                option(value=teacher_class.id) #{teacher_class.classname}
+                            each course in courses
+                                option(value=course.id) #{course.courseName}
                     br
                     h5(class="center_text") Select a random student:
                     div(id="randomStudentButtons")
@@ -100,12 +96,11 @@ html
                         button(type="button" class="close" data-dismiss="modal" aria-label="Close") <span aria-hidden="true">&times;</span>
                         h4(class="modal-title" id="studentManagementModalTitle") Manage Students
                     div(class="modal-body")
-                        input(type="hidden" value=user.school id="user_school")
                         h3(class="center_text") Select a class:
                         form
                             select(size="5" id="class_selector_manage" class="form-control" onchange="getAllHands()")
-                                each teacher_class in user.teacher_classes
-                                    option(value=teacher_class.id) #{teacher_class.classname}
+                                each course in courses
+                                    option(value=course.id) #{course.courseName}
                             br
                             br
                         nav(id="navbar", class="navbar navbar-default", style="display: none")

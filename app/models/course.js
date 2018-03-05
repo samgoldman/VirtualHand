@@ -7,14 +7,21 @@ var User = require('./user');
 var courseSchema = mongoose.Schema({
     courseName: String,
     courseKey: String,
-    teacher : [{type : mongoose.Schema.Types.ObjectId, ref : 'User'}],
+    teacher : {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 
 courseSchema.pre('save', function(next){
-	  this.timestamp = new Date();
-	  next();
+    this.timestamp = new Date();
+    next();
 });
 
+courseSchema.statics.taughtBy = function taughtBy(user) {
+    var Course = this;
+    return Course.find({teacher : user._id});
+};
+
 // create the model for users and expose it to our app
-module.exports = { model: mongoose.model('Course', courseSchema)};
+module.exports = {
+    model: mongoose.model('Course', courseSchema),
+};

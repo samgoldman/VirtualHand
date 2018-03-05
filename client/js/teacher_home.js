@@ -4,12 +4,9 @@ var socket = io();
 // Call this when the server sends io packet 'SendHandsForClasses' (basically
 // sending students for given class)
 socket.on('SendHandsForClasses', function(data) {
-	// Verify this data belongs to this session (old and unneccessary, I think)
-	if (data.id === document.getElementById("session_id").value) {
-		// Add the option element sent to the document (Should stop sending
-		// options and build them here)
-		document.getElementById("student_list").innerHTML += data.hand;
-	}
+	// Add the option element sent to the document (Should stop sending
+	// options and build them here)
+	document.getElementById("student_list").innerHTML += data.hand;
 	// Call to update the page
 	updateDivs();
 });
@@ -74,7 +71,6 @@ function getHands() {
 	}
 
 	socket.emit("GetHandsForClasses", {
-		id : document.getElementById("session_id").value,
 		classes : values,
 		user_id : document.getElementById("user_id").value
 	});
@@ -227,11 +223,9 @@ setTimeout(function() {
 // == Student & Class Management Code =================
 // ====================================================
 socket.on('SendAdmittedHand', function(data) {
-	if (data.id === document.getElementById("session_id").value) {
-		document.getElementById("student_list_manage").innerHTML += data.hand;
-		if (document.getElementById("student_list_manage").length > 1) {
-			sortList();
-		}
+	document.getElementById("student_list_manage").innerHTML += data.hand;
+	if (document.getElementById("student_list_manage").length > 1) {
+		sortList();
 	}
 });
 
@@ -289,7 +283,6 @@ function getAllHands() {
 	});
 
 	socket.emit("GetAllHandsForClasses", {
-		id : document.getElementById("session_id").value,
 		classes : values,
 		user_id : document.getElementById("user_id").value
 	});
