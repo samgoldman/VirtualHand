@@ -1,10 +1,10 @@
 // app/models/course.js
 // load the things we need
-var mongoose = require('mongoose');
-var User = require('./user');
+let mongoose = require('mongoose');
+let User = require('./user');
 
 // define the schema for our user model
-var courseSchema = mongoose.Schema({
+let courseSchema = mongoose.Schema({
     courseName: String,
     courseKey: String,
     teacher : {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
@@ -17,11 +17,11 @@ courseSchema.pre('save', function(next){
 });
 
 courseSchema.statics.taughtBy = function taughtBy(user) {
-    var Course = this;
-    return Course.find({teacher : user._id});
+	let Course = this;
+	return Course.find({teacher: user._id}).sort('courseName');
 };
 
 // create the model for users and expose it to our app
 module.exports = {
-    model: mongoose.model('Course', courseSchema),
+	model: mongoose.model('Course', courseSchema)
 };

@@ -1,0 +1,6 @@
+script
+    include ./class_selector.js
+select(size="5", id="class_selector", class="form-control")
+    each enrollment in enrollments
+        if enrollment.admitted
+            option(value=enrollment.course._id) #{enrollment.course.courseName}

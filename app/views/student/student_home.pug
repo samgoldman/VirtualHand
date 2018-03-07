@@ -2,46 +2,39 @@ doctype html
 html
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no")
     head
-        title Virtual Hand Teacher Home
+        title Virtual Hand Student Home
 
         link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
         link(rel="stylesheet", href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css")
         script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
         script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+
         style
-            include ../../../client/css/teacher_home.css
+            include ../../../client/css/student_home.css
         script
             include ../../../client/js/google_analytics.js
         script(src="/socket.io/socket.io.js")
         script.
 			let socket = io();
-        script
-            include ./keypress.js
     body
-        input(type="hidden" value=user.id id="user_id")
+        input(type="hidden", value=user.id, id="user_id")
         div(id="main").container
-            .col-xs-12.col-lg-6.col-lg-offset-3
-                h1(align="center") Welcome #{user.username}!
-                div.col-sm-6
-                    include ./class_selector
-                    include ./assistance_request_list_module
-                div.col-sm-6
-                    include ./random_student_selector
-                .col-xs-12
-                    button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
+            .row
+                .col-sm-6.col-sm-offset-3
+                    a(href="https://github.com/samg2014/VirtualHand", target="_blank")
+                        img(style="position: absolute; top: 0; right: 0; border: 0;", src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67", alt="Fork me on GitHub", data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png")
+
+                    h1 Welcome #{user.username}!
                     br
-                .col-xs-12.col-lg-6
-                    button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal", disabled="disabled").btn.btn-info.btn-block.management_button Rename a Class
-                    button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Add Students
                     br
-                .col-xs-12.col-lg-6
-                    button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal", disabled="disabled").btn.btn-info.btn-block.management_button Class Key
-                    button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Manage Students
-                    br
-                .col-xs-12
+                    include class_selector
+                    hr
+                    include requester_module
+
+                    hr
+                    button(id="enroll_button", data-toggle="modal", data-target=".enroll-modal").btn.btn-success.btn-block Enroll in a Class
                     button(id="change_password_button", data-toggle="modal", data-target=".change-password-modal").btn.btn-info.btn-block Change Password
                     a(href="/logout").btn.btn-warning.btn-block Logout
-
         mixin modal(i, h)
             -var mid = i, header = h;
             div(class=mid, tabindex="-1", role="dialog").modal.fade
@@ -58,15 +51,8 @@ html
                                 p Oops
                         .model-footer
                             button(type="button", data-dismiss="modal").btn.btn-block.btn-warning Close
-        +modal("create-class-modal", "Create Class")
-            include ./add_class_module
+
         +modal("change-password-modal", "Change Password")
             include ../shared/change_password_module
-        +modal("rename-class-modal", "Rename Class")
-            include ./rename_class_module
-        +modal("add-students-modal", "Add Students")
-            include ./add_students_module
-        +modal("manage-students-modal", "Manage Students")
-            include ./manage_students_module
-        +modal("class-key-modal", "Class Key")
-            include ./course_key_module
+        +modal("enroll-modal", "Enroll in a Class")
+            include ./enroll_module

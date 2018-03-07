@@ -1,38 +1,32 @@
-var pug = require('pug');
-var path = require('path');
-var fs = require('fs');
-var Course = require('./models/course').model;
-var Enrollment = require('./models/enrollment').model;
+let pug = require('pug');
+let path = require('path');
+let fs = require('fs');
+let Course = require('./models/course').model;
+let Enrollment = require('./models/enrollment').model;
 
 module.exports = function(app, passport) {
-    const studentHomePage = pug.compileFile('./app/views/student_home.pug', undefined);
-    const teacherHomePage = pug.compileFile('./app/views/teacher_home.pug', undefined);
-    const genericHomePage = pug.compileFile('./app/views/generic_home.pug', undefined);
+	const studentHomePage = pug.compileFile('./app/views/student/student_home.pug', undefined);
+	const teacherHomePage = pug.compileFile('./app/views/teacher/teacher_home.pug', undefined);
     const landingPage = pug.compileFile('./app/views/landing.pug', undefined);
     const loginPage = pug.compileFile('./app/views/login.pug', undefined);
     const signupPage = pug.compileFile('./app/views/signup.pug', undefined);
     const passwordRecoveryPage = pug.compileFile('./app/views/password_recovery.pug', undefined);
 
-    var dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
-    var stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
-    var vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
+	let dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
+	let stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
+	let vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
 
     app.get('/home', isLoggedIn, function(req, res){
-        var result = Enrollment.getEnrolled(req.user)
-            .then(function(enrolled) {
-                if (enrolled.length > 0)
-                    res.send(renderStudentHome(req));
-                else
-                    return Course.taughtBy(req.user);
-            });
-
-        if (result) {
-            result.then(function(courses) {
-                if (courses.length > 0)
-                    res.send(renderTeacherHome(req, courses));
-                else
-                    res.send(renderGenericHome(req));
-            });
+		if (req.user.role === 'teacher') {
+			Course.find({teacher: req.user._id}).sort('courseName')
+				.then(function (courses) {
+					res.send(renderTeacherHome(req, courses));
+				})
+		} else if (req.user.role === 'student') {
+			Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
+				.then(function (enrollments) {
+					res.send(renderStudentHome(req, enrollments));
+				});
         }
     });
 
@@ -47,7 +41,7 @@ module.exports = function(app, passport) {
     });
 
     app.get('/login', isNotLoggedIn, function(req, res) {
-        res.send(pug.renderFile('./app/views/login.pug', {
+		res.send(loginPage({
             message : req.flash('loginMessage')
         }));
     });
@@ -79,7 +73,7 @@ module.exports = function(app, passport) {
         res.set({
             'Content-Type' : 'image/png'
         });
-        var readStream = fs.createReadStream(stlLogoFilepath);
+		let readStream = fs.createReadStream(stlLogoFilepath);
         readStream.pipe(res);
     });
 
@@ -87,7 +81,7 @@ module.exports = function(app, passport) {
         res.set({
             'Content-Type' : 'image/png'
         });
-        var readStream = fs.createReadStream(vhLogoFilepath);
+		let readStream = fs.createReadStream(vhLogoFilepath);
         readStream.pipe(res);
     });
 
@@ -95,28 +89,23 @@ module.exports = function(app, passport) {
         res.set({
             'Content-Type' : 'audio/mpeg'
         });
-        var readStream = fs.createReadStream(dingFilepath);
+		let readStream = fs.createReadStream(dingFilepath);
         readStream.pipe(res);
     });
 
-    function renderStudentHome(req){
-        return studentHomePage({
-            user : req.user
-        });
+	function renderStudentHome(req, enrollments) {
+		let renderData = {};
+		renderData.user = req.user;
+		renderData.enrollments = enrollments;
+		return studentHomePage(renderData);
     }
 
     function renderTeacherHome(req, courses){
-        var renderData = {};
+		let renderData = {};
         renderData.user = req.user;
         renderData.courses = courses;
 
-        return pug.renderFile('./app/views/teacher/teacher_home.pug', renderData);
-    }
-
-    function renderGenericHome(req){
-        return genericHomePage({
-            user : req.user
-        });
+		return teacherHomePage(renderData);
     }
 };
 

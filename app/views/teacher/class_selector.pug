@@ -1,7 +1,5 @@
 script
     include ./class_selector.js
-h3(class="center_text") Select a class:
-form
-    select(multiple, size="5", id="class_selector", class="form-control")
-        each course in courses
-            option(value=course.id) #{course.courseName}
+select(multiple, size="4", id="class_selector", class="form-control")
+    each course in courses
+        option(value=course.id) #{course.courseName}

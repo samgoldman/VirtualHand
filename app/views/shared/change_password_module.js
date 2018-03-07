@@ -12,7 +12,5 @@ socket.on('Response_PasswordChange', function(data) {
 });
 
 window.addEventListener("load", function(){
-	$('#changePasswordSubmit').each(function(){
-		this.addEventListener('click', ChangePasswordClicked);
-	});
+	document.getElementById("changePasswordSubmit").addEventListener('click', ChangePasswordClicked);
 });
