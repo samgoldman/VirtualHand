@@ -2,7 +2,7 @@ script
     include ./assistance_request_list_module.js
 div.well
     - for(var i = 0; i < 5; i++)
-    - var lid="listItem"+i, onclick="handDown("+i+")";
-        div(id=lid, onclick=onclick).unselectable.listItem
-        if i < 4
-            br
+        - var id="listItem"+i, onclick="handDown("+i+")";
+            div(id=id, onclick=onclick).unselectable.listItem
+            if i<4
+                br
