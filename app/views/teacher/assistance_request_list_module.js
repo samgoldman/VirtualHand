@@ -9,7 +9,7 @@ socket.on('Response_RetrieveAssistanceRequests', function (data) {
 
 	if (requests.length > numRequests) {
 		if (document.getElementById("audioCheck").checked) {
-			var ding = document.getElementById("ding");
+			let ding = document.getElementById("ding");
 			ding.play();
 		}
 	}
@@ -39,3 +39,31 @@ function handDown(index) {
 function RetrieveAssistanceRequests() {
 	socket.emit('Request_RetrieveAssistanceRequests', {cids: getSelectedClassIds(), qty: 5});
 }
+
+function KeyDownHandler(e) {
+	let keynum;
+
+	if (window.event) { // IE
+		keynum = e.keyCode;
+	} else if (e.which) { // Netscape/Firefox/Opera
+		keynum = e.which;
+	}
+	let key = String.fromCharCode(keynum);
+	if (key === '1') {
+		handDown(0);
+	} else if (key === '2') {
+		handDown(1);
+	} else if (key === '3') {
+		handDown(2);
+	} else if (key === '4') {
+		handDown(3);
+	} else if (key === '5') {
+		handDown(4);
+	} else if (key === 'r') {
+		RequestRandomStudent(getSelectedClassId());
+	}
+}
+
+window.addEventListener("load", function(){
+	document.body.addEventListener('keyup', KeyDownHandler);
+});

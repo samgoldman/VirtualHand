@@ -15,8 +15,7 @@ html
         script(src="/socket.io/socket.io.js")
         script.
             let socket = io();
-        script
-            include ./keypress.js
+            console.log(socket);
     body
         input(type="hidden" value=user.id id="user_id")
         div(id="main").container
