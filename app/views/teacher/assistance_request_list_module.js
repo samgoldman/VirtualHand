@@ -8,10 +8,10 @@ socket.on('Response_RetrieveAssistanceRequests', function (data) {
 	let requests = data.requests;
 
 	if (requests.length > numRequests) {
-		// if (document.getElementById("audioCheck").checked) {
-		// 	var ding = document.getElementById("ding");
-		// 	ding.play();
-		// }
+		if (document.getElementById("audioCheck").checked) {
+			var ding = document.getElementById("ding");
+			ding.play();
+		}
 	}
 
 	numRequests = requests.length;
