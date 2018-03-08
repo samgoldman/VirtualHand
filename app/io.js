@@ -321,15 +321,11 @@ module.exports = function (io) {
 			});
 	}
 
-	function generateCourseKey() {
-		return (Math.floor(Math.random() * 1000000000) + parseInt(Date.now() / 1000)).toString(36).toUpperCase().substring(0, 6);
-	}
-
 	function retrieveCourseKey(socket, cid) {
 		Course.findById(cid)
 			.then(function (course) {
 				if (!course.courseKey || course.courseKey === "") {
-					course.courseKey = generateCourseKey();
+					course.courseKey = Course.generateCourseKey();
 					course.save();
 				}
 				socket.emit('Response_RetrieveCourseKey', {cid: course._id, key: course.courseKey});
@@ -340,7 +336,7 @@ module.exports = function (io) {
 	}
 
 	function assignNewCourseKey(socket, cid) {
-		Course.findById(cid).update({courseKey: generateCourseKey()})
+		Course.findById(cid).update({courseKey: Course.generateCourseKey()})
 			.then(function () {
 				socket.emit('Response_AssignNewCourseKey', {success: true});
 			})
