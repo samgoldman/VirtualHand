@@ -5,15 +5,15 @@ let User = require('./user');
 
 // define the schema for our user model
 let courseSchema = mongoose.Schema({
-    courseName: String,
-    courseKey: String,
-    teacher : {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
-    timestamp: {type: Date, default: Date.now}
+	courseName: String,
+	courseKey: String,
+	teacher: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+	timestamp: {type: Date, default: Date.now}
 });
 
-courseSchema.pre('save', function(next){
-    this.timestamp = new Date();
-    next();
+courseSchema.pre('save', function (next) {
+	this.timestamp = new Date();
+	next();
 });
 
 courseSchema.statics.taughtBy = function taughtBy(user) {

@@ -1,9 +1,9 @@
 script
-    include ./assistance_request_list_module.js
+	include ./assistance_request_list_module.js
 include audio_module
 div.well
-    - for(var i = 0; i < 5; i++)
-        - var id="listItem"+i, onclick="handDown("+i+")";
-            div(id=id, onclick=onclick).unselectable.listItem
-            if i<4
-                br
+	- for(var i = 0; i < 5; i++)
+	- var id="listItem"+i, onclick="handDown("+i+")";
+		div(id=id, onclick=onclick).unselectable.listItem
+		if i < 4
+			br

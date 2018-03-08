@@ -10,8 +10,8 @@ function ClassSelectorChanged() {
 function UpdateManagementButtons(options) {
 	let numSelected = 0;
 	for (let i = options.length; i--;) {
-		if(options[i].selected) {
-			numSelected ++;
+		if (options[i].selected) {
+			numSelected++;
 		}
 	}
 	if (numSelected === 1) {
@@ -75,7 +75,7 @@ function sortClasses() {
 	}
 }
 
-window.addEventListener("load", function(){
+window.addEventListener("load", function () {
 	$('#class_selector').change(ClassSelectorChanged);
 	sortClasses();
 });

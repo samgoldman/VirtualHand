@@ -64,6 +64,6 @@ function KeyDownHandler(e) {
 	}
 }
 
-window.addEventListener("load", function(){
+window.addEventListener("load", function () {
 	document.body.addEventListener('keyup', KeyDownHandler);
 });

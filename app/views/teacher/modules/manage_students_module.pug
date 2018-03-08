@@ -1,18 +1,18 @@
 script
-    include ./manage_students_module.js
+	include ./manage_students_module.js
 .row
-    .col-md-12
-        div(id="manage_students_alert_box", style="display: none").alert.alert-info
-        p Highlighted students have enrolled, but have not been admitted
-        select(size="6", id="student_selector").form-control
+	.col-md-12
+		div(id="manage_students_alert_box", style="display: none").alert.alert-info
+		p Highlighted students have enrolled, but have not been admitted
+		select(size="6", id="student_selector").form-control
 .row
-    .col-sm-12.col-md-6
-        button(id="remove_student", disabled).btn.btn-danger.btn-block Remove Student
-    .col-sm-12.col-md-6
-        button(id="admit_student", disabled).btn.btn-success.btn-block Admit Student
+	.col-sm-12.col-md-6
+		button(id="remove_student", disabled).btn.btn-danger.btn-block Remove Student
+	.col-sm-12.col-md-6
+		button(id="admit_student", disabled).btn.btn-success.btn-block Admit Student
 br
 .row
-    .col-sm-12.col-md-6
-        input(id="new_student_pw", disabled, type="text", placeholder="New password").form-control
-    .col-sm-12.col-md-6
-        button(id="new_student_pw_submit", disabled).btn.btn-info.btn-block Change Password
+	.col-sm-12.col-md-6
+		input(id="new_student_pw", disabled, type="text", placeholder="New password").form-control
+	.col-sm-12.col-md-6
+		button(id="new_student_pw_submit", disabled).btn.btn-info.btn-block Change Password

@@ -6,20 +6,19 @@ let Course = require('./course');
 
 // define the schema for our user model
 let hallPassRequestSchema = mongoose.Schema({
-    requestTime: {type: Date, default: Date.now},
-    student: {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
-    course: {type : mongoose.Schema.Types.ObjectId, ref : 'Course'},
-    resolved: Boolean,
-    valid: Boolean,
-    timestamp: {type: Date, default: Date.now}
+	requestTime: {type: Date, default: Date.now},
+	student: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+	course: {type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
+	resolved: Boolean,
+	timestamp: {type: Date, default: Date.now}
 });
 
-hallPassRequestSchema.pre('save', function(next){
-    this.timestamp = new Date();
-    next();
+hallPassRequestSchema.pre('save', function (next) {
+	this.timestamp = new Date();
+	next();
 });
 
 // create the model for users and expose it to our app
 module.exports = {
-    model: mongoose.model('HallPassRequest', hallPassRequestSchema),
+	model: mongoose.model('HallPassRequest', hallPassRequestSchema),
 };

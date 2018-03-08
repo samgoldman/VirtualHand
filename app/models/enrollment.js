@@ -6,17 +6,17 @@ let Course = require('./course');
 
 // define the schema for our user model
 let enrollmentSchema = mongoose.Schema({
-    requestTime: {type: Date, default: Date.now},
-    student: {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
-    course: {type : mongoose.Schema.Types.ObjectId, ref : 'Course'},
-    admitted: Boolean,
+	requestTime: {type: Date, default: Date.now},
+	student: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+	course: {type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
+	admitted: Boolean,
 	valid: {type: Boolean, default: true},
-    timestamp: {type: Date, default: Date.now}
+	timestamp: {type: Date, default: Date.now}
 });
 
-enrollmentSchema.pre('save', function(next){
-    this.timestamp = new Date();
-    next();
+enrollmentSchema.pre('save', function (next) {
+	this.timestamp = new Date();
+	next();
 });
 
 enrollmentSchema.statics.getEnrolled = function getEnrolled(user) {
@@ -32,5 +32,5 @@ enrollmentSchema.statics.findOrCreate = function (cid, uid, admitted) {
 
 // create the model for users and expose it to our app
 module.exports = {
-    model: mongoose.model('Enrollment', enrollmentSchema),
+	model: mongoose.model('Enrollment', enrollmentSchema),
 };
