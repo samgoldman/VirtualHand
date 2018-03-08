@@ -34,8 +34,6 @@ socket.on('Response_AssistanceRequestStatus', function (data) {
 
 
 
-
-
 function ToggleHallPassButton() {
 	let button = document.getElementById("requestHallPassButton");
 	if (button.innerHTML === "You are waiting for a hall pass. Click to withdraw your request.") {
@@ -55,7 +53,6 @@ socket.on('Broadcast_HallPassRequestModified', function () {
 });
 
 socket.on('Response_HallPassRequestStatus', function (data) {
-	console.log("Response: HPRS: " + data);
 	if(!data.request) {
 		document.getElementById("requestHallPassButton").innerHTML = "Request a Hall Pass";
 		document.getElementById("requestHallPassButton").classList.add('btn-success');
@@ -72,6 +69,25 @@ socket.on('Response_HallPassRequestStatus', function (data) {
 		$('#hall-pass-modal').modal('hide');
 	} else {
 		$('#hall-pass-modal').modal({backdrop: 'static', keyboard: false});
+
+		// delta in seconds
+		let delta = Math.abs(Date.now() - new Date(data.request.grantedTime)) / 1000;
+
+		let days = Math.floor(delta / 86400);
+		delta -= days * 86400;
+		let hours = Math.floor(delta / 3600) % 24;
+		delta -= hours * 3600;
+		let minutes = Math.floor(delta / 60) % 60;
+		delta -= minutes * 60;
+		let seconds = parseInt(delta % 60);
+
+		let timeString = '';
+		if(days>0) timeString+= days + ':';
+		if(hours>0) timeString+= hours + ':';
+		timeString += ("0" + minutes).slice(-2) + ':' + ("0" + seconds).slice(-2);
+
+		$('#pass_timer')[0].innerHTML = timeString;
+		setTimeout(UpdateHallPassRequestStatus, 1000);
 	}
 });
 
