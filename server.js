@@ -1,17 +1,17 @@
 const express = require('express');
 const app = express();
-var passport = require('passport');
-var flash = require('connect-flash');
-var mongoose = require('mongoose');
-var Promise = require('bluebird');
-var express_session = require('express-session');
-var serve_static = require('serve-static');
-var cookie_parser = require('cookie-parser');
-var body_parser = require('body-parser');
+let passport = require('passport');
+let flash = require('connect-flash');
+let mongoose = require('mongoose');
+let Promise = require('bluebird');
+let express_session = require('express-session');
+let serve_static = require('serve-static');
+let cookie_parser = require('cookie-parser');
+let body_parser = require('body-parser');
 const mongoStore = require('connect-mongo')(express_session);
 
-var port = process.env.PORT;
-var mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
+let port = process.env.PORT;
+let mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURL, {
@@ -21,7 +21,7 @@ mongoose.connect(mongoURL, {
 require('./app/passport')(passport);
 
 app.use(express_session({
-	secret : '0ENc9dVBMWH6VzpkXppojOakPBPy7g8ZRTEkUkZCrcyhynYqyr48FBp1W0fx',
+	secret : process.env.SESSION_SECRET,
     store : new mongoStore({
         mongooseConnection : mongoose.connection
     }), // connect-mongo session store
@@ -43,9 +43,9 @@ app.use(serve_static(__dirname + '/client/static/favicon'));
 
 require('./app/routes.js')(app, passport);
 
-var server = require('http').createServer(app);
+let server = require('http').createServer(app);
 
-var io = require('socket.io')(server);
+let io = require('socket.io')(server);
 require('./app/io.js')(io);
 
 server.listen(port, function () {

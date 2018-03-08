@@ -43,7 +43,6 @@ module.exports = function (io) {
 			// ALL - public included
 			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
 				socket.on('Request_RecoverPassword', function (data) {
-					console.log('Password recovery...');
 					recoverPassword(socket, data.user_name);
 				});
 			}
