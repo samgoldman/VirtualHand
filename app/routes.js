@@ -3,7 +3,7 @@ let path = require('path');
 let fs = require('fs');
 let Course = require('./models/course').model;
 let Enrollment = require('./models/enrollment').model;
-let jwt = require('jsonwebtoken');
+let Token = require('./token_manager');
 
 module.exports = function (app, passport) {
 	const studentHomePage = pug.compileFile('./app/views/student/student_home.pug', undefined);
@@ -19,16 +19,36 @@ module.exports = function (app, passport) {
 
 	app.get('/home', isLoggedIn, function (req, res) {
 		if (req.user.role === 'teacher') {
-			Course.find({teacher: req.user._id}).sort('courseName')
-				.then(function (courses) {
-					res.send(renderTeacherHome(req, courses));
-				})
+			res.redirect('/teacher/home');
 		} else if (req.user.role === 'student') {
-			Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
-				.then(function (enrollments) {
-					res.send(renderStudentHome(req, enrollments));
-				});
+			res.redirect('/student/home');
 		}
+	});
+
+	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
+		Course.find({teacher: req.user._id}).sort('courseName')
+			.then(function (courses) {
+				let renderData = {
+					user: req.user,
+					courses: courses,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(teacherHomePage(renderData));
+			});
+	});
+
+	app.get('/student/home', isLoggedIn, isStudent, function(req, res) {
+		Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
+			.then(function (enrollments) {
+				let renderData = {
+					user: req.user,
+					enrollments: enrollments,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(studentHomePage(renderData));
+			});
 	});
 
 	app.get('/logout', isLoggedIn, function (req, res) {
@@ -67,9 +87,7 @@ module.exports = function (app, passport) {
 
 	app.get('/recoverpassword', isNotLoggedIn, function (req, res) {
 		res.send(passwordRecoveryPage({
-			token: jwt.sign({
-				role: 'guest'
-			}, process.env.JWT_SECRET, {expiresIn: 60 * 10})
+			token: Token.getSocketToken(null)
 		}));
 	});
 
@@ -90,36 +108,9 @@ module.exports = function (app, passport) {
 		let readStream = fs.createReadStream(dingFilepath);
 		readStream.pipe(res);
 	});
-
-	function renderStudentHome(req, enrollments) {
-		let renderData = {};
-		renderData.user = req.user;
-		renderData.enrollments = enrollments;
-
-		renderData.token = jwt.sign({
-			uid: req.user._id,
-			role: req.user.role
-		}, process.env.JWT_SECRET, {expiresIn: 60 * 10});
-
-		return studentHomePage(renderData);
-	}
-
-	function renderTeacherHome(req, courses) {
-		let renderData = {};
-		renderData.user = req.user;
-		renderData.courses = courses;
-
-		renderData.token = jwt.sign({
-			uid: req.user._id,
-			role: req.user.role
-		}, process.env.JWT_SECRET, {expiresIn: 60 * 10});
-
-		return teacherHomePage(renderData);
-	}
 };
 
 function isLoggedIn(req, res, next) {
-
 	// if user is authenticated in the session, carry on
 	if (req.isAuthenticated())
 		return next();
@@ -129,11 +120,26 @@ function isLoggedIn(req, res, next) {
 }
 
 function isNotLoggedIn(req, res, next) {
-
 	// if user is authenticated in the session, carry on
 	if (req.isAuthenticated()) {
 		res.redirect('/home');
 	} else {
 		return next();
 	}
+}
+
+// If the user is a teacher, continue,
+// Otherwise, redirect them home
+function isTeacher(req, res, next) {
+	if(req.user.role === 'teacher')
+		return next();
+	res.redirect('/home');
+}
+
+// If the user is a student, continue,
+// Otherwise, redirect them home
+function isStudent(req, res, next) {
+	if(req.user.role === 'student')
+		return next();
+	res.redirect('/home');
 }

@@ -6,7 +6,7 @@ let AssistanceRequest = require('./models/assistanceRequest').model;
 let nodemailer = require('nodemailer');
 let randomstring = require("randomstring");
 let Promise = require('bluebird');
-let jwt = require('jsonwebtoken');
+let Token = require('./token_manager');
 
 // app/routes.js
 module.exports = function (io) {
@@ -24,7 +24,7 @@ module.exports = function (io) {
 	function authenticateIO(socket, next) {
 		// Token must be present to authenticate
 		if (socket.handshake.query && socket.handshake.query.token) {
-			jwt.verify(socket.handshake.query.token, process.env.JWT_SECRET, function (err, decoded) {
+			Token.verifyToken(socket.handshake.query.token, (err, decoded) => {
 				if (err) return next(new Error('Authentication error'));
 				socket.user_data = decoded;
 				next();
