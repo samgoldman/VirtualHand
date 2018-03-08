@@ -6,6 +6,7 @@ let AssistanceRequest = require('./models/assistanceRequest').model;
 let nodemailer = require('nodemailer');
 let randomstring = require("randomstring");
 let Promise = require('bluebird');
+let jwt = require('jsonwebtoken');
 
 // app/routes.js
 module.exports = function (io) {
@@ -20,85 +21,63 @@ module.exports = function (io) {
 
 	let userCount = 0;
 
-	// Configure what happens when each event is called
-	io.on('connection', function (socket) {
-		userCount++;
-		socket.on('disconnect', function () {
-			userCount--;
-		});
+	function authenticateIO(socket, next) {
+		// Token must be present to authenticate
+		if (socket.handshake.query && socket.handshake.query.token) {
+			jwt.verify(socket.handshake.query.token, process.env.JWT_SECRET, function (err, decoded) {
+				if (err) return next(new Error('Authentication error'));
+				socket.user_data = decoded;
+				next();
+			});
+		}
+		next(new Error('Authentication Error'));
+	}
 
-		socket.on('Request_RecoverPassword', function (data) {
-			recoverPassword(socket, data.user_name);
-		});
+	io.use(authenticateIO)
+		.on('connection', function (socket) {
+			userCount++;
+			socket.on('disconnect', function () {
+				userCount--;
+			});
 
-		socket.on('Request_PasswordChange', function (data) {
-			changePassword(socket, data.uid, data.oldPassword, data.newPassword);
-		});
+			// ALL - public included
+			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
+				socket.on('Request_RecoverPassword', function (data) {
+					console.log('Password recovery...');
+					recoverPassword(socket, data.user_name);
+				});
+			}
 
-		socket.on('Request_CourseCreate', function (data) {
-			createCourse(socket, data.uid, data.courseName)
-		});
+			// Logged in users
+			if (socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
+				socket.on('Request_PasswordChange', (data) => changePassword(socket, data.uid, data.oldPassword, data.newPassword));
+			}
 
-		socket.on('Request_RandomStudent', function (data) {
-			getRandomStudent(socket, data.cid);
-		});
+			// Students only
+			if (socket.user_data.role === 'student') {
+				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, data.cid, data.uid))
+					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(data.cid, data.uid))
+					.on('Request_ResolveAssistanceRequest', (data) => resolveUserAssistanceRequests(data.cid, data.uid))
+					.on('Request_EnrollStudent', (data) => enrollStudent(socket, data.courseKey, data.sid));
+			}
 
-		socket.on('Request_CourseRename', function (data) {
-			renameCourse(socket, data.cid, data.newCourseName);
+			// Teachers only
+			if (socket.user_data.role === 'teacher') {
+				socket.on('Request_CourseCreate', (data) => createCourse(socket, data.uid, data.courseName))
+					.on('Request_RandomStudent', (data) => getRandomStudent(socket, data.cid))
+					.on('Request_CourseRename', (data) => renameCourse(socket, data.cid, data.newCourseName))
+					.on('Request_AddStudents', (data) => addStudents(socket, data.cid, data.csv, data.defaultPassword))
+					.on('Request_RetrieveAssistanceRequests', (data) => retrieveAssistanceRequests(socket, data.cids, data.qty))
+					.on('Request_TeacherResolveAssistanceRequest', (data) => resolveAssistanceRequests(data.arid))
+					.on('Request_StudentsForClass', (data) => sendStudentsForClass(socket, data.cid))
+					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.uid))
+					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.uid))
+					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.uid))
+					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, data.tid, data.cid, data.sid, data.password))
+					.on('Request_RetrieveCourseKey', (data) => retrieveCourseKey(socket, data.cid))
+					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid));
+			}
 		});
-
-		socket.on('Request_AddStudents', function (data) {
-			addStudents(socket, data.cid, data.csv, data.defaultPassword);
-		});
-
-		socket.on('Request_AssistanceRequestStatus', function (data) {
-			sendAssistanceRequestStatus(socket, data.cid, data.uid);
-		});
-
-		socket.on('Request_InitiateAssistanceRequest', function (data) {
-			initiateAssistanceRequest(data.cid, data.uid);
-		});
-
-		socket.on('Request_ResolveAssistanceRequest', function (data) {
-			resolveUserAssistanceRequests(data.cid, data.uid);
-		});
-
-		socket.on('Request_RetrieveAssistanceRequests', function (data) {
-			retrieveAssistanceRequests(socket, data.cids, data.qty);
-		});
-
-		socket.on('Request_TeacherResolveAssistanceRequest', function (data) {
-			resolveAssistanceRequests(data.arid);
-		});
-
-		socket.on('Request_StudentsForClass', function (data) {
-			sendStudentsForClass(socket, data.cid);
-		});
-
-		socket.on('Request_AdmitStudent', function (data) {
-			admitStudent(socket, data.cid, data.uid);
-		});
-
-		socket.on('Request_RemoveStudent', function (data) {
-			removeStudent(socket, data.cid, data.uid);
-		});
-
-		socket.on('Request_ChangeStudentPassword', function (data) {
-			changeStudentPassword(socket, data.tid, data.cid, data.sid, data.password);
-		});
-
-		socket.on('Request_RetrieveCourseKey', function (data) {
-			retrieveCourseKey(socket, data.cid);
-		});
-
-		socket.on('Request_AssignNewCourseKey', function (data) {
-			assignNewCourseKey(socket, data.cid);
-		});
-
-		socket.on('Request_EnrollStudent', function (data) {
-			enrollStudent(socket, data.courseKey, data.sid);
-		})
-	});
 
 	function recoverPassword(socket, username) {
 		User.findOne({'username': username})

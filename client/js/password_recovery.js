@@ -1,5 +1,3 @@
-var socket = io.connect();
-
 socket.on('Response_RecoverPassword', function(data) {
 	alert(data.message);
 });

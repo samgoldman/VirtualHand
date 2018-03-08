@@ -3,6 +3,7 @@ let path = require('path');
 let fs = require('fs');
 let Course = require('./models/course').model;
 let Enrollment = require('./models/enrollment').model;
+let jwt = require('jsonwebtoken');
 
 module.exports = function(app, passport) {
 	const studentHomePage = pug.compileFile('./app/views/student/student_home.pug', undefined);
@@ -66,7 +67,9 @@ module.exports = function(app, passport) {
     }));
 
     app.get('/recoverpassword', isNotLoggedIn, function(req, res) {
-        res.send(passwordRecoveryPage({}));
+        res.send(passwordRecoveryPage({token: jwt.sign({
+			role: 'guest'
+		}, process.env.JWT_SECRET, { expiresIn: 60 * 10 })}));
     });
 
     app.get('/stl_logo', function(req, res) {
@@ -97,6 +100,12 @@ module.exports = function(app, passport) {
 		let renderData = {};
 		renderData.user = req.user;
 		renderData.enrollments = enrollments;
+
+		renderData.token = jwt.sign({
+			uid: req.user._id,
+			role: req.user.role
+		}, process.env.JWT_SECRET, { expiresIn: 60 * 10 });
+
 		return studentHomePage(renderData);
     }
 
@@ -104,6 +113,11 @@ module.exports = function(app, passport) {
 		let renderData = {};
         renderData.user = req.user;
         renderData.courses = courses;
+
+		renderData.token = jwt.sign({
+			uid: req.user._id,
+			role: req.user.role
+		}, process.env.JWT_SECRET, { expiresIn: 60 * 10 });
 
 		return teacherHomePage(renderData);
     }
