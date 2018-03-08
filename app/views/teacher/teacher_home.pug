@@ -22,10 +22,10 @@ html
             .col-xs-12.col-lg-6.col-lg-offset-3
                 h1(align="center") Welcome #{user.username}!
                 div.col-sm-6
-                    include ./class_selector
-                    include ./assistance_request_list_module
+                    include modules/class_selector
+                    include modules/assistance_request_list_module
                 div.col-sm-6
-                    include ./random_student_selector
+                    include modules/random_student_selector
                 .col-xs-12
                     button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
                     br
@@ -58,14 +58,14 @@ html
                         .model-footer
                             button(type="button", data-dismiss="modal").btn.btn-block.btn-warning Close
         +modal("create-class-modal", "Create Class")
-            include ./add_class_module
+            include modules/add_class_module
         +modal("change-password-modal", "Change Password")
             include ../shared/change_password_module
         +modal("rename-class-modal", "Rename Class")
-            include ./rename_class_module
+            include modules/rename_class_module
         +modal("add-students-modal", "Add Students")
-            include ./add_students_module
+            include modules/add_students_module
         +modal("manage-students-modal", "Manage Students")
-            include ./manage_students_module
+            include modules/manage_students_module
         +modal("class-key-modal", "Class Key")
-            include ./course_key_module
+            include modules/course_key_module

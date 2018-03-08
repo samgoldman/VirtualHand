@@ -1,6 +1,6 @@
 function NewClassClicked() {
 	$('#new_class_name').each(function(){
-		var name = this.value;
+		let name = this.value;
 
 		socket.emit('Request_CourseCreate', {
 			uid : document.getElementById('user_id').value,

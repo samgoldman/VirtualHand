@@ -28,9 +28,9 @@ html
                     h1 Welcome #{user.username}!
                     br
                     br
-                    include class_selector
+                    include modules/class_selector
                     hr
-                    include requester_module
+                    include modules/requester_module
 
                     hr
                     button(id="enroll_button", data-toggle="modal", data-target=".enroll-modal").btn.btn-success.btn-block Enroll in a Class
@@ -56,4 +56,4 @@ html
         +modal("change-password-modal", "Change Password")
             include ../shared/change_password_module
         +modal("enroll-modal", "Enroll in a Class")
-            include ./enroll_module
+            include modules/enroll_module
