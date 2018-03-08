@@ -1,25 +1,15 @@
 function ToggleAssistanceButton() {
-	console.log(document.getElementById("requestAssistanceButton").innerHTML);
-	if (document.getElementById("requestAssistanceButton").innerHTML === "Lower Hand") {
-		socket.emit('Request_ResolveAssistanceRequest', {
-			uid: document.getElementById('user_id').value,
-			cid: getSelectedClassId()
-		});
-	} else if (document.getElementById("requestAssistanceButton").innerHTML === "Raise Hand") {
-		socket.emit('Request_InitiateAssistanceRequest', {
-			uid: document.getElementById('user_id').value,
-			cid: getSelectedClassId()
-		});
+	let button = document.getElementById("requestAssistanceButton");
+	if (button.innerHTML === "Lower Hand") {
+		socket.emit('Request_ResolveAssistanceRequest', {cid: getSelectedClassId()});
+	} else if (button.innerHTML === "Raise Hand") {
+		socket.emit('Request_InitiateAssistanceRequest', {cid: getSelectedClassId()});
 	}
 }
 
 function UpdateAssistanceRequestStatus() {
 	$('#requestAssistanceButton').removeAttr("disabled");
-	socket.emit('Request_AssistanceRequestStatus',
-		{
-			uid: document.getElementById('user_id').value,
-			cid: getSelectedClassId()
-		});
+	socket.emit('Request_AssistanceRequestStatus', {cid: getSelectedClassId()});
 }
 
 socket.on('Broadcast_AssistanceRequestModified', function () {
@@ -42,6 +32,57 @@ socket.on('Response_AssistanceRequestStatus', function (data) {
 	}
 });
 
+
+
+
+
+function ToggleHallPassButton() {
+	let button = document.getElementById("requestHallPassButton");
+	if (button.innerHTML === "You are waiting for a hall pass. Click to withdraw your request.") {
+		socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
+	} else if (button.innerHTML === "Request a Hall Pass") {
+		socket.emit('Request_InitiateHallPassRequest', {cid: getSelectedClassId()});
+	}
+}
+
+function UpdateHallPassRequestStatus() {
+	$('#requestHallPassButton').removeAttr("disabled");
+	socket.emit('Request_HallPassRequestStatus', {cid: getSelectedClassId()});
+}
+
+socket.on('Broadcast_HallPassRequestModified', function () {
+	UpdateHallPassRequestStatus();
+});
+
+socket.on('Response_HallPassRequestStatus', function (data) {
+	console.log("Response: HPRS: " + data);
+	if(!data.request) {
+		document.getElementById("requestHallPassButton").innerHTML = "Request a Hall Pass";
+		document.getElementById("requestHallPassButton").classList.add('btn-success');
+
+		document.getElementById("requestHallPassButton").classList.remove('btn-default');
+		document.getElementById("requestHallPassButton").classList.remove('btn-danger');
+		$('#hall-pass-modal').modal('hide');
+	} else if (!data.request.granted) {
+		document.getElementById("requestHallPassButton").innerHTML = "You are waiting for a hall pass. Click to withdraw your request.";
+		document.getElementById("requestHallPassButton").classList.add('btn-danger');
+
+		document.getElementById("requestHallPassButton").classList.remove('btn-default');
+		document.getElementById("requestHallPassButton").classList.remove('btn-success');
+		$('#hall-pass-modal').modal('hide');
+	} else {
+		$('#hall-pass-modal').modal({backdrop: 'static', keyboard: false});
+	}
+});
+
+function ReturnHallPass() {
+	socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
+}
+
 window.addEventListener("load", function () {
 	document.getElementById("requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
+	document.getElementById("requestHallPassButton").addEventListener('click', ToggleHallPassButton);
+	document.getElementById("class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
+	document.getElementById("class_selector").addEventListener('change', UpdateHallPassRequestStatus);
+	document.getElementById("return-pass-button").addEventListener('click', ReturnHallPass);
 });

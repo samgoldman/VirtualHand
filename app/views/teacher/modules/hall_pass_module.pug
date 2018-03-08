@@ -1,0 +1,13 @@
+script
+	include hall_pass_module.js
+script
+	include hall_pass_list_item_template_compiled.js
+
+.col-xs-8.col-xs-offset-2
+	h2(align="center") Out of the Room
+	#out_of_room_div.well
+.col-xs-8.col-xs-offset-2
+	h2(align="center") Waiting for Pass
+	#waiting_for_pass_div.well
+script
+	| #{listItemTemplate}

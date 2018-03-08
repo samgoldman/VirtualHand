@@ -9,7 +9,11 @@ let hallPassRequestSchema = mongoose.Schema({
 	requestTime: {type: Date, default: Date.now},
 	student: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 	course: {type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
+	granted: Boolean,
+	grantedTime: {type: Date, default: null},
 	resolved: Boolean,
+	resolvedTime: {type: Date, default: null},
+	resolved_type: Boolean,
 	timestamp: {type: Date, default: Date.now}
 });
 

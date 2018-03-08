@@ -10,6 +10,8 @@ let assistanceRequestSchema = mongoose.Schema({
 	student: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 	course: {type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
 	resolved: Boolean,
+	resolvedTime: {type: Date, default: null},
+	resolved_type: String,
 	timestamp: {type: Date, default: Date.now}
 });
 

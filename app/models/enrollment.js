@@ -30,6 +30,14 @@ enrollmentSchema.statics.findOrCreate = function (cid, uid, admitted) {
 		.then(enrollment => enrollment || Enrollment.create({course: cid, student: uid, admitted: admitted}));
 };
 
+enrollmentSchema.statics.confirmStudentInClass = function(sid, cid) {
+	return this.find({student: sid, course: cid})
+		.count()
+		.then(function(count) {
+			if (count <= 0) throw new Error('Student not in class!');
+		});
+};
+
 // create the model for users and expose it to our app
 module.exports = {
 	model: mongoose.model('Enrollment', enrollmentSchema),

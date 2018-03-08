@@ -3,6 +3,7 @@ let User = require('./models/user').model;
 let Enrollment = require('./models/enrollment').model;
 let Course = require('./models/course').model;
 let AssistanceRequest = require('./models/assistanceRequest').model;
+let HallPassRequest = require('./models/hallPassRequest').model;
 let nodemailer = require('nodemailer');
 let randomstring = require("randomstring");
 let Promise = require('bluebird');
@@ -56,8 +57,11 @@ module.exports = function (io) {
 			if (socket.user_data.role === 'student') {
 				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
 					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(socket.user_data.uid, data.cid))
-					.on('Request_ResolveAssistanceRequest', (data) => resolveUserAssistanceRequests(socket.user_data.uid, data.cid))
-					.on('Request_EnrollStudent', (data) => enrollStudent(socket, socket.user_data.uid, data.courseKey));
+					.on('Request_ResolveAssistanceRequest', (data) => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid))
+					.on('Request_EnrollStudent', (data) => enrollStudent(socket, socket.user_data.uid, data.courseKey))
+					.on('Request_HallPassRequestStatus', (data) => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateHallPassRequest', (data) => initiateHallPassRequest(socket.user_data.uid, data.cid))
+					.on('Request_StudentResolveHallPassRequest', (data) => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
 			}
 
 			// Teachers only
@@ -67,13 +71,16 @@ module.exports = function (io) {
 					.on('Request_CourseRename', (data) => renameCourse(socket, data.cid, data.newCourseName))
 					.on('Request_AddStudents', (data) => addStudents(socket, data.cid, data.csv, data.defaultPassword))
 					.on('Request_RetrieveAssistanceRequests', (data) => retrieveAssistanceRequests(socket, data.cids, data.qty))
-					.on('Request_TeacherResolveAssistanceRequest', (data) => resolveAssistanceRequests(data.arid))
+					.on('Request_TeacherResolveAssistanceRequest', (data) => teacherResolveAssistanceRequest(data.arid))
 					.on('Request_StudentsForClass', (data) => sendStudentsForClass(socket, data.cid))
 					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.sid))
 					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.sid))
 					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
 					.on('Request_RetrieveCourseKey', (data) => retrieveCourseKey(socket, data.cid))
-					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid));
+					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid))
+					.on('Request_RetrieveHallPassRequests', (data) => retrieveHallPassRequests(socket, data.cids))
+					.on('Request_TeacherResolveHallPassRequest', (data) => teacherResolveHallPassRequest(data.hrid))
+					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid));
 			}
 		});
 
@@ -245,25 +252,26 @@ module.exports = function (io) {
 			});
 	}
 
-	function resolveUserAssistanceRequests(uid, cid) {
-		AssistanceRequest.find({student: uid, course: cid, resolved: false}).update({resolved: true})
+	function resolveAssistanceRequestByStudentAndClass(uid, cid) {
+		AssistanceRequest.find({student: uid, course: cid, resolved: false})
+			.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
 			.then(function () {
 				io.emit('Broadcast_AssistanceRequestModified');
 			});
 	}
 
-	function retrieveAssistanceRequests(socket, cids, qty) {
-		AssistanceRequest.find({
-			course: {$in: cids},
-			resolved: false
-		}).sort('requestTime').limit(qty).populate('student')
+	function retrieveAssistanceRequests(socket, cids) {
+		AssistanceRequest.find({course: {$in: cids}, resolved: false})
+			.sort('requestTime')
+			.populate('student')
 			.then(function (requests) {
 				socket.emit('Response_RetrieveAssistanceRequests', {requests: requests});
 			});
 	}
 
-	function resolveAssistanceRequests(arid) {
-		AssistanceRequest.findById(arid).update({resolved: true})
+	function teacherResolveAssistanceRequest(arid) {
+		AssistanceRequest.findById(arid)
+			.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
 			.then(function () {
 				io.emit('Broadcast_AssistanceRequestModified');
 			});
@@ -334,7 +342,8 @@ module.exports = function (io) {
 	}
 
 	function assignNewCourseKey(socket, cid) {
-		Course.findById(cid).update({courseKey: Course.generateCourseKey()})
+		Course.findById(cid)
+			.update({courseKey: Course.generateCourseKey()})
 			.then(function () {
 				socket.emit('Response_AssignNewCourseKey', {success: true});
 			})
@@ -360,5 +369,68 @@ module.exports = function (io) {
 			.catch(function (err) {
 				socket.emit('Response_EnrollStudent', {success: false, message: err});
 			})
+	}
+
+	function sendHallPassRequestStatus(socket, uid, cid) {
+		HallPassRequest.findOne({course: cid, student: uid, resolved: false})
+			.exec()
+			.then(function (request) {
+				socket.emit('Response_HallPassRequestStatus', {request: request})
+			});
+	}
+
+	function retrieveHallPassRequests(socket, cids) {
+		HallPassRequest.find({course: {$in: cids}, resolved: false})
+			.sort('requestTime')
+			.populate('student')
+			.then(function (requests) {
+				socket.emit('Response_RetrieveHallPassRequests', {requests: requests});
+			});
+	}
+
+	function initiateHallPassRequest(sid, cid) {
+		Enrollment.confirmStudentInClass(sid, cid)
+			.then(HallPassRequest.findOne({student: sid, course: cid, resolved: false}))
+			.then(function (hpr) {
+				if (hpr)
+					throw 'Request for this student in this class already exists';
+				else
+					return HallPassRequest.create({student: sid, course: cid, resolved: false, granted: false});
+			})
+			.then(function () {
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch(function (err) {
+				console.log(err);
+			});
+	}
+
+	function studentResolveHallPassRequest(sid, cid) {
+		HallPassRequest.find({student: sid, course: cid, resolved: false})
+			.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}
+
+	function teacherResolveHallPassRequest(hrid) {
+		HallPassRequest.findById(hrid)
+			.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {});
+	}
+
+	function teacherGrantHallPassRequest(hrid) {
+		HallPassRequest.findById(hrid)
+			.update({granted: true, grantedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {});
 	}
 };

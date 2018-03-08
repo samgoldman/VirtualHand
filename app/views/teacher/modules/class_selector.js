@@ -1,8 +1,6 @@
 function ClassSelectorChanged() {
 	let options = $('#class_selector')[0].getElementsByTagName("option");
 	UpdateManagementButtons(options);
-	UpdateRandomStudentSelector(options);
-	RetrieveAssistanceRequests();
 }
 
 // This will enable the 4 management buttons iff there is a single
@@ -68,7 +66,7 @@ function sortClasses() {
 	while (selElem.options.length > 0) {
 		selElem.options[0] = null;
 	}
-	for (i = 0; i < tmpAry.length; i++) {
+	for (let i = 0; i < tmpAry.length; i++) {
 		let op = new Option(tmpAry[i][0], tmpAry[i][1]);
 		op.selected = tmpAry[i][2];
 		selElem.options[i] = op;

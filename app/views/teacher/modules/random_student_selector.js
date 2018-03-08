@@ -1,4 +1,5 @@
-function UpdateRandomStudentSelector(options) {
+function UpdateRandomStudentSelector() {
+	let options = $('#class_selector')[0].getElementsByTagName("option");
 	document.getElementById('randomStudentButtons').innerHTML = "<p><strong>Select a random student:</strong></p>";
 	for (let i = 0; i < options.length; i++) {
 		if (options[i].selected) {
@@ -25,4 +26,8 @@ socket.on("Response_RandomStudent", function (data) {
 		document.getElementById('randomStudentButtons').innerHTML += '<div id="random_student" class="alert alert-info alert-dismissable">' +
 			'<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ' + data.randomStudentName + '</div>';
 	}
+});
+
+window.addEventListener("load", function () {
+	$('#class_selector').change(UpdateRandomStudentSelector);
 });

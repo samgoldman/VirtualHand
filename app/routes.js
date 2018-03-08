@@ -5,13 +5,31 @@ let Course = require('./models/course').model;
 let Enrollment = require('./models/enrollment').model;
 let Token = require('./token_manager');
 
+let templates = {
+	student_home: './app/views/student/student_home.pug',
+	teacher_home: './app/views/teacher/teacher_home.pug',
+	teacher_hall_pass: './app/views/teacher/teacher_hall_pass.pug',
+	landing: './app/views/landing.pug',
+	login: './app/views/login.pug',
+	signup: './app/views/signup.pug',
+	password_recovery: './app/views/password_recovery.pug'
+};
+
+let compiledTemplates = {};
+Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
+
+fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
+
+function renderFile(filename, data) {
+	if (process.env.VH_ENV === 'DEVELOPMENT') {
+		return pug.renderFile(filename, data, undefined);
+	} else {
+		return compiledTemplates[filename](data);
+	}
+}
+
 module.exports = function (app, passport) {
-	const studentHomePage = pug.compileFile('./app/views/student/student_home.pug', undefined);
-	const teacherHomePage = pug.compileFile('./app/views/teacher/teacher_home.pug', undefined);
-	const landingPage = pug.compileFile('./app/views/landing.pug', undefined);
-	const loginPage = pug.compileFile('./app/views/login.pug', undefined);
-	const signupPage = pug.compileFile('./app/views/signup.pug', undefined);
-	const passwordRecoveryPage = pug.compileFile('./app/views/password_recovery.pug', undefined);
+
 
 	let dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
 	let stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
@@ -34,7 +52,20 @@ module.exports = function (app, passport) {
 					token: Token.getSocketToken(req.user)
 				};
 
-				res.send(teacherHomePage(renderData));
+				res.send(renderFile(templates.teacher_home, renderData));
+			});
+	});
+
+	app.get('/teacher/hallpass', isLoggedIn, isTeacher, function(req, res) {
+		Course.find({teacher: req.user._id}).sort('courseName')
+			.then(function (courses) {
+				let renderData = {
+					user: req.user,
+					courses: courses,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(renderFile(templates.teacher_hall_pass, renderData));
 			});
 	});
 
@@ -47,7 +78,7 @@ module.exports = function (app, passport) {
 					token: Token.getSocketToken(req.user)
 				};
 
-				res.send(studentHomePage(renderData));
+				res.send(renderFile(templates.student_home, renderData));
 			});
 	});
 
@@ -57,11 +88,11 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/', function (req, res) {
-		res.send(landingPage({}));
+		res.send(renderFile(templates.landing, {}));
 	});
 
 	app.get('/login', isNotLoggedIn, function (req, res) {
-		res.send(loginPage({
+		res.send(renderFile(templates.login, {
 			message: req.flash('loginMessage')
 		}));
 	});
@@ -74,7 +105,7 @@ module.exports = function (app, passport) {
 
 	app.get('/signup', isNotLoggedIn, function (req, res) {
 		// render the page and pass in any flash data if it exists
-		res.send(signupPage({
+		res.send(renderFile(templates.signup, {
 			message: req.flash('signupMessage')
 		}));
 	});
@@ -86,7 +117,7 @@ module.exports = function (app, passport) {
 	}));
 
 	app.get('/recoverpassword', isNotLoggedIn, function (req, res) {
-		res.send(passwordRecoveryPage({
+		res.send(renderFile(templates.password_recovery, {
 			token: Token.getSocketToken(null)
 		}));
 	});

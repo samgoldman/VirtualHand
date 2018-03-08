@@ -66,4 +66,5 @@ function KeyDownHandler(e) {
 
 window.addEventListener("load", function () {
 	document.body.addEventListener('keyup', KeyDownHandler);
+	$('#class_selector').change(RetrieveAssistanceRequests);
 });

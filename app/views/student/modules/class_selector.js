@@ -1,6 +1,5 @@
 function ClassSelectorChanged() {
 	sortClasses();
-	UpdateAssistanceRequestStatus();
 }
 
 function getSelectedClassId() {
