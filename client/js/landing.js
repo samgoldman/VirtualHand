@@ -1,6 +1,6 @@
-var socket = io.connect();
+let socket = io.connect();
 $(window).scroll(function() {
-	var windowScroll = $(window).scrollTop();
+	let windowScroll = $(window).scrollTop();
 	if (windowScroll >= 100) {
 		$('nav').addClass('fixed');
 		$('.wrapper section').each(function(i) {
@@ -18,7 +18,7 @@ $(window).scroll(function() {
 $(function() {
 	$('a[href*=#]:not([href=#])').click(function() {
 		if (location.pathname.replace(/^\//, '') === this.pathname.replace(/^\//, '') && location.hostname === this.hostname) {
-			var target = $(this.hash);
+			let target = $(this.hash);
 			target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
 			if (target[0].id === "contact_us") {
 				if (target.length) {
@@ -36,10 +36,3 @@ $(document).on('click', '.navbar-collapse.in', function(e) {
 		$(this).collapse('hide');
 	}
 });
-function contactSubmit() {
-	socket.emit('ContactUs', {
-		'name' : document.getElementById('name').value,
-		'email' : document.getElementById('email').value,
-		'message' : document.getElementById('message').value
-	});
-}

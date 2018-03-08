@@ -96,7 +96,6 @@ module.exports = function (io) {
 					text: email_text
 				}, function (error, info) {
 					if (error) {
-						// TODO log
 						console.log(error);
 					} else {
 						console.log('Message sent: ' + info.response);
@@ -112,7 +111,6 @@ module.exports = function (io) {
 			})
 			.catch(function (err) {
 				console.log(err);
-				// TODO Log this error
 			});
 	}
 
@@ -143,7 +141,7 @@ module.exports = function (io) {
 		User.findById(uid)
 			.then(function (user) {
 				uid = user._id;
-				data = {};
+				let data = {};
 				if (!courseName || courseName === "") {
 					data.message = "Class not created: Name must not be blank!";
 					data.success = false;

@@ -63,7 +63,6 @@ module.exports = function (passport) {
             })
             .catch(function (err) {
                 done(err);
-                // TODO Log this error
             });
     }));
 };

@@ -1,15 +1,16 @@
 // app/models/hallPassRequest.js
 // load the things we need
-var mongoose = require('mongoose');
-var User = require('./user');
-var Course = require('./course');
+let mongoose = require('mongoose');
+let User = require('./user');
+let Course = require('./course');
 
 // define the schema for our user model
-var hallPassRequestSchema = mongoose.Schema({
+let hallPassRequestSchema = mongoose.Schema({
     requestTime: {type: Date, default: Date.now},
     student: {type : mongoose.Schema.Types.ObjectId, ref : 'User'},
     course: {type : mongoose.Schema.Types.ObjectId, ref : 'Course'},
     resolved: Boolean,
+    valid: Boolean,
     timestamp: {type: Date, default: Date.now}
 });
 
