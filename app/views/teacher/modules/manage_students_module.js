@@ -44,7 +44,7 @@ socket.on('Response_StudentsForClass', function (data) {
 function RemoveStudent() {
 	socket.emit('Request_RemoveStudent', {
 		cid: getSelectedClassId(),
-		uid: getSelectedStudentOption().value
+		sid: getSelectedStudentOption().value
 	})
 }
 
@@ -55,7 +55,7 @@ socket.on('Response_RemoveStudent', function () {
 function AdmitStudent() {
 	socket.emit('Request_AdmitStudent', {
 		cid: getSelectedClassId(),
-		uid: getSelectedStudentOption().value
+		sid: getSelectedStudentOption().value
 	})
 }
 

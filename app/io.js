@@ -49,30 +49,29 @@ module.exports = function (io) {
 
 			// Logged in users
 			if (socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
-				socket.on('Request_PasswordChange', (data) => changePassword(socket, data.uid, data.oldPassword, data.newPassword));
+				socket.on('Request_PasswordChange', (data) => changePassword(socket, socket.user_data.uid, data.oldPassword, data.newPassword));
 			}
 
 			// Students only
 			if (socket.user_data.role === 'student') {
-				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, data.cid, data.uid))
-					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(data.cid, data.uid))
-					.on('Request_ResolveAssistanceRequest', (data) => resolveUserAssistanceRequests(data.cid, data.uid))
-					.on('Request_EnrollStudent', (data) => enrollStudent(socket, data.courseKey, data.sid));
+				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(socket.user_data.uid, data.cid))
+					.on('Request_ResolveAssistanceRequest', (data) => resolveUserAssistanceRequests(socket.user_data.uid, data.cid))
+					.on('Request_EnrollStudent', (data) => enrollStudent(socket, socket.user_data.uid, data.courseKey));
 			}
 
 			// Teachers only
 			if (socket.user_data.role === 'teacher') {
-				socket.on('Request_CourseCreate', (data) => createCourse(socket, data.uid, data.courseName))
+				socket.on('Request_CourseCreate', (data) => createCourse(socket, socket.user_data.uid, data.courseName))
 					.on('Request_RandomStudent', (data) => getRandomStudent(socket, data.cid))
 					.on('Request_CourseRename', (data) => renameCourse(socket, data.cid, data.newCourseName))
 					.on('Request_AddStudents', (data) => addStudents(socket, data.cid, data.csv, data.defaultPassword))
 					.on('Request_RetrieveAssistanceRequests', (data) => retrieveAssistanceRequests(socket, data.cids, data.qty))
 					.on('Request_TeacherResolveAssistanceRequest', (data) => resolveAssistanceRequests(data.arid))
 					.on('Request_StudentsForClass', (data) => sendStudentsForClass(socket, data.cid))
-					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.uid))
-					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.uid))
-					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.uid))
-					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, data.tid, data.cid, data.sid, data.password))
+					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.sid))
+					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.sid))
+					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
 					.on('Request_RetrieveCourseKey', (data) => retrieveCourseKey(socket, data.cid))
 					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid));
 			}
@@ -226,14 +225,14 @@ module.exports = function (io) {
 			});
 	}
 
-	function sendAssistanceRequestStatus(socket, cid, uid) {
+	function sendAssistanceRequestStatus(socket, uid, cid) {
 		AssistanceRequest.count({course: cid, student: uid, resolved: false})
 			.then(function (count) {
 				socket.emit('Response_AssistanceRequestStatus', {status: (count !== 0)})
 			});
 	}
 
-	function initiateAssistanceRequest(cid, uid) {
+	function initiateAssistanceRequest(uid, cid) {
 		AssistanceRequest.findOne({student: uid, course: cid, resolved: false})
 			.then(function (ar) {
 				if (ar)
@@ -248,7 +247,7 @@ module.exports = function (io) {
 			});
 	}
 
-	function resolveUserAssistanceRequests(cid, uid) {
+	function resolveUserAssistanceRequests(uid, cid) {
 		AssistanceRequest.find({student: uid, course: cid, resolved: false}).update({resolved: true})
 			.then(function () {
 				io.emit('Broadcast_AssistanceRequestModified');
@@ -350,7 +349,7 @@ module.exports = function (io) {
 			});
 	}
 
-	function enrollStudent(socket, courseKey, sid) {
+	function enrollStudent(socket, sid, courseKey) {
 		Course.findOne({courseKey: courseKey})
 			.then(function (course) {
 				if (!course) {
