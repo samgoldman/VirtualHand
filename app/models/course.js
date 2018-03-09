@@ -8,6 +8,7 @@ let courseSchema = mongoose.Schema({
 	courseName: String,
 	courseKey: String,
 	teacher: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+	valid: {type: Boolean, default: true},
 	timestamp: {type: Date, default: Date.now}
 });
 

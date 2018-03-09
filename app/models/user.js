@@ -8,6 +8,7 @@ let userSchema = mongoose.Schema({
 	username: String,
 	password: String,
 	email: String,
+	email_verified: {type: Boolean, default: false},
 	role: {type: String, enum: ['admin', 'teacher', 'student']},
 	timestamp: {type: Date, default: Date.now}
 });
