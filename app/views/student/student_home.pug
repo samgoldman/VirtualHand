@@ -50,8 +50,8 @@ html
 								block
 							else
 								p Oops
-						.model-footer
-							button(type="button", data-dismiss="modal").btn.btn-block.btn-warning Close
+						div
+							button(type="button", data-dismiss="modal", style="border-top-right-radius:0;border-top-left-radius:0;").btn.btn-block.btn-warning Close
 
 		+modal("change-password-modal", "Change Password")
 			include ../shared/change_password_module

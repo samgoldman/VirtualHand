@@ -27,21 +27,27 @@ html
 				div.col-sm-6
 					include modules/random_student_selector
 					a(href="/teacher/hallpass").btn.btn-lg.btn-block.btn-primary Hall Passes
-				.col-xs-12
-					button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
-					br
-				.col-xs-12.col-lg-6
-					button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal", disabled="disabled").btn.btn-info.btn-block.management_button Rename a Class
-					button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Add Students
-					a(id="ar_history_link", href='', disabled="disabled").btn.btn-info.btn-block.management_button Assistance Request History
-					button(id="remove_all_students_button", data-toggle="modal", data-target=".remove-all-students-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Remove All Students
-					br
-				.col-xs-12.col-lg-6
-					button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal", disabled="disabled").btn.btn-info.btn-block.management_button Class Key
-					button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Manage Students
-					a(id="hp_history_link", href='', disabled="disabled").btn.btn-info.btn-block.management_button Hall Pass History
-					button(id="delete_class_button", data-toggle="modal", data-target=".delete-class-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Delete Class
-					br
+				.col-sm-12
+					.panel-group
+						.panel
+							div(data-toggle="collapse", data-target="#managementPanel").btn.btn-block.btn-primary.text-center
+								h4.panel-title Manage Classes
+							#managementPanel.panel-collapse.collapse.container-fluid
+								.col-xs-12
+									br
+									button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
+									br
+								.col-xs-12.col-lg-6
+									button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal", disabled="disabled").btn.btn-info.btn-block.management_button Rename a Class
+									button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Add Students
+									a(id="ar_history_link", href='javascript:;', disabled="disabled").btn.btn-info.btn-block.management_button Assistance Request History
+									button(id="remove_all_students_button", data-toggle="modal", data-target=".remove-all-students-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Remove All Students
+									br
+								.col-xs-12.col-lg-6
+									button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal", disabled="disabled").btn.btn-info.btn-block.management_button Class Key
+									button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Manage Students
+									a(id="hp_history_link", href='javascript:;', disabled="disabled").btn.btn-info.btn-block.management_button Hall Pass History
+									button(id="delete_class_button", data-toggle="modal", data-target=".delete-class-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Delete Class
 				.col-xs-12
 					button(id="change_password_button", data-toggle="modal", data-target=".change-password-modal").btn.btn-info.btn-block Change Password
 					a(href="/logout").btn.btn-warning.btn-block Logout
@@ -60,8 +66,8 @@ html
 								block
 							else
 								p Oops
-						.model-footer
-							button(type="button", data-dismiss="modal").btn.btn-block.btn-warning Close
+						div
+							button(type="button", data-dismiss="modal", style="border-top-right-radius:0;border-top-left-radius:0;").btn.btn-block.btn-warning Close
 		+modal("create-class-modal", "Create Class")
 			include modules/add_class_module
 		+modal("change-password-modal", "Change Password")
