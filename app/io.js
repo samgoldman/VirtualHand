@@ -48,7 +48,7 @@ module.exports = function (io) {
 
 			// Logged in users
 			if (socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
-				socket.on('Request_PasswordChange', (data) => changePassword(socket, socket.user_data.uid, data.oldPassword, data.newPassword));
+				socket.on('Request_PasswordChange', (data, callback) => changePassword(socket.user_data.uid, data.oldPassword, data.newPassword, callback));
 			}
 
 			// Students only
@@ -121,26 +121,21 @@ module.exports = function (io) {
 			});
 	}
 
-	function changePassword(socket, userID, oldPassword, newPassword) {
+	function changePassword(userID, oldPassword, newPassword, done) {
 		User.findById(userID)
 			.then(function (user) {
 				if (user.validPassword(oldPassword)) {
 					user.password = user.generateHash(newPassword);
 					user.save();
 				} else {
-					throw new Error('Not authorized to change password');
+					throw new Error('Incorrect old password!');
 				}
 			})
 			.then(function () {
-				return 'Your password was changed successfully!';
+				done({success: true, message: 'Your password was changed successfully!'});
 			})
-			.catch(function () {
-				return 'Your current password is incorrect!';
-			})
-			.then(function (message) {
-				socket.emit('Response_PasswordChange', {
-					message: message
-				});
+			.catch(function (err) {
+				done({success: false, message: err});
 			});
 	}
 
