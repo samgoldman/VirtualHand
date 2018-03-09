@@ -25,4 +25,10 @@ window.addEventListener("load", function () {
 
 	$('#remove_all_class_confirm').on('keyup', RemoveAllConfirmClassname);
 	$('#remove_all_students_submit').click(RemoveAllStudents);
+
+	$(".remove-all-students-modal").on("hidden.bs.modal", function(){
+		document.getElementById("remove_all_students_alert_box").innerHTML = '';
+		document.getElementById("remove_all_students_alert_box").style.display = "none";
+		$('#remove_all_class_confirm').val('');
+	});
 });

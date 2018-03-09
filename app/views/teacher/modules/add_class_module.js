@@ -21,4 +21,10 @@ window.addEventListener("load", function () {
 	$('#new_class_submit').each(function () {
 		this.addEventListener('click', NewClassClicked);
 	});
+
+	$(".create-class-modal").on("hidden.bs.modal", function(){
+		$('#new_class_name').val('');
+		document.getElementById("create_class_alert_box").innerHTML = "";
+		document.getElementById("create_class_alert_box").style.display = "none";
+	});
 });

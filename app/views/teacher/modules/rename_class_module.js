@@ -18,4 +18,10 @@ window.addEventListener("load", function () {
 	$('#rename_class_submit').each(function () {
 		this.addEventListener('click', RenameClassClicked);
 	});
+
+	$(".rename-class-modal").on("hidden.bs.modal", function(){
+		$('#class_rename').val('');
+		document.getElementById("rename_class_alert_box").innerHTML = "";
+		document.getElementById("rename_class_alert_box").style.display = "none";
+	});
 });

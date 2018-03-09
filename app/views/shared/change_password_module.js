@@ -13,4 +13,9 @@ socket.on('Response_PasswordChange', function (data) {
 
 window.addEventListener("load", function () {
 	document.getElementById("changePasswordSubmit").addEventListener('click', ChangePasswordClicked);
+
+	$(".change-password-modal").on("hidden.bs.modal", function(){
+		$('#oldPassword').val('');
+		$('#newPassword').val('');
+	});
 });
