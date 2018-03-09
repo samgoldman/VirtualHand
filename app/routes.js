@@ -3,6 +3,8 @@ let path = require('path');
 let fs = require('fs');
 let Course = require('./models/course').model;
 let Enrollment = require('./models/enrollment').model;
+let HallPassRequest = require('./models/hallPassRequest').model;
+let AssistanceRequest = require('./models/assistanceRequest').model;
 let Token = require('./token_manager');
 
 let templates = {
@@ -12,7 +14,9 @@ let templates = {
 	landing: './app/views/landing.pug',
 	login: './app/views/login.pug',
 	signup: './app/views/signup.pug',
-	password_recovery: './app/views/password_recovery.pug'
+	password_recovery: './app/views/password_recovery.pug',
+	teacher_hall_pass_history: './app/views/teacher/teacher_history_hall_pass.pug',
+	teacher_assistance_request_history: './app/views/teacher/teacher_history_assistance_request.pug'
 };
 
 let compiledTemplates = {};
@@ -66,6 +70,34 @@ module.exports = function (app, passport) {
 				};
 
 				res.send(renderFile(templates.teacher_hall_pass, renderData));
+			});
+	});
+
+	app.get('/teacher/history/hallpass/:cid', isLoggedIn, isTeacher, function(req, res) {
+		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
+			.then(() => {return HallPassRequest.find({course: req.params.cid}).populate('student')})
+			.then(function(requests) {
+				let renderData = {
+					user: req.user,
+					requests: requests,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(renderFile(templates.teacher_hall_pass_history, renderData));
+			});
+	});
+
+	app.get('/teacher/history/assistancerequest/:cid', isLoggedIn, isTeacher, function(req, res) {
+		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
+			.then(() => {return AssistanceRequest.find({course: req.params.cid}).populate('student')})
+			.then(function(requests) {
+				let renderData = {
+					user: req.user,
+					requests: requests,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(renderFile(templates.teacher_assistance_request_history, renderData));
 			});
 	});
 

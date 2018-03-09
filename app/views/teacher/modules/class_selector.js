@@ -14,6 +14,8 @@ function UpdateManagementButtons(options) {
 	}
 	if (numSelected === 1) {
 		$('.management_button').removeAttr("disabled");
+		$('#ar_history_link').attr('href', '/teacher/history/assistancerequest/' + getSelectedClassId());
+		$('#hp_history_link').attr('href', '/teacher/history/hallpass/' + getSelectedClassId());
 	} else {
 		$('.management_button').attr("disabled", "disabled");
 	}

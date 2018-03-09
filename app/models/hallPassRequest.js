@@ -13,7 +13,7 @@ let hallPassRequestSchema = mongoose.Schema({
 	grantedTime: {type: Date, default: null},
 	resolved: Boolean,
 	resolvedTime: {type: Date, default: null},
-	resolved_type: Boolean,
+	resolved_type: String,
 	timestamp: {type: Date, default: Date.now}
 });
 
