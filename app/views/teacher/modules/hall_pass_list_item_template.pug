@@ -1,0 +1,10 @@
+.unselectable.listItem
+	span #{username}
+	span &nbsp
+	span #{time}
+	button(onclick='resolvePass(this.value)', value=hrid).btn.btn-sm.btn-danger.pull-right
+		i.fa.fa-fw.fa-minus-circle
+	if includeGrantButton
+		button(onclick='grantPass(this.value)', value=hrid).btn.btn-sm.btn-success.pull-right
+			i.fa.fa-fw.fa-check-circle
+br

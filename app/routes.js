@@ -1,147 +1,208 @@
-var pug = require('pug');
-var path = require('path');
-var fs = require('fs');
+let pug = require('pug');
+let path = require('path');
+let fs = require('fs');
+let Course = require('./models/course').model;
+let Enrollment = require('./models/enrollment').model;
+let HallPassRequest = require('./models/hallPassRequest').model;
+let AssistanceRequest = require('./models/assistanceRequest').model;
+let Token = require('./token_manager');
 
-module.exports = function(app, passport) {
-    const adminHomePage = pug.compileFile('./app/views/admin_home.pug', undefined);
-    const studentHomePage = pug.compileFile('./app/views/student_home.pug', undefined);
-    const teacherHomePage = pug.compileFile('./app/views/teacher_home.pug', undefined);
-    const landingPage = pug.compileFile('./app/views/landing.pug', undefined);
-    const loginPage = pug.compileFile('./app/views/login.pug', undefined);
-    const signupPage = pug.compileFile('./app/views/signup.pug', undefined);
-    const passwordRecoveryPage = pug.compileFile('./app/views/password_recovery.pug', undefined);
+let templates = {
+	student_home: './app/views/student/student_home.pug',
+	teacher_home: './app/views/teacher/teacher_home.pug',
+	teacher_hall_pass: './app/views/teacher/teacher_hall_pass.pug',
+	landing: './app/views/landing.pug',
+	login: './app/views/login.pug',
+	signup: './app/views/signup.pug',
+	password_recovery: './app/views/password_recovery.pug',
+	teacher_hall_pass_history: './app/views/teacher/teacher_history_hall_pass.pug',
+	teacher_assistance_request_history: './app/views/teacher/teacher_history_assistance_request.pug'
+};
 
-    var dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
-    var stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
-    var vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
+let compiledTemplates = {};
+Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
 
-    app.get('/home', isLoggedIn, function(req, res){
-        if (req.user.is_admin) {
-            res.send(renderAdminHome(req));
-        }
-        if (req.user.is_student) {
-            res.send(renderStudentHome(req));
-        }
-        if (req.user.is_teacher) {
-            res.send(renderTeacherHome(req));
-        }
-    });
+fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
 
-    app.get('/logout', isLoggedIn, function(req, res) {
-        req.logout();
-        res.redirect('/');
-    });
+function renderFile(filename, data) {
+	if (process.env.VH_ENV === 'DEVELOPMENT') {
+		return pug.renderFile(filename, data, undefined);
+	} else {
+		return compiledTemplates[filename](data);
+	}
+}
 
-    app.get('/', function(req, res) {
-        res.send(landingPage({
-        }));
-    });
+module.exports = function (app, passport) {
 
-    app.get('/login', isNotLoggedIn, function(req, res) {
-        res.send(loginPage({
-            message : req.flash('loginMessage')
-        }));
-    });
 
-    app.post('/login', isNotLoggedIn, passport.authenticate('local-login', {
-        successRedirect : '/home', // redirect to the secure home section
-        failureRedirect : '/login', // redirect back to the login page if there is an error
-        failureFlash : true
-    }));
+	let dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
+	let stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
+	let vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
 
-    app.get('/signup', isNotLoggedIn, function(req, res) {
+	app.get('/home', isLoggedIn, function (req, res) {
+		if (req.user.role === 'teacher') {
+			res.redirect('/teacher/home');
+		} else if (req.user.role === 'student') {
+			res.redirect('/student/home');
+		}
+	});
 
-        // render the page and pass in any flash data if it exists
-        res.send(signupPage( {
-            message : req.flash('signupMessage')
-        }));
-    });
+	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
+		Course.find({teacher: req.user._id}).sort('courseName')
+			.then(function (courses) {
+				let renderData = {
+					user: req.user,
+					courses: courses,
+					token: Token.getSocketToken(req.user)
+				};
 
-    app.post('/signup', isNotLoggedIn, passport.authenticate('local-signup', {
-        successRedirect : '/home', // redirect to the secure home section
-        failureRedirect : '/signup', // redirect back to the signup page if there is an error
-        failureFlash : true
-    }));
+				res.send(renderFile(templates.teacher_home, renderData));
+			});
+	});
 
-    app.get('/recoverpassword', isNotLoggedIn, function(req, res) {
-        res.send(passwordRecoveryPage({
-        }));
-    });
+	app.get('/teacher/hallpass', isLoggedIn, isTeacher, function(req, res) {
+		Course.find({teacher: req.user._id}).sort('courseName')
+			.then(function (courses) {
+				let renderData = {
+					user: req.user,
+					courses: courses,
+					token: Token.getSocketToken(req.user)
+				};
 
-    app.get('/stl_logo', function(req, res) {
-        res.set({
-            'Content-Type' : 'image/png'
-        });
-        var readStream = fs.createReadStream(stlLogoFilepath);
-        readStream.pipe(res);
-    });
+				res.send(renderFile(templates.teacher_hall_pass, renderData));
+			});
+	});
 
-    app.get('/vh_logo', function(req, res) {
-        res.set({
-            'Content-Type' : 'image/png'
-        });
-        var readStream = fs.createReadStream(vhLogoFilepath);
-        readStream.pipe(res);
-    });
+	app.get('/teacher/history/hallpass/:cid', isLoggedIn, isTeacher, function(req, res) {
+		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
+			.then(() => {return HallPassRequest.find({course: req.params.cid}).populate('student')})
+			.then(function(requests) {
+				let renderData = {
+					user: req.user,
+					requests: requests,
+					token: Token.getSocketToken(req.user)
+				};
 
-    app.get('/notification_audio', function(req, res) {
-        res.set({
-            'Content-Type' : 'audio/mpeg'
-        });
-        var readStream = fs.createReadStream(dingFilepath);
-        readStream.pipe(res);
-    });
+				res.send(renderFile(templates.teacher_hall_pass_history, renderData));
+			});
+	});
 
-    function renderAdminHome(req){
-        return adminHomePage({
-            user : req.user,
-            session : req.session,
-            env : process.env.NODE_ENV
-        });
-    }
+	app.get('/teacher/history/assistancerequest/:cid', isLoggedIn, isTeacher, function(req, res) {
+		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
+			.then(() => {return AssistanceRequest.find({course: req.params.cid}).populate('student')})
+			.then(function(requests) {
+				let renderData = {
+					user: req.user,
+					requests: requests,
+					token: Token.getSocketToken(req.user)
+				};
 
-    function renderStudentHome(req){
-        return studentHomePage({
-            user : req.user,
-            session : req.session
-        });
-    }
+				res.send(renderFile(templates.teacher_assistance_request_history, renderData));
+			});
+	});
 
-    function renderTeacherHome(req){
-        var m_send = "";
-        if (req.user.metaData) {
-            for (var i = 0; i < req.user.metaData.length; i++) {
-                if (!req.user.metaData[i].sent) {
-                    m_send += req.user.metaData[i].message + " ";
-                }
-                req.user.metaData[i].sent = true;
-            }
-            req.user.save();
-        }
-        return teacherHomePage({
-            user : req.user,
-            session : req.session,
-            message : m_send
-        });
-    }
+	app.get('/student/home', isLoggedIn, isStudent, function(req, res) {
+		Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
+			.then(function (enrollments) {
+				let renderData = {
+					user: req.user,
+					enrollments: enrollments,
+					token: Token.getSocketToken(req.user)
+				};
+
+				res.send(renderFile(templates.student_home, renderData));
+			});
+	});
+
+	app.get('/logout', isLoggedIn, function (req, res) {
+		req.logout();
+		res.redirect('/');
+	});
+
+	app.get('/', function (req, res) {
+		res.send(renderFile(templates.landing, {}));
+	});
+
+	app.get('/login', isNotLoggedIn, function (req, res) {
+		res.send(renderFile(templates.login, {
+			message: req.flash('loginMessage')
+		}));
+	});
+
+	app.post('/login', isNotLoggedIn, passport.authenticate('local-login', {
+		successRedirect: '/home', // redirect to the secure home section
+		failureRedirect: '/login', // redirect back to the login page if there is an error
+		failureFlash: true
+	}));
+
+	app.get('/signup', isNotLoggedIn, function (req, res) {
+		// render the page and pass in any flash data if it exists
+		res.send(renderFile(templates.signup, {
+			message: req.flash('signupMessage')
+		}));
+	});
+
+	app.post('/signup', isNotLoggedIn, passport.authenticate('local-signup', {
+		successRedirect: '/home', // redirect to the secure home section
+		failureRedirect: '/signup', // redirect back to the signup page if there is an error
+		failureFlash: true
+	}));
+
+	app.get('/recoverpassword', isNotLoggedIn, function (req, res) {
+		res.send(renderFile(templates.password_recovery, {
+			token: Token.getSocketToken(null)
+		}));
+	});
+
+	app.get('/stl_logo', function (req, res) {
+		res.set({'Content-Type': 'image/png'});
+		let readStream = fs.createReadStream(stlLogoFilepath);
+		readStream.pipe(res);
+	});
+
+	app.get('/vh_logo', function (req, res) {
+		res.set({'Content-Type': 'image/png'});
+		let readStream = fs.createReadStream(vhLogoFilepath);
+		readStream.pipe(res);
+	});
+
+	app.get('/notification_audio', function (req, res) {
+		res.set({'Content-Type': 'audio/mpeg'});
+		let readStream = fs.createReadStream(dingFilepath);
+		readStream.pipe(res);
+	});
 };
 
 function isLoggedIn(req, res, next) {
+	// if user is authenticated in the session, carry on
+	if (req.isAuthenticated())
+		return next();
 
-    // if user is authenticated in the session, carry on
-    if (req.isAuthenticated())
-        return next();
-
-    // if they aren't redirect them to the login page
-    res.redirect('/login');
+	// if they aren't redirect them to the login page
+	res.redirect('/login');
 }
 
 function isNotLoggedIn(req, res, next) {
+	// if user is authenticated in the session, carry on
+	if (req.isAuthenticated()) {
+		res.redirect('/home');
+	} else {
+		return next();
+	}
+}
 
-    // if user is authenticated in the session, carry on
-    if (req.isAuthenticated()) {
-        res.redirect('/home');
-    } else {
-        return next();
-    }
+// If the user is a teacher, continue,
+// Otherwise, redirect them home
+function isTeacher(req, res, next) {
+	if(req.user.role === 'teacher')
+		return next();
+	res.redirect('/home');
+}
+
+// If the user is a student, continue,
+// Otherwise, redirect them home
+function isStudent(req, res, next) {
+	if(req.user.role === 'student')
+		return next();
+	res.redirect('/home');
 }

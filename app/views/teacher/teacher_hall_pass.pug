@@ -1,0 +1,29 @@
+doctype html
+html
+	meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no")
+	head
+		title Virtual Hand Hall Passes
+
+		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css")
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+		style
+			include ../../../client/css/teacher_home.css
+		script
+			include ../../../client/js/google_analytics.js
+		script(src="/socket.io/socket.io.js")
+		script.
+			let socket = io({query: {token: '#{token}'}});
+			console.log(socket);
+	body
+		div(id="main").container
+			.col-xs-12.col-lg-6.col-lg-offset-3
+				h1(align="center") Hall Passes
+				div.col-sm-6.col-sm-offset-3
+					include modules/class_selector
+				div.col-sm-12
+					include modules/hall_pass_module
+				.col-xs-12
+					a(href="/teacher/home").btn.btn-warning.btn-block Return Home
+					a(href="/logout").btn.btn-warning.btn-block Logout

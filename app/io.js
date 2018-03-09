@@ -1,671 +1,456 @@
 // Load the models
-var User = require('./models/user').model;
-var Hand = require('./models/hand');
-var Room = require('./models/room').model;
-
-var Promise = require('bluebird');
-
-// Send emails
-var nodemailer = require('nodemailer');
-
-// For password resets
-var randomstring = require("randomstring");
+let User = require('./models/user').model;
+let Enrollment = require('./models/enrollment').model;
+let Course = require('./models/course').model;
+let AssistanceRequest = require('./models/assistanceRequest').model;
+let HallPassRequest = require('./models/hallPassRequest').model;
+let nodemailer = require('nodemailer');
+let randomstring = require("randomstring");
+let Promise = require('bluebird');
+let Token = require('./token_manager');
 
 // app/routes.js
 module.exports = function (io) {
-    // Create the object used to send the emails
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.VH_EMAIL,
-            pass: process.env.VH_EMAIL_PASSWORD
-        }
-    });
+	// Create the object used to send the emails
+	let transporter = nodemailer.createTransport({
+		service: 'gmail',
+		auth: {
+			user: process.env.VH_EMAIL,
+			pass: process.env.VH_EMAIL_PASSWORD
+		}
+	});
 
-    var userCount = 0;
+	let userCount = 0;
 
-    // Configure what happens when each event is called
-    io.on('connection', function (socket) {
-        userCount++;
-        socket.on('disconnect', function () {
-            userCount--;
-        });
+	function authenticateIO(socket, next) {
+		// Token must be present to authenticate
+		if (socket.handshake.query && socket.handshake.query.token) {
+			Token.verifyToken(socket.handshake.query.token, (err, decoded) => {
+				if (err) return next(new Error('Authentication error'));
+				socket.user_data = decoded;
+				next();
+			});
+		}
+		next(new Error('Authentication Error'));
+	}
 
-        //Public
-        socket.on('ContactUs', function () {
-            // Use action_log_handler to email admin w/ name, email and message
-            // TODO
-        });
-        socket.on('RecoverPassword', function (data) {
-            recoverPassword(socket, data.user_name);
-        });
+	io.use(authenticateIO)
+		.on('connection', function (socket) {
+			userCount++;
+			socket.on('disconnect', function () {
+				userCount--;
+			});
 
-        //User
-        socket.on('ChangePassword', function (data) {
-            changePassword(socket, data.user_id, data.oldPass, data.newPass);
-        });
+			// ALL - public included
+			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
+				socket.on('Request_RecoverPassword', function (data) {
+					recoverPassword(socket, data.user_name);
+				});
+			}
 
+			// Logged in users
+			if (socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
+				socket.on('Request_PasswordChange', (data) => changePassword(socket, socket.user_data.uid, data.oldPassword, data.newPassword));
+			}
 
-        //Admin
-        socket.on('GetLoggedInCount', function () {
-            socket.emit('LoggedInCount', {count: userCount});
-        });
-        socket.on('CreateMessage', function (data) {
-            createMessage(data.name, data.message);
-        });
+			// Students only
+			if (socket.user_data.role === 'student') {
+				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(socket.user_data.uid, data.cid))
+					.on('Request_ResolveAssistanceRequest', (data) => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid))
+					.on('Request_EnrollStudent', (data) => enrollStudent(socket, socket.user_data.uid, data.courseKey))
+					.on('Request_HallPassRequestStatus', (data) => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateHallPassRequest', (data) => initiateHallPassRequest(socket.user_data.uid, data.cid))
+					.on('Request_StudentResolveHallPassRequest', (data) => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
+			}
 
-        //Teacher
-        socket.on('CreateClass', function (data) {
-            createRoom(socket, data.user_id, data.classname);
-        });
-        socket.on('GetClassKey', function (data) {
-            getRoomKey(socket, data.class_id);
-        });
-        socket.on('ChangeClassKey', function (data) {
-            changeClassKey(socket, data.class_id, data.newkey);
-        });
-        socket.on('ChangeStudentPassword', function (data) {
-            changeStudentPassword(socket, data.student_id, data.new_password);
-        });
-        socket.on('ChangeClassName', function (data) {
-            changeClassName(socket, data.class_id, data.new_classname, data.id, data.user_id);
-        });
-        socket.on('GetHandsForClasses', function (data) {
-            sendHands(socket, data.classes, data.id);
-        });
-        socket.on('AdmitToClass', function (data) {
-            admit(data.hand_state_id);
-        });
-        socket.on('GetAllHandsForClasses', function (data) {
-            sendAllHands(socket, data.classes, data.user_id, data.id);
-        });
-        socket.on('RemoveStudent', function (data) {
-            removeStudent(data.hand_state_id);
-        });
-        socket.on('TeacherCreateStudent', function (data) {
-            createStudent(socket, data.student_name, data.password, data.class_id, data.user_id);
-        });
-        socket.on('TeacherEnrollStudent', function (data) {
-            enrollStudent(socket, data.student_id, data.class_id, data.user_id);
-        });
-        socket.on('GetRandomStudent', function (data) {
-            sendRandomStudent(socket, data.classes);
-        });
+			// Teachers only
+			if (socket.user_data.role === 'teacher') {
+				socket.on('Request_CourseCreate', (data) => createCourse(socket, socket.user_data.uid, data.courseName))
+					.on('Request_RandomStudent', (data) => getRandomStudent(socket, data.cid))
+					.on('Request_CourseRename', (data) => renameCourse(socket, data.cid, data.newCourseName))
+					.on('Request_AddStudents', (data) => addStudents(socket, data.cid, data.csv, data.defaultPassword))
+					.on('Request_RetrieveAssistanceRequests', (data) => retrieveAssistanceRequests(socket, data.cids, data.qty))
+					.on('Request_TeacherResolveAssistanceRequest', (data) => teacherResolveAssistanceRequest(data.arid))
+					.on('Request_StudentsForClass', (data) => sendStudentsForClass(socket, data.cid))
+					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.sid))
+					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.sid))
+					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
+					.on('Request_RetrieveCourseKey', (data) => retrieveCourseKey(socket, data.cid))
+					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid))
+					.on('Request_RetrieveHallPassRequests', (data) => retrieveHallPassRequests(socket, data.cids))
+					.on('Request_TeacherResolveHallPassRequest', (data) => teacherResolveHallPassRequest(data.hrid))
+					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid))
+					.on('Request_TeacherResolveAllAssistanceRequests', (data) => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
+					.on('Request_TeacherResolveAllHallPassRequests', (data) => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid));
+			}
+		});
 
-        //Student
-        socket.on('ChangeHand', function (data) {
-            changeHand(data.handstate_id).then(function (data) {
-                io.emit('HandStateChange', data);
-            });
-        });
-        socket.on('Enroll', function (data) {
-            enroll(socket, data.id, data.class_key, data.user_id);
-        });
-        socket.on('GetInitialHand', function (data) {
-            sendInitialHand(data.id, data.handstate_id).then(function (data) {
-                socket.emit('SendInitialHand', data);
-            });
-        });
-    });
+	function recoverPassword(socket, username) {
+		User.findOne({'username': username})
+			.exec()
+			.then(function (user) {
+				if (!user || !user.email || user.email === "")
+					return "Cannot recover password: either user does not exist or there is no email on record.";
 
-    function recoverPassword(socket, username) {
-        User.findOne({'username': username})
-            .exec()
-            .then(function (user) {
-                if (!user) {
-                    return "There is no record of a user with that username.";
-                }
-                if (user.is_student) {
-                    return "The system cannot reset passwords for students. Please contact your teacher, who can reset your password.";
-                }
-                if (user.email === "") {
-                    return "The system does not have an email for your account, which means you are not a paid subscriber. Please contact Virtual Hand support at sgoldman216@gmail.com with your username to have your account recovered.";
-                }
+				// TODO: need better password reset method!
+				// If all conditions are met, reset the password
+				let newPass = randomstring.generate(12);
+				user.password = user.generateHash(newPass);
+				user.save();
+				let email_text = "Virtual Hand has received a request for your account's password to be reset. Your new password is: " + newPass + "\nPlease change it right away.";
+				transporter.sendMail({
+					to: user.email,
+					subject: 'Virtual Hand Password Reset',
+					text: email_text
+				}, function (error, info) {
+					if (error) {
+						console.log(error);
+					} else {
+						console.log('Message sent: ' + info.response);
+					}
+				});
 
-                // If all conditions are met, reset the password
-                var newPass = randomstring.generate(12);
-                user.password = user.generateHash(newPass);
-                user.save();
-                var email_text = "Virtual Hand has received a request for your account's password to be reset. Your new password is: " + newPass + "\nPlease change it right away.";
-                transporter.sendMail({
-                    to: user.email,
-                    subject: 'Virtual Hand Password Reset',
-                    text: email_text
-                }, function (error, info) {
-                    if (error) {
-                        // TODO log
-                        console.log(error);
-                    } else {
-                        console.log('Message sent: ' + info.response);
-                    }
-                });
+				return "Your password has been reset. Please check your email to receive your new password.";
+			})
+			.then(function (message) {
+				socket.emit('Response_RecoverPassword', {
+					message: message
+				});
+			})
+			.catch(function (err) {
+				console.log(err);
+			});
+	}
 
-                return "Your password has been reset. Please check your email (" + user.email + ") to receive your new password.";
-            })
-            .then(function (message) {
-                socket.emit('RecoverPasswordResponse', {
-                    message: message
-                });
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO Log this error
-            });
-    }
+	function changePassword(socket, userID, oldPassword, newPassword) {
+		User.findById(userID)
+			.then(function (user) {
+				if (user.validPassword(oldPassword)) {
+					user.password = user.generateHash(newPassword);
+					user.save();
+				} else {
+					throw new Error('Not authorized to change password');
+				}
+			})
+			.then(function () {
+				return 'Your password was changed successfully!';
+			})
+			.catch(function () {
+				return 'Your current password is incorrect!';
+			})
+			.then(function (message) {
+				socket.emit('Response_PasswordChange', {
+					message: message
+				});
+			});
+	}
 
-    function changePassword(socket, userID, oldPassword, newPassword) {
-        User.findById(userID)
-            .exec()
-            .then(function (user) {
-                return user;
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO Log error
-            })
-            .then(function (user) {
-                if (user.validPassword(oldPassword)) {
-                    user.password = user.generateHash(newPassword);
-                    return Promise.cast(user.save());
-                } else {
-                    throw new Error('Not authorized to change password');
-                }
-            })
-            .then(function () {
-                return 'Your password was changed successfully!';
-            })
-            .catch(function () {
-                return 'Your current password is incorrect!';
-            })
-            .then(function (message) {
-                socket.emit('ChangePasswordResponse', {
-                    message: message
-                });
-            });
-    }
+	function createCourse(socket, uid, courseName) {
+		User.findById(uid)
+			.then(function (user) {
+				uid = user._id;
+				let data = {};
+				if (!courseName || courseName === "") {
+					data.message = "Class not created: Name must not be blank!";
+					data.success = false;
+				} else {
+					let newCourse = new Course();
+					newCourse.courseName = courseName;
+					newCourse.teacher = uid;
+					newCourse.save();
 
+					data.courseId = newCourse._id;
+					data.courseName = courseName;
+					data.message = "Class created successfully.";
+					data.success = true;
+				}
+				socket.emit('Response_CourseCreate', data);
+			});
+	}
 
-    function createMessage(n, m) {
-        var data = {name: n, message: m, sent: false};
-        User.find({isTeacher: true})
-            .exec()
-            .then(function (users) {
-                for (var i = 0; i < users.length; i++) {
-                    users[i].metaData.push(data);
-                    users[i].save();
-                }
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO Handle err
-            });
-    }
+	function getRandomStudent(socket, cid) {
+		Enrollment.count({course: cid, valid: true, admitted: true})
+			.then(function (count) {
+				return Enrollment.findOne({
+					course: cid,
+					valid: true,
+					admitted: true
+				}).skip(Math.floor(Math.random() * count)).populate('student');
+			})
+			.then(function (enrollment) {
+				if (enrollment)
+					socket.emit('Response_RandomStudent', {'randomStudentName': enrollment.student.username});
+			});
+	}
 
+	function renameCourse(socket, cid, newCourseName) {
+		if (!newCourseName || newCourseName === "") {
+			socket.emit('Response_RenameCourse', {
+				success: false,
+				message: 'Class not renamed: Name must not be blank!'
+			});
+		} else {
+			Course.findByIdAndUpdate(cid, {courseName: newCourseName})
+				.then(function (course) {
+					return Course.findById(course._id);
+				})
+				.then(function (course) {
+					socket.emit('Response_CourseRename', {
+						success: true,
+						message: 'Class renamed successfully.',
+						courseId: course._id,
+						courseName: course.courseName
+					});
+				});
+		}
+	}
 
-    function createRoom(socket, user_id, roomname) {
-        User.findById(user_id).populate("teacher_classes")
-            .exec()
-            .then(function (user) {
-                for (var i = 0; i < user.teacher_classes.length; i++) {
-                    if (user.teacher_classes[i].classname === roomname) {
-                        return "Class not created: you already have a class of this name!";
-                    }
-                }
+	function addStudent(student) {
+		return User.findOrCreate(student.username, student.password)
+			.then(function (user) {
+				return Enrollment.findOrCreate(student.cid, user._id, true);
+			})
+			.then(function () {
+				return User.find({username: student.username});
+			});
+	}
 
-                var newRoom = new Room();
-                newRoom.classname = roomname;
-                newRoom.hands = [];
+	function addStudents(socket, cid, csv, defaultPassword) {
+		let csvSplit = csv.split(',');
+		let newStudents = [];
+		csvSplit.map((username) => {
+			newStudents.push({username: username, cid: cid, password: defaultPassword})
+		});
 
-                newRoom.save();
-                user.teacher_classes.push(newRoom.id);
-                user.save();
-                return "Class created successfully!";
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO catch error
-            })
-            .then(function (message) {
-                socket.emit('CreateClassResponse', {
-                    message: message
-                });
-            });
-    }
+		Promise.map(newStudents, addStudent)
+			.then(function () {
+				socket.emit('Response_AddStudents', {
+					success: true,
+					message: 'Students successfully added to the class.'
+				});
+			});
+	}
 
-    function getRoomKey(socket, room_id) {
-        Room.findById(room_id)
-            .exec()
-            .then(function (room) {
-                if (!room.classKey) {
-                    createNewKey(function (newkey) {
-                        room.classKey = newkey;
-                        room.save();
-                    });
-                } else {
-                    socket.emit('SendClassKey', {
-                        key: room.classKey
-                    });
-                }
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO catch err
-            });
-    }
+	function sendAssistanceRequestStatus(socket, uid, cid) {
+		AssistanceRequest.count({course: cid, student: uid, resolved: false})
+			.then(function (count) {
+				socket.emit('Response_AssistanceRequestStatus', {status: (count !== 0)})
+			});
+	}
 
-    function changeClassKey(socket, class_id, newkey) {
-        verifyNewKey(newkey, function (valid) {
-            if (valid) {
-                Room.findById(class_id)
-                    .exec()
-                    .then(function (room) {
-                        room.classKey = newkey;
-                        room.save();
-                        getRoomKey(socket, class_id);
-                    });
-            }
-            socket.emit('ChangeClassKeyResponse', {
-                success: valid
-            });
-        });
-    }
+	function initiateAssistanceRequest(uid, cid) {
+		AssistanceRequest.findOne({student: uid, course: cid, resolved: false})
+			.then(function (ar) {
+				if (ar)
+					throw 'Request for this student in this class already exists';
+				else
+					return AssistanceRequest.create({student: uid, course: cid, resolved: false});
+			})
+			.then(function () {
+				io.emit('Broadcast_AssistanceRequestModified');
+			})
+			.catch(function () {
+			});
+	}
 
-    function createNewKey(callback) {
-        var newKey = randomstring.generate(4);
-        Room.findOne({'classKey': newKey})
-            .exec()
-            .then(function (room) {
-                if (!room) {
-                    callback(newKey);
-                } else {
-                    createNewKey(callback);
-                }
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO
-            });
-    }
+	function resolveAssistanceRequestByStudentAndClass(uid, cid) {
+		AssistanceRequest.find({student: uid, course: cid, resolved: false})
+			.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
+			.then(function () {
+				io.emit('Broadcast_AssistanceRequestModified');
+			});
+	}
 
-    function verifyNewKey(newKey, callback) {
-        Room.findOne({'classKey': newKey})
-            .exec()
-            .then(function (room) {
-                callback(!room);
-            })
-            .catch(function (err) {
-                console.log(err);
-                // TODO
-            });
-    }
+	function retrieveAssistanceRequests(socket, cids) {
+		AssistanceRequest.find({course: {$in: cids}, resolved: false})
+			.sort('requestTime')
+			.populate('student')
+			.then(function (requests) {
+				socket.emit('Response_RetrieveAssistanceRequests', {requests: requests});
+			});
+	}
 
-    function enrollStudent(socket, student_id, room_id, user_id) {
-        var room = null;
-        var student = null;
-        User.findById(user_id)
-            .populate('teacher_classes')
-            .exec()
-            .then(function (teacher) {
-                if (teacher !== null) { // If the teacher exists
-                    for (var i = 0; i < teacher.teacher_classes.length; i++) {
-                        if (teacher.teacher_classes[i].id === room_id) {
-                            return teacher.teacher_classes[i];
-                        }
-                    }
-                }
-            })
-            .then(function (_room) {
-                room = _room;
-                if (room !== null) {
-                    return Promise.cast(User.findById(student_id).populate("student_classes").exec());
-                }
-            })
-            .then(function (_student) {
-                student = _student;
-                return Hand.getOneHand({user: student_id, class_id: room_id});
-            })
-            .then(function (hand) {
-                if (hand) {
-                    socket.emit('TeacherEnrollStudentResponse', {
-                        message: '"' + student.username + '" is already in this class.'
-                    });
-                } else {
-                    Hand.createHand(student, false, true, room.id)
-                        .then(function (newHand) {
+	function teacherResolveAssistanceRequest(arid) {
+		AssistanceRequest.findById(arid)
+			.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
+			.then(function () {
+				io.emit('Broadcast_AssistanceRequestModified');
+			});
+	}
 
-                            room.hands.push(newHand);
-                            room.save();
+	function teacherResolveAllAssistanceRequests(uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return AssistanceRequest.find({course: cid, resolved: false});})
+			.then(function(requests) {
+				requests.forEach((request) => teacherResolveAssistanceRequest(request._id));
+			})
+			.catch((err) => {console.log('Err: ' + err)});
+	}
 
-                            student.student_classes.push(room);
-                            student.save();
+	function sendStudentsForClass(socket, cid) {
+		Enrollment.find({course: cid, valid: true}).populate('student').sort('student.username')
+			.then(function (enrollments) {
+				socket.emit('Response_StudentsForClass', {enrollments: enrollments});
+			});
+	}
 
-                            socket.emit('TeacherEnrollStudentResponse', {
-                                message: 'Successfully enrolled student with username "' + student.username + '".'
-                            });
+	function admitStudent(socket, cid, uid) {
+		Enrollment.find({course: cid, student: uid, valid: true}).update({admitted: true})
+			.then(function () {
+				socket.emit('Response_AdmitStudent', {cid: cid, student: uid});
+			});
+	}
 
-                            io.emit('HandStateChange', {
-                                hand_state_id: newHand.id,
-                                hand_admitted: newHand.admitted,
-                                hand_state: newHand.hand_state,
-                                username: newHand.user.username,
-                                class_id: newHand.class_id
-                            });
-                        });
-                }
-            });
-    }
+	function removeStudent(socket, cid, uid) {
+		Enrollment.find({course: cid, student: uid, valid: true}).update({valid: false})
+			.then(function () {
+				socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
+			});
+	}
 
-    function createStudent(socket, student_name, password, room_id, uid) {
-        if (!student_name || student_name === null || student_name === "") {
-            return;
-        }
-        // the new student
-        User.findOne({'username': student_name})
-            .exec()
-            .then(function (user) {
-                if (user) {
-                    socket.emit('TeacherCreateStudentResponse', {
-                        message: 'Failed to create student with username "' + student_name + '" because there is already a user with that username. Trying to enroll the student.'
-                    });
-                    enrollStudent(socket, user.id, room_id, uid);
-                } else {
+	function changeStudentPassword(socket, tid, cid, sid, password) {
+		User.findById(tid)
+			.then(function (teacher) {
+				if (!teacher) throw "Teacher doesn't exist";
+				return Course.findOne({_id: cid, teacher: tid});
+			})
+			.then(function (course) {
+				if (!course) throw "Teacher doesn't teacher that course";
+				return Enrollment.find({course: cid, student: sid, valid: true, enrolled: true});
+			})
+			.then(function (enrollment) {
+				if (!enrollment) throw "Student isn't in that class";
+				return User.findOne({_id: sid});
+			})
+			.then(function (user) {
+				user.password = user.generateHash(password);
+				user.save();
+			})
+			.then(function () {
+				socket.emit('Response_ChangeStudentPassword', {
+					success: true,
+					message: 'Successfully changed the password'
+				});
+			})
+			.catch(function (err) {
+				socket.emit('Response_ChangeStudentPassword', {success: false, message: err});
+			});
+	}
 
-                    // if there is no user with that username create the user
-                    var newUser = new User();
+	function retrieveCourseKey(socket, cid) {
+		Course.findById(cid)
+			.then(function (course) {
+				if (!course.courseKey || course.courseKey === "") {
+					course.courseKey = Course.generateCourseKey();
+					course.save();
+				}
+				socket.emit('Response_RetrieveCourseKey', {cid: course._id, key: course.courseKey});
+			})
+			.then(function (newKey) {
 
-                    // set the user's credentials
-                    newUser.username = student_name;
-                    newUser.password = newUser.generateHash(password);
-                    newUser.email = "";
-                    newUser.is_student = true;
-                    newUser.is_teacher = false;
-                    newUser.is_admin = false;
+			})
+	}
 
-                    // Save the user
-                    newUser.save(function () {
-                        // When the user is saved, find the teacher
-                        User.findById(uid).populate('teacher_classes')
-                            .exec()
-                            .then(function (teacher) {
-                                if (teacher !== null) {
-                                    var classObject = null;
+	function assignNewCourseKey(socket, cid) {
+		Course.findById(cid)
+			.update({courseKey: Course.generateCourseKey()})
+			.then(function () {
+				socket.emit('Response_AssignNewCourseKey', {success: true});
+			})
+			.catch(function () {
+				socket.emit('Response_AssignNewCourseKey', {success: false});
+			});
+	}
 
-                                    for (var i = 0; i < teacher.teacher_classes.length; i++) {
-                                        if (teacher.teacher_classes[i].id === room_id) {
-                                            classObject = teacher.teacher_classes[i];
-                                            break;
-                                        }
-                                    }
+	function enrollStudent(socket, sid, courseKey) {
+		Course.findOne({courseKey: courseKey})
+			.then(function (course) {
+				if (!course) {
+					throw "Course Key is invalid";
+				}
+				return Enrollment.findOrCreate(course._id, sid, false);
+			})
+			.then(function () {
+				socket.emit('Response_EnrollStudent', {
+					success: true,
+					message: 'Enrolled sucessfully: your teacher must now admit you into the class.'
+				});
+			})
+			.catch(function (err) {
+				socket.emit('Response_EnrollStudent', {success: false, message: err});
+			})
+	}
 
-                                    if (classObject !== null) {
-                                        Hand.createHand(newUser, false, true, classObject.id)
-                                            .then(function (newHand) {
+	function sendHallPassRequestStatus(socket, uid, cid) {
+		HallPassRequest.findOne({course: cid, student: uid, resolved: false})
+			.exec()
+			.then(function (request) {
+				socket.emit('Response_HallPassRequestStatus', {request: request})
+			});
+	}
 
-                                                classObject.hands.push(newHand);
+	function retrieveHallPassRequests(socket, cids) {
+		HallPassRequest.find({course: {$in: cids}, resolved: false})
+			.sort('requestTime')
+			.populate('student')
+			.then(function (requests) {
+				socket.emit('Response_RetrieveHallPassRequests', {requests: requests});
+			});
+	}
 
-                                                classObject.save(function () {
-                                                    newUser.student_classes.push(classObject);
-                                                    newUser.save(function () {
-                                                        socket.emit('TeacherCreateStudentResponse', {
-                                                            message: 'Successfully created student with username "' + student_name + '".'
-                                                        });
-                                                    });
+	function initiateHallPassRequest(sid, cid) {
+		Enrollment.confirmStudentInClass(sid, cid)
+			.then(HallPassRequest.findOne({student: sid, course: cid, resolved: false}))
+			.then(function (hpr) {
+				if (hpr)
+					throw 'Request for this student in this class already exists';
+				else
+					return HallPassRequest.create({student: sid, course: cid, resolved: false, granted: false});
+			})
+			.then(function () {
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch(function (err) {
+				console.log(err);
+			});
+	}
 
-                                                });
-                                            });
-                                    }
-                                }
-                            });
+	function studentResolveHallPassRequest(sid, cid) {
+		HallPassRequest.find({student: sid, course: cid, resolved: false})
+			.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}
 
-                    });
+	function teacherResolveHallPassRequest(hrid) {
+		HallPassRequest.findById(hrid)
+			.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {});
+	}
 
-                }
+	function teacherResolveAllHallPassRequests(uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return HallPassRequest.find({course: cid, resolved: false});})
+			.then(function(requests) {
+				requests.forEach((request) => teacherResolveHallPassRequest(request._id));
+			})
+			.catch((err) => {console.log('Err: ' + err)});
+	}
 
-            });
-    }
-
-    function changeStudentPassword(socket, hand_id, newPass) {
-        Hand.getHandById(hand_id)
-            .then(function (hand) {
-                User.findById(hand.user)
-                    .exec()
-                    .then(function (user) {
-                        console.log(user);
-                        user.password = user.generateHash(newPass);
-                        user.save();
-                        socket.emit('ChangeStudentPasswordResponse', {
-                            message: user.username + '\'s password was changed successfully!'
-                        });
-                    });
-            });
-    }
-
-    function changeClassName(socket, cid, classname, sid, uid) {
-        if (classname === "") {
-            socket.emit('ChangeClassNameResponse', {
-                id: sid,
-                message: 'Class name was not changed: classname cannot be blank.'
-            });
-        } else {
-            User.findById(uid).populate('teacher_classes').exec().then(function (user) {
-                var classNameMatch = false;
-                for (var i = 0; i < user.teacher_classes.length; i++) {
-                    if (classname === user.teacher_classes[i].classname) {
-                        classNameMatch = true;
-                    }
-                }
-                if (classNameMatch) {
-                    socket.emit('ChangeClassNameResponse', {
-                        id: sid,
-                        message: 'Class name was not changed: you already have a class with this name.'
-                    });
-                } else {
-                    Room.findById(cid).exec().then(function (classObject) {
-                        if (err) {
-                        }
-                        classObject.classname = classname;
-                        classObject.save(function (err) {
-                            if (err) {
-                            }
-                        });
-                        socket.emit('ChangeClassNameResponse', {
-                            id: sid,
-                            message: 'Class name changed successfully. Refresh all pages for changes to take effect.'
-                        });
-                    });
-                }
-            });
-        }
-    }
-
-    function removeStudent(hand_state_id) {
-        Hand.getHandByIdAndRemove(hand_state_id)
-            .then(function () {
-                io.emit("HandRemoved", {
-                    hand_state: hand_state_id
-                });
-            });
-    }
-
-    function admit(hand_id) {
-        Hand.getHandByIdAndPopulate(hand_id, 'user')
-            .then(function (hand) {
-                hand.admitted = true;
-                hand.save();
-
-                io.emit('HandStateChange', {
-                    hand_state_id: hand_id,
-                    hand_admitted: hand.admitted,
-                    hand_state: hand.hand_state,
-                    username: hand.user.username,
-                    class_id: hand.class_id
-                });
-            });
-    }
-
-    function sendHands(socket, classes, sid) {
-        var terms = [];
-        for (var i = 0; i < classes.length; i++) {
-            terms.push({
-                class_id: classes[i]
-            });
-        }
-        Hand.getSortedHandsAndPopulate(terms, "user")
-            .then(function (hands) {
-                for (var i = 0; i < hands.length; i++) {
-                    var hand = hands[i];
-                    if (hand.hand_state) {
-                        var opt = '<option class=\"\" value="' + hand.id + '">' + hand.user.username + '</option>';
-                        socket.emit("SendHandsForClasses", {
-                            id: sid,
-                            hand: opt
-                        });
-                    }
-                }
-            });
-    }
-
-    function sendAllHands(socket, classes, user_id, sid) {
-        User.findById(user_id)
-            .populate('teacher_classes')
-            .exec()
-            .then(function (user) {
-                var index = -1, count = 0;
-
-                for (var j = 0; j < classes.length; j++) {
-                    var classObject = classes[j];
-                    for (var i = 0; i < user.teacher_classes.length; i++) {
-                        if (user.teacher_classes[i].id === classObject) {
-                            index = i;
-                        }
-                    }
-
-                    for (var k = 0; k < user.teacher_classes[index].hands.length; k++) {
-                        Hand.getHandByIdAndPopulate(user.teacher_classes[index].hands[k], 'user')
-                            .then(function (doc) {
-                                var opt = '<option class="form-control" value="' + doc.id + '">' + doc.user.username + '</option>';
-                                socket.emit("SendAdmittedHand", {
-                                    id: sid,
-                                    hand: opt
-                                });
-                            })
-                            .catch(function(err){
-                                console.log("Error: " + err);
-                                // TODO
-                            });
-                            count++;
-                    }
-                }
-            });
-    }
-
-    function sendRandomStudent(socket, classes) {
-        var terms = [];
-        for (var i = 0; i < classes.length; i++) {
-            terms.push({
-                class_id: classes[i]
-            });
-        }
-        Hand.getHandsAndPopulate(terms, "user")
-            .then(function (hands) {
-                var count = hands.length;
-                if (count > 0) {
-                    var random = Math.floor(Math.random() * count);
-                    socket.emit('SendRandomStudent', {
-                        randomStudentName: hands[random].user.username
-                    });
-                } else {
-                    socket.emit('SendRandomStudent', {
-                        randomStudentName: 'Class is empty!'
-                    });
-                }
-            });
-    }
-
-
-    function changeHand(hand_id) {
-        return Hand.getHandByIdAndPopulate(hand_id, "user")
-            .then(function (hand) {
-                if (hand.admitted) {
-                    hand.hand_state = !hand.hand_state;
-                }
-                return hand;
-            })
-            .then(Hand.saveHand)
-            .then(function (hand) {
-                return {
-                    hand_state_id: hand_id,
-                    hand_admitted: hand.admitted,
-                    hand_state: hand.hand_state,
-                    username: hand.user.username,
-                    class_id: hand.class_id
-                };
-            });
-    }
-
-    function enroll(socket, sid, class_key, user_id) {
-        Room.findOne({'classKey': class_key})
-            .exec()
-            .then(function (classObject) {
-                if (classObject === null) {
-                    socket.emit('EnrollResponse', {
-                        id: sid,
-                        success: false,
-                        message: 'That class key does not match any class available, please check with your teacher to ensure you have the correct key.'
-                    });
-                } else {
-                    User.findById(user_id).populate("student_classes").exec().then(function (student) {
-                        var inClass = false;
-                        for (var i = 0; i < student.student_classes.length; i++) {
-                            if (student.student_classes[i].id === classObject.id) {
-                                inClass = true;
-                            }
-                        }
-                        if (inClass) {
-                            socket.emit('EnrollResponse', {
-                                id: sid,
-                                success: false,
-                                message: 'You are already in that class!'
-                            });
-                        } else {
-                            Hand.createHand(student, false, true, classObject)
-                                .then(function (newHand) {
-
-                                    classObject.hands.push(newHand);
-                                    classObject.save();
-
-
-                                    student.student_classes.push(classObject);
-                                    student.save();
-                                    socket.emit('EnrollResponse', {
-                                        id: sid,
-                                        success: true,
-                                        message: 'Success'
-                                    });
-
-                                    io.emit('HandStateChange', {
-                                        hand_state_id: newHand.id,
-                                        hand_admitted: newHand.admitted,
-                                        hand_state: newHand.hand_state,
-                                        username: newHand.user.username,
-                                        class_id: newHand.class_id
-                                    });
-                                });
-
-                        }
-                    });
-                }
-            });
-    }
-
-    function sendInitialHand(student_id, hand_id) {
-        return Hand.getHandById(hand_id)
-            .then(function (hand) {
-                return {
-                    id: student_id,
-                    hand_admitted: hand.admitted,
-                    hand_state: hand.hand_state
-                }
-            });
-    }
+	function teacherGrantHallPassRequest(hrid) {
+		HallPassRequest.findById(hrid)
+			.update({granted: true, grantedTime: Date.now()})
+			.then(function(){
+				io.emit('Broadcast_HallPassRequestModified');
+			})
+			.catch((err) => {});
+	}
 };

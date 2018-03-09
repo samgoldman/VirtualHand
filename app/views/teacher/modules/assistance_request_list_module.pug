@@ -1,0 +1,11 @@
+script
+	include ./assistance_request_list_module.js
+include ../../shared/audio_module
+div.well
+	- var index = 0;
+	while index < 5
+		- var id="listItem"+index, onclick="handDown("+index+")";
+			div(id=id, onclick=onclick).unselectable.listItem
+			br
+		- index++;
+	button#clear-all-ar.btn.btn-block.btn-sm.btn-danger Clear All

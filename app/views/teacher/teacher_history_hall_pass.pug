@@ -1,0 +1,96 @@
+doctype html
+html
+	meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no")
+	head
+		title Virtual Hand History - Hall Passes
+
+		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
+		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css")
+		link(rel="stylesheet", href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css")
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+		script(src='//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js')
+		style
+			include ../../../client/css/teacher_home.css
+		script
+			include ../../../client/js/google_analytics.js
+		script.
+			$(document).ready(function () {
+				var table = $('#table').DataTable({
+					"order": [[1, "desc"]],
+					paging: false
+				});
+
+				table.columns('.select-filter').every(function () {
+					var that = this;
+
+					// Create the select list and search operation
+					var select = $('<select />')
+						.appendTo(
+							this.footer()
+						)
+						.on('change', function () {
+							that
+								.search($(this).val())
+								.draw();
+						});
+
+					// Get the search data for the first column and add to the select list
+					this
+						.cache('search')
+						.sort()
+						.unique()
+						.each(function (d) {
+							select.append($('<option value="' + d + '">' + d + '</option>'));
+						});
+				});
+			});
+	body
+		div(id="main").container
+			table(id="table", class="table table-striped table-bordered", cellspacing="0", width="100%")
+				thead
+					tr
+						th Student
+						th Request Time
+						th Granted?
+						th Resolved?
+						th Resolved By
+						th Time Queued
+						th Time Granted
+				tfoot
+					tr
+						th Student
+						th Request Time
+						th Granted?
+						th Resolved?
+						th Resolved By
+						th Time Queued
+						th Time Granted
+				tbody
+					each request in requests
+						-
+							var reqTime = new Date(request.requestTime);
+							var grantTime = new Date(request.grantedTime);
+							var resTime = new Date(request.resolvedTime);
+							if (!request.granted && !request.resolved)
+								var queuedTime = '-', outTime = '-';
+							else if(request.granted && !request.resolved)
+								var queuedTime = (Math.abs(grantTime-reqTime) / 1000 / 60).toFixed(2), outTime = '-';
+							else if(!request.granted && request.resolved)
+								var queuedTime = (Math.abs(resTime-reqTime) / 1000 / 60).toFixed(2), outTime = '-';
+							else
+								var queuedTime = (Math.abs(grantTime-reqTime) / 1000 / 60).toFixed(2),outTime = (Math.abs(resTime-grantTime) / 1000 / 60).toFixed(2);
+
+							var reqTimeString = reqTime.getFullYear() + "-" + reqTime.getMonth() + "-" + reqTime.getDate() + " " + reqTime.toLocaleTimeString();
+						tr
+							td #{request.student.username}
+							td= reqTimeString
+							td #{request.granted}
+							td #{request.resolved}
+							td #{request.resolved_type}
+							td= queuedTime
+							td= outTime
+
+
+
+

@@ -11,35 +11,25 @@ html
 			include ../../client/css/main.css
 	body
 		.container
-			.col-sm-6.col-sm-offset-3
+			div(align='center').col-sm-4.col-sm-offset-4
 				h1
 					span.fa.fa-sign-in
-					|	Login
-				
-				
+					| &nbspLogin
+
+
 				//show any messages that come back with authentication
 				if message !== null && message.length > 0
-					.alert.alert-danger #{message}				
-				
+					.alert.alert-danger #{message}
+
 				form(action='/login', method='post')
 					.form-group
-						label Username
-						input.form-control(type='text', name='username')
-					.form-group
-						label Password
-						input.form-control(type='password', name='password')
-						p
-							// Links to password reset page
-							| Forgot you password? 
-							a(href='/recoverpassword') Reset It
-					// Submit button, 'warning' gives it its color, 'lg' indicates a large button
-					button.btn.btn-lg(type='submit') Login
+						input.form-control(type='text', name='username', placeholder='Username')
+						input.form-control(type='password', name='password', placeholder='Password')
+						br
+						// Submit button, 'warning' gives it its color, 'lg' indicates a large button
+						button.btn.btn-lg.btn-block(type='submit') Login
+						br
+						a.btn.btn-default.btn-block(href='/recoverpassword') Reset Password
 				hr
-				p
-					// Redirect to signup page
-					| Need an account? 
-					a(href='/signup') Signup
-				p
-					| Or go 
-					a(href='/') home
-					| .
+				a.btn.btn-default.btn-block(href='/signup') Signup for an account
+				a.btn.btn-default.btn-block(href='/') Go home
