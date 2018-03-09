@@ -83,4 +83,9 @@ window.addEventListener("load", function () {
 	$('#remove_student').click(RemoveStudent);
 	$('#admit_student').click(AdmitStudent);
 	$('#new_student_pw_submit').click(changeStudentPassword);
+
+	$(".manage-students-modal").on("hidden.bs.modal", function(){
+		$('#manage_students_alert_box').text('');
+		document.getElementById('manage_students_alert_box').style.display = "none";
+	});
 });

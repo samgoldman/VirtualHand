@@ -27,4 +27,9 @@ window.addEventListener("load", function () {
 
 	$('#delete_class_confirm').on('keyup', DeleteCourseConfirmClassname);
 	$('#delete_class_submit').click(DeleteCourse);
+
+	$(".delete-class-modal").on("hidden.bs.modal", function(){
+		document.getElementById("delete_class_alert_box").innerHTML = '';
+		document.getElementById("delete_class_alert_box").style.display = "none";
+	});
 });

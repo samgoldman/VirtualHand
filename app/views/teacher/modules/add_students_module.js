@@ -18,4 +18,11 @@ window.addEventListener("load", function () {
 	$('#addStudentsSubmit').each(function () {
 		this.addEventListener('click', AddStudentsClicked);
 	});
+
+	$(".add-students-modal").on("hidden.bs.modal", function(){
+		$('#addStudentsCSV').val('');
+		$('#addStudentsDefaultPassword').val('');
+		document.getElementById("enrollAlert").innerHTML += '';
+		document.getElementById("enrollAlert").style.display = "none";
+	});
 });
