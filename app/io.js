@@ -80,7 +80,9 @@ module.exports = function (io) {
 					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid))
 					.on('Request_RetrieveHallPassRequests', (data) => retrieveHallPassRequests(socket, data.cids))
 					.on('Request_TeacherResolveHallPassRequest', (data) => teacherResolveHallPassRequest(data.hrid))
-					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid));
+					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid))
+					.on('Request_TeacherResolveAllAssistanceRequests', (data) => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
+					.on('Request_TeacherResolveAllHallPassRequests', (data) => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid));
 			}
 		});
 
@@ -277,6 +279,15 @@ module.exports = function (io) {
 			});
 	}
 
+	function teacherResolveAllAssistanceRequests(uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return AssistanceRequest.find({course: cid, resolved: false});})
+			.then(function(requests) {
+				requests.forEach((request) => teacherResolveAssistanceRequest(request._id));
+			})
+			.catch((err) => {console.log('Err: ' + err)});
+	}
+
 	function sendStudentsForClass(socket, cid) {
 		Enrollment.find({course: cid, valid: true}).populate('student').sort('student.username')
 			.then(function (enrollments) {
@@ -423,6 +434,15 @@ module.exports = function (io) {
 				io.emit('Broadcast_HallPassRequestModified');
 			})
 			.catch((err) => {});
+	}
+
+	function teacherResolveAllHallPassRequests(uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return HallPassRequest.find({course: cid, resolved: false});})
+			.then(function(requests) {
+				requests.forEach((request) => teacherResolveHallPassRequest(request._id));
+			})
+			.catch((err) => {console.log('Err: ' + err)});
 	}
 
 	function teacherGrantHallPassRequest(hrid) {

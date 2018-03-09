@@ -21,6 +21,14 @@ courseSchema.statics.taughtBy = function taughtBy(user) {
 	return Course.find({teacher: user._id}).sort('courseName');
 };
 
+courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, uid) {
+	return this.find({_id: cid, teacher: uid})
+		.count()
+		.then(function(count) {
+			if (count <= 0) throw new Error('Teacher does not teach class!');
+		});
+};
+
 // Generate a random 6-7 character key
 courseSchema.statics.generateCourseKey = function generateCourseKey() {
 	return (Math.floor(Math.random() * 1000000000) + parseInt(Date.now() / 1000)).toString(36).toUpperCase().substring(0, 6);

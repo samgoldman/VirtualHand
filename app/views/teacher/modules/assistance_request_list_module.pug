@@ -6,6 +6,6 @@ div.well
 	while index < 5
 		- var id="listItem"+index, onclick="handDown("+index+")";
 			div(id=id, onclick=onclick).unselectable.listItem
-			if index < 4
-				br
+			br
 		- index++;
+	button#clear-all-ar.btn.btn-block.btn-sm.btn-danger Clear All

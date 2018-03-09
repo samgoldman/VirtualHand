@@ -40,6 +40,12 @@ function RetrieveAssistanceRequests() {
 	socket.emit('Request_RetrieveAssistanceRequests', {cids: getSelectedClassIds(), qty: 5});
 }
 
+function ClearAllAssistanceRequests() {
+	getSelectedClassIds().forEach((key) => {
+		socket.emit('Request_TeacherResolveAllAssistanceRequests', {cid: key});
+	});
+}
+
 function KeyDownHandler(e) {
 	let keynum;
 
@@ -67,4 +73,5 @@ function KeyDownHandler(e) {
 window.addEventListener("load", function () {
 	document.body.addEventListener('keyup', KeyDownHandler);
 	$('#class_selector').change(RetrieveAssistanceRequests);
+	$('#clear-all-ar').click(ClearAllAssistanceRequests);
 });

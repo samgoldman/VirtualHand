@@ -13,6 +13,12 @@ function grantPass(hrid) {
 	socket.emit('Request_TeacherGrantHallPassRequest', {hrid: hrid});
 }
 
+function ClearAllHallPassRequests() {
+	getSelectedClassIds().forEach((key) => {
+		socket.emit('Request_TeacherResolveAllHallPassRequests', {cid: key});
+	});
+}
+
 socket.on('Response_RetrieveHallPassRequests', function (data) {
 	let requests = data.requests;
 
@@ -29,7 +35,7 @@ socket.on('Response_RetrieveHallPassRequests', function (data) {
 			numOut++;
 	});
 
-	if(numOut === 0) {
+	if(numOut === 0 && requests.length > 0) {
 		grantPass(requests[0]._id);
 	}
 
@@ -63,6 +69,7 @@ socket.on('Response_RetrieveHallPassRequests', function (data) {
 });
 window.addEventListener("load", function () {
 	$('#class_selector').change(RetrieveHallPassRequests);
+	$('#clear-all-hp').click(ClearAllHallPassRequests);
 });
 
 setInterval(RetrieveHallPassRequests, 1000);
