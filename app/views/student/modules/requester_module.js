@@ -95,10 +95,18 @@ function ReturnHallPass() {
 	socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
 }
 
+function ding() {
+	let ding = document.getElementById("ding");
+	ding.play();
+}
+
 window.addEventListener("load", function () {
 	document.getElementById("requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
 	document.getElementById("requestHallPassButton").addEventListener('click', ToggleHallPassButton);
 	document.getElementById("class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
 	document.getElementById("class_selector").addEventListener('change', UpdateHallPassRequestStatus);
 	document.getElementById("return-pass-button").addEventListener('click', ReturnHallPass);
+
+	$('#audioModule').hide();
+	$('#hall-pass-modal').on('shown.bs.modal', ding);
 });
