@@ -17,13 +17,13 @@ courseSchema.pre('save', function (next) {
 	next();
 });
 
-courseSchema.statics.taughtBy = function taughtBy(user) {
+courseSchema.statics.taughtBy = function taughtBy(uid) {
 	let Course = this;
-	return Course.find({teacher: user._id}).sort('courseName');
+	return Course.find({teacher: uid, valid: true}).sort('courseName');
 };
 
 courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, uid) {
-	return this.find({_id: cid, teacher: uid})
+	return this.find({_id: cid, teacher: uid, valid: true})
 		.count()
 		.then(function(count) {
 			if (count <= 0) throw new Error('Teacher does not teach class!');
