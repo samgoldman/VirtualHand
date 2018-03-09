@@ -48,7 +48,7 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
-		Course.find({teacher: req.user._id}).sort('courseName')
+		Course.taughtBy(req.user._id)
 			.then(function (courses) {
 				let renderData = {
 					user: req.user,
@@ -61,7 +61,7 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/teacher/hallpass', isLoggedIn, isTeacher, function(req, res) {
-		Course.find({teacher: req.user._id}).sort('courseName')
+		Course.taughtBy(req.user._id)
 			.then(function (courses) {
 				let renderData = {
 					user: req.user,

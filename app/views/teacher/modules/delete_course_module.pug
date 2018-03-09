@@ -1,0 +1,10 @@
+script
+	include delete_course_module.js
+
+div(id="delete_class_alert_box", class="alert alert-info", style="display: none")
+h4 You are about to delete
+	span &nbsp
+		b#delete_class_classname Placeholder
+h5 Please type the classname to confirm:
+input(id="delete_class_confirm", class="form-control", name="classname", type="text", placeholder="Class Name")
+button(id="delete_class_submit", disabled="disabled").btn.btn-danger.btn-block Delete Class

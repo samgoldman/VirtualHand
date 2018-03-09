@@ -82,7 +82,9 @@ module.exports = function (io) {
 					.on('Request_TeacherResolveHallPassRequest', (data) => teacherResolveHallPassRequest(data.hrid))
 					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid))
 					.on('Request_TeacherResolveAllAssistanceRequests', (data) => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
-					.on('Request_TeacherResolveAllHallPassRequests', (data) => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid));
+					.on('Request_TeacherResolveAllHallPassRequests', (data) => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid))
+					.on('Request_RemoveAllStudents', (data) => removeAllStudentsFromCourse(socket, socket.user_data.uid, data.cid))
+					.on('Request_DeleteCourse', (data) => deleteCourse(socket, socket.user_data.uid, data.cid));
 			}
 		});
 
@@ -313,7 +315,7 @@ module.exports = function (io) {
 		User.findById(tid)
 			.then(function (teacher) {
 				if (!teacher) throw "Teacher doesn't exist";
-				return Course.findOne({_id: cid, teacher: tid});
+				return Course.findOne({_id: cid, teacher: tid, valid: true});
 			})
 			.then(function (course) {
 				if (!course) throw "Teacher doesn't teacher that course";
@@ -364,7 +366,7 @@ module.exports = function (io) {
 	}
 
 	function enrollStudent(socket, sid, courseKey) {
-		Course.findOne({courseKey: courseKey})
+		Course.findOne({courseKey: courseKey, valid: true})
 			.then(function (course) {
 				if (!course) {
 					throw "Course Key is invalid";
@@ -452,5 +454,24 @@ module.exports = function (io) {
 				io.emit('Broadcast_HallPassRequestModified');
 			})
 			.catch((err) => {});
+	}
+
+	function removeAllStudentsFromCourse(socket, uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return Enrollment.find({course: cid, valid: true}).update({valid: false})})
+			.then(function() {
+				socket.emit('Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'});
+			})
+			.catch(err => socket.emit('Request_RemoveAllStudents', {success: false, message: err}));
+	}
+
+	function deleteCourse(socket, uid, cid) {
+		Course.verifyCourseTaughtBy(cid, uid)
+			.then(() => {return Enrollment.find({course: cid, valid: true}).update({valid: false})})
+			.then(() => {return Course.findById(cid).update({valid: false})})
+			.then(function() {
+				socket.emit('Response_DeleteCourse', {success: true, message: 'Successfully deleted class'});
+			})
+			.catch(err => socket.emit('Response_DeleteCourse', {success: false, message: err}));
 	}
 };

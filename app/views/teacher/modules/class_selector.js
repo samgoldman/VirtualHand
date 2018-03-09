@@ -45,6 +45,10 @@ function AddClass(id, name) {
 	sortClasses();
 }
 
+function RemoveClass(id) {
+	$('#class_selector option[value=' + id + ']').remove();
+}
+
 function RenameClass(id, name) {
 	let options = $('#class_selector')[0].getElementsByTagName("option");
 	for (let i = options.length; i--;)

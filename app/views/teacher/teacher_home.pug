@@ -34,11 +34,13 @@ html
 					button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal", disabled="disabled").btn.btn-info.btn-block.management_button Rename a Class
 					button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Add Students
 					a(id="ar_history_link", href='', disabled="disabled").btn.btn-info.btn-block.management_button Assistance Request History
+					button(id="remove_all_students_button", data-toggle="modal", data-target=".remove-all-students-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Remove All Students
 					br
 				.col-xs-12.col-lg-6
 					button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal", disabled="disabled").btn.btn-info.btn-block.management_button Class Key
 					button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Manage Students
 					a(id="hp_history_link", href='', disabled="disabled").btn.btn-info.btn-block.management_button Hall Pass History
+					button(id="delete_class_button", data-toggle="modal", data-target=".delete-class-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Delete Class
 					br
 				.col-xs-12
 					button(id="change_password_button", data-toggle="modal", data-target=".change-password-modal").btn.btn-info.btn-block Change Password
@@ -72,3 +74,7 @@ html
 			include modules/manage_students_module
 		+modal("class-key-modal", "Class Key")
 			include modules/course_key_module
+		+modal("remove-all-students-modal", "Remove All Students")
+			include modules/remove_all_students_module
+		+modal("delete-class-modal", "Delete Class")
+			include modules/delete_course_module

@@ -1,0 +1,10 @@
+script
+	include remove_all_student_module.js
+
+div(id="remove_all_students_alert_box", class="alert alert-info", style="display: none")
+h4 You are about to remove all students from
+	span &nbsp
+		b#remove_all_students_classname Placeholder
+h5 Please type the classname to confirm:
+input(id="remove_all_class_confirm", class="form-control", name="classname", type="text", placeholder="Class Name")
+button(id="remove_all_students_submit", disabled="disabled").btn.btn-danger.btn-block Remove All Students
