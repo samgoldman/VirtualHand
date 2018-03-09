@@ -83,5 +83,10 @@ function sortClasses() {
 
 window.addEventListener("load", function () {
 	$('#class_selector').change(ClassSelectorChanged);
+
+	if(! getSelectedClassId()) {
+		$('#managementPanel').collapse("show");
+	}
+
 	sortClasses();
 });
