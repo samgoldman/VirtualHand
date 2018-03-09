@@ -43,9 +43,7 @@ module.exports = function (io) {
 
 			// ALL - public included
 			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
-				socket.on('Request_RecoverPassword', function (data) {
-					recoverPassword(socket, data.user_name);
-				});
+				socket.on('Request_RecoverPassword', (data, callback) => recoverPassword(data.user_name, callback));
 			}
 
 			// Logged in users
@@ -88,7 +86,7 @@ module.exports = function (io) {
 			}
 		});
 
-	function recoverPassword(socket, username) {
+	function recoverPassword(username, done) {
 		User.findOne({'username': username})
 			.exec()
 			.then(function (user) {
@@ -116,9 +114,7 @@ module.exports = function (io) {
 				return "Your password has been reset. Please check your email to receive your new password.";
 			})
 			.then(function (message) {
-				socket.emit('Response_RecoverPassword', {
-					message: message
-				});
+				done({message: message});
 			})
 			.catch(function (err) {
 				console.log(err);
