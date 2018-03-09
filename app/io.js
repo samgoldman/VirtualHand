@@ -211,6 +211,8 @@ module.exports = function (io) {
 	function addStudent(student) {
 		return User.findOrCreate(student.username, student.password)
 			.then(function (user) {
+				user.role = 'student';
+				user.save();
 				return Enrollment.findOrCreate(student.cid, user._id, true);
 			})
 			.then(function () {
