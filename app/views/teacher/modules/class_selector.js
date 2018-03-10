@@ -18,6 +18,8 @@ function UpdateManagementButtons(options) {
 		$('#hp_history_link').attr('href', '/teacher/history/hallpass/' + getSelectedClassId());
 	} else {
 		$('.management_button').attr("disabled", "disabled");
+		$('#ar_history_link').attr('href', 'javascript:;');
+		$('#hp_history_link').attr('href', 'javascript:;');
 	}
 }
 
@@ -81,5 +83,10 @@ function sortClasses() {
 
 window.addEventListener("load", function () {
 	$('#class_selector').change(ClassSelectorChanged);
+
+	if(! getSelectedClassId()) {
+		$('#managementPanel').collapse("show");
+	}
+
 	sortClasses();
 });
