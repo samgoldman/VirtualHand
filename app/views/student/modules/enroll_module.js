@@ -3,7 +3,6 @@ function EnrollClicked() {
 		let key = this.value;
 
 		socket.emit('Request_EnrollStudent', {
-			sid: document.getElementById('user_id').value,
 			courseKey: key
 		});
 	});

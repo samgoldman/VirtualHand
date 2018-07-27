@@ -65,7 +65,6 @@ socket.on('Response_AdmitStudent', function () {
 
 function changeStudentPassword() {
 	socket.emit('Request_ChangeStudentPassword', {
-		tid: $('#user_id').attr('value'),
 		cid: getSelectedClassId(),
 		sid: getSelectedStudentOption().value,
 		password: $('#new_student_pw').val()

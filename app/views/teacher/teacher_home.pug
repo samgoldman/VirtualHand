@@ -17,7 +17,6 @@ html
 			let socket = io({query: {token: '#{token}'}});
 			console.log(socket);
 	body
-		input(type="hidden" value=user.id id="user_id")
 		div(id="main").container
 			.col-xs-12.col-lg-6.col-lg-offset-3
 				h1(align="center") Welcome #{user.username}!

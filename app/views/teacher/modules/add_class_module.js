@@ -3,7 +3,6 @@ function NewClassClicked() {
 		let name = this.value;
 
 		socket.emit('Request_CourseCreate', {
-			uid: document.getElementById('user_id').value,
 			courseName: name
 		});
 	});
