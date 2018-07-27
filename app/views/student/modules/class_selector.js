@@ -22,7 +22,7 @@ function sortClasses() {
 	while (selElem.options.length > 0) {
 		selElem.options[0] = null;
 	}
-	for (i = 0; i < tmpAry.length; i++) {
+	for (let i = 0; i < tmpAry.length; i++) {
 		let op = new Option(tmpAry[i][0], tmpAry[i][1]);
 		op.selected = tmpAry[i][2];
 		selElem.options[i] = op;
