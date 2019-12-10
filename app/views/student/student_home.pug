@@ -17,13 +17,6 @@ html
 		script.
 			let socket = io({query: {token: '#{token}'}});
 			console.log(socket);
-			ga('send', {
-			    hitType: 'event',
-			    eventCategory: 'student',
-			    eventAction: 'load',
-			    eventLabel: 'home',
-			    eventValue: window.location.host
-			});
 
 	body
 		div(id="main").container
