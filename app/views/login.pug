@@ -3,7 +3,7 @@ html
 	meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no')
 	head
 		title Virtual Hand Login
-		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
+		link(rel='stylesheet', href='css/bootstrap.min.css')
 		// load bootstrap css
 		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
 		// load fontawesome
@@ -11,8 +11,8 @@ html
 			include ../../client/css/main.css
 	body
 		.container
-			div(align='center').col-sm-4.col-sm-offset-4
-				h1
+			.col-sm-12.col-md-4.offset-md-4
+				h1.text-center
 					span.fa.fa-sign-in
 					| &nbspLogin
 
@@ -27,9 +27,8 @@ html
 						input.form-control(type='password', name='password', placeholder='Password')
 						br
 						// Submit button, 'warning' gives it its color, 'lg' indicates a large button
-						button.btn.btn-lg.btn-block(type='submit') Login
+						button.btn.btn-lg.btn-block.btn-primary(type='submit') Login
 						br
-						a.btn.btn-default.btn-block(href='/recoverpassword') Reset Password
+						a.btn.btn-default.btn-block.btn-warning(href='/recoverpassword') Reset Password
 				hr
-				a.btn.btn-default.btn-block(href='/signup') Signup for an account
-				a.btn.btn-default.btn-block(href='/') Go home
+				a.btn.btn-default.btn-block.btn-success(href='/signup') Signup for an account
