@@ -24,6 +24,20 @@ body {
 	border-radius: 2px;
 	border: 2px solid #CCCCCC;
 	padding: 3px;
+	width: 3000px;
+	height: 40px;
+	margin-top: 3px;
+	background-color: white;
+}
+
+*.hallPassListItem {
+	font-size: 20px;
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	border-radius: 2px;
+	border: 2px solid #CCCCCC;
+	padding: 3px;
 	height: 40px;
 	margin-top: 3px;
 	background-color: white;
