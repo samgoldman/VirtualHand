@@ -44,4 +44,22 @@ describe("Token Manager", () => {
 			});
 		});
 	});
+
+	describe(">verifyToken", () => {
+		it("should call jwt.verify with the token, secret and callback", () => {
+			expect(token_manager.verifyToken).toBeDefined();
+
+			const spy_verify = spyOn(jwt, 'verify').and.returnValue('DUMMY_RETURN');
+
+			process.env.JWT_SECRET = 'TEST_SECRET';
+
+			expect(token_manager.verifyToken('TEST_TOKEN', 'DUMMY_CALLBACK_VALUE'));
+			expect(jwt.verify).toHaveBeenCalled();
+			expect(spy_verify.calls.count()).toEqual(1);
+			expect(spy_verify.calls.argsFor(0).length).toEqual(3);
+			expect(spy_verify.calls.argsFor(0)[0]).toEqual("TEST_TOKEN");
+			expect(spy_verify.calls.argsFor(0)[1]).toEqual('TEST_SECRET');
+			expect(spy_verify.calls.argsFor(0)[2]).toEqual("DUMMY_CALLBACK_VALUE");
+		})
+	})
 });
