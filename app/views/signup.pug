@@ -3,22 +3,21 @@ doctype html
 html
 	meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no')
 	head
-		title Virtual Hand Signup
-		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
-		// load bootstrap css
-		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
-		// load fontawesome
+		title Virtual Hand Sign Up
+
+		include shared/header
+
 		style
 			include ../../client/css/main.css
 	script(src='/socket.io/socket.io.js')
 	body
 		.container
-			.col-sm-6.col-sm-offset-3
-				h1
-					span.fa.fa-sign-in
-					|  Signup
+			.col-sm-12.col-md-4.offset-md-4
+				h1.text-center
+					span.fas.fa-sign-in-alt
+					| &nbsp Sign Up
+
 				// show any messages that come back with authentication
-				//show any messages that come back with authentication
 				if message !== null && message.length > 0
 					.alert.alert-danger #{message}
 
@@ -34,20 +33,14 @@ html
 						label Email
 						input#email.form-control(required='', name='email', type='email')
 					.form-group
-						label Account Type
-						br
-						label.radio-inline
-							input(name='role', value='teacher', type='radio', checked)
-							label Teacher
-						label.radio-inline
-							input(name='role', value='student', type='radio')
-							label Student
-					button.btn.btn-lg(type='submit') Signup
+						.form-check.form-check-inline
+							label Account Type
+						.form-check.form-check-inline
+							input.form-check-input(name='role', value='teacher', type='radio', checked, id="teacher_radio")
+							label.form-check-label(for="teacher_radio") Teacher
+						.form-check.form-check-inline
+							input.form-check-input(name='role', value='student', type='radio', id="student_radio")
+							label.form-check-label(for="student_radio") Student
+					button.btn.btn-primary.btn-lg.btn-block(type='submit') Signup
 				hr
-				p
-					| Already have an account?
-					a(href='/login') Login
-				p
-					| Or go
-					a(href='/') home
-					| .
+				a.btn.btn-default.btn-block.btn-success(href='/login') Have an account? Login!

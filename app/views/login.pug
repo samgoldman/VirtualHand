@@ -10,7 +10,7 @@ html
 			.col-sm-12.col-md-4.offset-md-4
 				h1.text-center
 					span.fas.fa-sign-in-alt
-					| &nbspLogin
+					| &nbsp Login
 
 
 				//show any messages that come back with authentication
@@ -19,12 +19,14 @@ html
 
 				form(action='/login', method='post')
 					.form-group
+						label Username
 						input.form-control(type='text', name='username', placeholder='Username')
+					.form-group
+						label Password
 						input.form-control(type='password', name='password', placeholder='Password')
 						br
 						// Submit button, 'warning' gives it its color, 'lg' indicates a large button
 						button.btn.btn-lg.btn-block.btn-primary(type='submit') Login
-						br
-						a.btn.btn-default.btn-block.btn-secondary(href='/recoverpassword') Reset Password
 				hr
-				a.btn.btn-default.btn-block.btn-success(href='/signup') Signup for an account
+				a.btn.btn-default.btn-block.btn-secondary(href='/recoverpassword') Reset Password
+				a.btn.btn-default.btn-block.btn-success(href='/signup') Sign Up for an account
