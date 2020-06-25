@@ -1,12 +1,12 @@
 // passport.js
 
 // load all the things we need
-let LocalStrategy = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-let User = require('./models/user').model;
+const User = require('./models/user').model;
 
-let localStrategyOptions = {
+const localStrategyOptions = {
 	usernameField: 'username',
 	passwordField: 'password',
 	passReqToCallback: true

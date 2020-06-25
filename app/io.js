@@ -95,10 +95,10 @@ module.exports = function (io) {
 
 				// TODO: need better password reset method!
 				// If all conditions are met, reset the password
-				let newPass = randomstring.generate(12);
+				const newPass = randomstring.generate(12);
 				user.password = user.generateHash(newPass);
 				user.save();
-				let email_text = "Virtual Hand has received a request for your account's password to be reset. Your new password is: " + newPass + "\nPlease change it right away.";
+				const email_text = `Virtual Hand has received a request for your account's password to be reset. Your new password is: ${newPass} \nPlease change it right away.`;
 				transporter.sendMail({
 					to: user.email,
 					subject: 'Virtual Hand Password Reset',
@@ -107,7 +107,7 @@ module.exports = function (io) {
 					if (error) {
 						console.log(error);
 					} else {
-						console.log('Message sent: ' + info.response);
+						console.log(`Message sent: ${info.response}`);
 					}
 				});
 
@@ -143,7 +143,7 @@ module.exports = function (io) {
 		User.findById(uid)
 			.then(function (user) {
 				uid = user._id;
-				let data = {};
+				const data = {};
 				if (!courseName || courseName === "") {
 					data.message = "Class not created: Name must not be blank!";
 					data.success = false;
@@ -280,7 +280,7 @@ module.exports = function (io) {
 			.then(function(requests) {
 				requests.forEach((request) => teacherResolveAssistanceRequest(request._id));
 			})
-			.catch((err) => {console.log('Err: ' + err)});
+			.catch((err) => {console.log(`Err: ${err}`)});
 	}
 
 	function sendStudentsForClass(socket, cid) {
@@ -437,7 +437,7 @@ module.exports = function (io) {
 			.then(function(requests) {
 				requests.forEach((request) => teacherResolveHallPassRequest(request._id));
 			})
-			.catch((err) => {console.log('Err: ' + err)});
+			.catch((err) => {console.log(`Err: ${err}`)});
 	}
 
 	function teacherGrantHallPassRequest(hrid) {

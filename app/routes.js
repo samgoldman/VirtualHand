@@ -1,13 +1,13 @@
-let pug = require('pug');
-let path = require('path');
-let fs = require('fs');
-let Course = require('./models/course').model;
-let Enrollment = require('./models/enrollment').model;
-let HallPassRequest = require('./models/hallPassRequest').model;
-let AssistanceRequest = require('./models/assistanceRequest').model;
-let Token = require('./token_manager');
+const pug = require('pug');
+const path = require('path');
+const fs = require('fs');
+const Course = require('./models/course').model;
+const Enrollment = require('./models/enrollment').model;
+const HallPassRequest = require('./models/hallPassRequest').model;
+const AssistanceRequest = require('./models/assistanceRequest').model;
+const Token = require('./token_manager');
 
-let templates = {
+const templates = {
 	student_home: './app/views/student/student_home.pug',
 	teacher_home: './app/views/teacher/teacher_home.pug',
 	teacher_hall_pass: './app/views/teacher/teacher_hall_pass.pug',
@@ -18,7 +18,7 @@ let templates = {
 	teacher_assistance_request_history: './app/views/teacher/teacher_history_assistance_request.pug'
 };
 
-let compiledTemplates = {};
+const compiledTemplates = {};
 Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
 
 fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
@@ -32,9 +32,9 @@ function renderFile(filename, data) {
 }
 
 module.exports = function (app, passport) {
-	let dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
-	let stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
-	let vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
+	const dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
+	const stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
+	const vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
 
 	app.get('/home', isLoggedIn, function (req, res) {
 		if (req.user.role === 'teacher') {
@@ -47,7 +47,7 @@ module.exports = function (app, passport) {
 	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
 		Course.taughtBy(req.user._id)
 			.then(function (courses) {
-				let renderData = {
+				const renderData = {
 					user: req.user,
 					courses: courses,
 					token: Token.getSocketToken(req.user)
@@ -60,7 +60,7 @@ module.exports = function (app, passport) {
 	app.get('/teacher/hallpass', isLoggedIn, isTeacher, function(req, res) {
 		Course.taughtBy(req.user._id)
 			.then(function (courses) {
-				let renderData = {
+				const renderData = {
 					user: req.user,
 					courses: courses,
 					token: Token.getSocketToken(req.user)
@@ -88,7 +88,7 @@ module.exports = function (app, passport) {
 		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
 			.then(() => {return AssistanceRequest.find({course: req.params.cid}).populate('student')})
 			.then(function(requests) {
-				let renderData = {
+				const renderData = {
 					user: req.user,
 					requests: requests,
 					token: Token.getSocketToken(req.user)
@@ -101,7 +101,7 @@ module.exports = function (app, passport) {
 	app.get('/student/home', isLoggedIn, isStudent, function(req, res) {
 		Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
 			.then(function (enrollments) {
-				let renderData = {
+				const renderData = {
 					user: req.user,
 					enrollments: enrollments,
 					token: Token.getSocketToken(req.user)

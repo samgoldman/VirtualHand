@@ -39,8 +39,8 @@ app.use(flash());
 app.use(cookie_parser()); // read cookies (needed for auth)
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: true })); // get information from html forms
-app.use(serve_static(__dirname + '/public'));
-app.use(serve_static(__dirname + '/client/static/favicon'));
+app.use(serve_static(`${__dirname}/public`));
+app.use(serve_static(`${__dirname}/client/static/favicon`));
 
 require('./app/routes.js')(app, passport);
 
@@ -50,5 +50,5 @@ let io = require('socket.io')(server);
 require('./app/io.js')(io);
 
 server.listen(port, function () {
-  console.log('Example app listening on port '+port+'!')
+  console.log(`Example app listening on port ${port}!`)
 });
