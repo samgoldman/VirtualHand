@@ -4,10 +4,8 @@ html
 	head
 		title Virtual Hand Teacher Home
 
-		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-		link(rel="stylesheet", href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css")
-		script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js')
-		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")
+		include ../shared/header_with_javascript
+
 		style
 			include ../../../client/css/teacher_home.css
 		script
@@ -15,59 +13,84 @@ html
 		script(src="/socket.io/socket.io.js")
 		script.
 			let socket = io({query: {token: '#{token}'}});
-			console.log(socket);
+
 	body
 		div(id="main").container
-			.col-xs-12.col-lg-6.col-lg-offset-3
-				h1(align="center") Welcome #{user.username}!
-				div.col-sm-6
-					include modules/class_selector
-					include modules/assistance_request_list_module
-				div.col-sm-6
-					include modules/random_student_selector
-					a(href="/teacher/hallpass").btn.btn-lg.btn-block.btn-primary Hall Passes
-					br
-				.col-sm-12
-					.panel-group
-						.panel
-							div(data-toggle="collapse", data-target="#managementPanel").btn.btn-block.btn-primary.text-center
-								h4.panel-title Manage Classes
-							#managementPanel.panel-collapse.collapse.container-fluid
-								.col-xs-12
-									br
-									button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
-									br
-								.col-xs-12.col-lg-6
-									button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal", disabled="disabled").btn.btn-info.btn-block.management_button Rename a Class
-									button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Add Students
-									a(id="ar_history_link", href='javascript:;', disabled="disabled").btn.btn-info.btn-block.management_button Assistance Request History
-									button(id="remove_all_students_button", data-toggle="modal", data-target=".remove-all-students-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Remove All Students
-									br
-								.col-xs-12.col-lg-6
-									button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal", disabled="disabled").btn.btn-info.btn-block.management_button Class Key
-									button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button Manage Students
-									a(id="hp_history_link", href='javascript:;', disabled="disabled").btn.btn-info.btn-block.management_button Hall Pass History
-									button(id="delete_class_button", data-toggle="modal", data-target=".delete-class-modal", disabled="disabled").btn.btn-danger.btn-block.management_button Delete Class
-				.col-xs-12
-					button(id="change_password_button", data-toggle="modal", data-target=".change-password-modal").btn.btn-info.btn-block Change Password
-					a(href="/logout").btn.btn-warning.btn-block Logout
+			.col-sm-12.col-md-6.offset-md-3
+				.row
+					.col-sm-12
+						h1.text-center Welcome #{user.username}!
+				.row
+					.col-sm-6
+						include modules/class_selector
+						hr
+						include modules/assistance_request_list_module
+					.col-sm-6
+						include modules/random_student_selector
 
-		mixin modal(i, h)
-			-var mid = i, header = h;
-			div(class=mid, tabindex="-1", role="dialog").modal.fade
-				div(role="document").modal-dialog
+						hr
+
+						a(href="/teacher/hallpass").btn.btn-lg.btn-block.btn-primary Hall Passes
+						br
+				hr
+				.row
+					.col-sm-12
+						.panel-group
+							.panel
+								div(data-toggle="collapse", data-target="#managementPanel").btn.btn-block.btn-primary.text-center
+									h4.panel-title Manage Classes
+								#managementPanel.panel-collapse.collapse.container
+									.row
+										.col-sm-12
+											hr
+											button(data-toggle="modal", data-target=".create-class-modal").btn.btn-lg.btn-success.btn-block Create a Class
+											br
+									.row
+										.col-sm-12.col-md-6
+											button(id="rename_class_button", data-toggle="modal", data-target=".rename-class-modal").btn.btn-info.btn-block.management_button.disabled Rename a Class
+										.col-sm-12.col-md-6
+											button(id="class_key_button", data-toggle="modal", data-target=".class-key-modal").btn.btn-info.btn-block.management_button.disabled Class Key
+											br
+									.row
+										.col-sm-12.col-md-6
+											button(id="add_students_button", data-toggle="modal", data-target=".add-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button.disabled Add Students
+										.col-sm-12.col-md-6
+											button(id="manage_students_button", data-toggle="modal", data-target=".manage-students-modal", disabled="disabled").btn.btn-info.btn-block.management_button.disabled Manage Students
+											br
+									.row
+										.col-sm-12.col-md-6
+											a(id="ar_history_link", href='#').btn.btn-info.btn-block.management_button.disabled Assistance Request History
+										.col-sm-12.col-md-6
+											a(id="hp_history_link", href='#').btn.btn-info.btn-block.management_button.disabled Hall Pass History
+											br
+									.row
+										.col-sm-12.col-md-6
+											button(id="remove_all_students_button", data-toggle="modal", data-target=".remove-all-students-modal", disabled="disabled").btn.btn-danger.btn-block.management_button.disabled Remove All Students
+										.col-sm-12.col-md-6
+											button(id="delete_class_button", data-toggle="modal", data-target=".delete-class-modal", disabled="disabled").btn.btn-danger.btn-block.management_button.disabled Delete Class
+
+				hr
+				.row
+					.col-sm-12
+						button(id="change_password_button", data-toggle="modal", data-target=".change-password-modal").btn.btn-info.btn-block Change Password
+						a(href="/logout").btn.btn-danger.btn-block Logout
+
+		mixin modal(class_name, header)
+			div(class=class_name, tabindex="-1", role="dialog").modal
+				.modal-dialog
 					.modal-content
 						.modal-header
-							button(type="button", data-dismiss="modal", aria-label="Close").close
+							h5.modal-title.text-center= header
+							button.close(type="button", data-dismiss="modal", aria-label="Close")
 								span(aria-hidden="true") &times;
-							h4.modal-title= header
 						.modal-body
 							if block
 								block
 							else
 								p Oops
-						div
-							button(type="button", data-dismiss="modal", style="border-top-right-radius:0;border-top-left-radius:0;").btn.btn-block.btn-warning Close
+						.modal-footer
+							button(type="button", data-dismiss="modal", style="border-top-right-radius:0;border-top-left-radius:0;").btn.btn-block.btn-danger Close
+
 		+modal("create-class-modal", "Create Class")
 			include modules/add_class_module
 		+modal("change-password-modal", "Change Password")

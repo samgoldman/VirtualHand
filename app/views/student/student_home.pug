@@ -4,9 +4,7 @@ html
 	head
 		title Virtual Hand Student Home
 
-		include ../shared/header
-		script(src='/js/jquery.js')
-		script(src='/js/bootstrap.js')
+		include ../shared/header_with_javascript
 
 		style
 			include ../../../client/css/student_home.css
@@ -34,8 +32,6 @@ html
 				a(href="/logout").btn.btn-danger.btn-block Logout
 
 		mixin modal(class_name, header)
-
-
 			div(class=class_name, tabindex="-1", role="dialog").modal
 				.modal-dialog
 					.modal-content

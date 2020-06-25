@@ -12,12 +12,17 @@ function UpdateManagementButtons(options) {
 			numSelected++;
 		}
 	}
+
+	const managementButtons = $('.management_button');
+
 	if (numSelected === 1) {
-		$('.management_button').removeAttr("disabled");
+		managementButtons.removeAttr("disabled");
+		managementButtons.removeClass("disabled");
 		$('#ar_history_link').attr('href', '/teacher/history/assistancerequest/' + getSelectedClassId());
 		$('#hp_history_link').attr('href', '/teacher/history/hallpass/' + getSelectedClassId());
 	} else {
-		$('.management_button').attr("disabled", "disabled");
+		managementButtons.attr("disabled", "disabled");
+		managementButtons.addClass("disabled");
 		$('#ar_history_link').attr('href', 'javascript:;');
 		$('#hp_history_link').attr('href', 'javascript:;');
 	}
