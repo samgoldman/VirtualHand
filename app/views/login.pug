@@ -3,17 +3,13 @@ html
 	meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no')
 	head
 		title Virtual Hand Login
-		link(rel='stylesheet', href='css/bootstrap.min.css')
-		// load bootstrap css
-		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
-		// load fontawesome
-		style
-			include ../../client/css/main.css
+
+		include shared/header.pug
 	body
 		.container
 			.col-sm-12.col-md-4.offset-md-4
 				h1.text-center
-					span.fa.fa-sign-in
+					span.fas.fa-sign-in-alt
 					| &nbspLogin
 
 

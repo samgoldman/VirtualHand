@@ -44,6 +44,8 @@ app.use(serve_static(`${__dirname}/client/static/favicon`));
 app.use('/js', serve_static(`${__dirname}/node_modules/bootstrap/dist/js`)); // redirect bootstrap JS
 app.use('/js', serve_static(`${__dirname}/node_modules/jquery/dist`)); // redirect JS jQuery
 app.use('/css', serve_static(`${__dirname}/node_modules/bootstrap/dist/css`)); // redirect CSS bootstrap
+app.use('/css/fa', serve_static(`${__dirname}/node_modules/@fortawesome/fontawesome-free/css`)); // redirect CSS fontawesome
+app.use('/css/webfonts', serve_static(`${__dirname}/node_modules/@fortawesome/fontawesome-free/webfonts`));
 
 require('./app/routes.js')(app, passport);
 

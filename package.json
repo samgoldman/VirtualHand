@@ -2,6 +2,7 @@
   "name": "virtual_hand",
   "main": "server.js",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.1",
     "bcrypt-nodejs": "latest",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.1",
