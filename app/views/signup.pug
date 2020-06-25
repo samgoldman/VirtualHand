@@ -7,15 +7,13 @@ html
 
 		include shared/header
 
-		style
-			include ../../client/css/main.css
 	script(src='/socket.io/socket.io.js')
 	body
 		.container
 			.col-sm-12.col-md-4.offset-md-4
 				h1.text-center
 					span.fas.fa-sign-in-alt
-					| &nbsp Sign Up
+					| &nbspSign Up
 
 				// show any messages that come back with authentication
 				if message !== null && message.length > 0
