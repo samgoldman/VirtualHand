@@ -11,7 +11,6 @@ let templates = {
 	student_home: './app/views/student/student_home.pug',
 	teacher_home: './app/views/teacher/teacher_home.pug',
 	teacher_hall_pass: './app/views/teacher/teacher_hall_pass.pug',
-	landing: './app/views/landing.pug',
 	login: './app/views/login.pug',
 	signup: './app/views/signup.pug',
 	password_recovery: './app/views/password_recovery.pug',
@@ -33,8 +32,6 @@ function renderFile(filename, data) {
 }
 
 module.exports = function (app, passport) {
-
-
 	let dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
 	let stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
 	let vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
@@ -120,7 +117,6 @@ module.exports = function (app, passport) {
 	});
 
 	app.get('/', function (req, res) {
-		// res.send(renderFile(templates.landing, {}));
 		res.redirect('/login');
 	});
 

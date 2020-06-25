@@ -1,5 +1,6 @@
 script
 	include ./class_selector.js
+	include ../../shared/class_selector_util.js
 select(multiple, size="4", id="class_selector", class="form-control")
 	each course in courses
 		option(value=course.id) #{course.courseName}
