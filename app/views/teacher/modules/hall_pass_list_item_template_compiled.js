@@ -16,16 +16,20 @@ pug_html = pug_html + "\u003Cspan\u003E";
 ;pug_debug_line = 4;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
 pug_html = pug_html + (pug_escape(null == (pug_interp = time) ? "" : pug_interp)) + "\u003C\u002Fspan\u003E";
 ;pug_debug_line = 5;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
-pug_html = pug_html + "\u003Cbutton" + (" class=\"btn btn-sm btn-danger pull-right\""+" onclick=\"resolvePass(this.value)\""+pug_attr("value", hrid, true, false)) + "\u003E";
+pug_html = pug_html + "\u003Cspan\u003E";
+;pug_debug_line = 5;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
+pug_html = pug_html + "&nbsp\u003C\u002Fspan\u003E";
 ;pug_debug_line = 6;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
-pug_html = pug_html + "\u003Ci class=\"fa fa-fw fa-minus-circle\"\u003E\u003C\u002Fi\u003E\u003C\u002Fbutton\u003E";
+pug_html = pug_html + "\u003Cbutton" + (" class=\"btn btn-sm btn-danger pull-right\""+" onclick=\"resolvePass(this.value)\""+pug_attr("value", hrid, true, false)) + "\u003E";
 ;pug_debug_line = 7;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
-if (includeGrantButton) {
+pug_html = pug_html + "\u003Ci class=\"fa fa-fw fa-minus-circle\"\u003E\u003C\u002Fi\u003E\u003C\u002Fbutton\u003E";
 ;pug_debug_line = 8;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
-pug_html = pug_html + "\u003Cbutton" + (" class=\"btn btn-sm btn-success pull-right\""+" onclick=\"grantPass(this.value)\""+pug_attr("value", hrid, true, false)) + "\u003E";
+if (includeGrantButton) {
 ;pug_debug_line = 9;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
+pug_html = pug_html + "\u003Cbutton" + (" class=\"btn btn-sm btn-success pull-right\""+" onclick=\"grantPass(this.value)\""+pug_attr("value", hrid, true, false)) + "\u003E";
+;pug_debug_line = 10;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
 pug_html = pug_html + "\u003Ci class=\"fa fa-fw fa-check-circle\"\u003E\u003C\u002Fi\u003E\u003C\u002Fbutton\u003E";
 }
 pug_html = pug_html + "\u003C\u002Fdiv\u003E";
-;pug_debug_line = 10;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
+;pug_debug_line = 11;pug_debug_filename = ".\u002Fapp\u002Fviews\u002Fteacher\u002Fmodules\u002Fhall_pass_list_item_template.pug";
 pug_html = pug_html + "\u003Cbr\u002F\u003E";}.call(this,"hrid" in locals_for_with?locals_for_with.hrid:typeof hrid!=="undefined"?hrid:undefined,"includeGrantButton" in locals_for_with?locals_for_with.includeGrantButton:typeof includeGrantButton!=="undefined"?includeGrantButton:undefined,"time" in locals_for_with?locals_for_with.time:typeof time!=="undefined"?time:undefined,"username" in locals_for_with?locals_for_with.username:typeof username!=="undefined"?username:undefined));} catch (err) {pug_rethrow(err, pug_debug_filename, pug_debug_line);};return pug_html;}

@@ -3,15 +3,15 @@ script
 script
 	include hall_pass_list_item_template_compiled.js
 
-.col-xs-8.col-xs-offset-2
-	h2(align="center") Out of the Room
-	#out_of_room_div.well
-.col-xs-8.col-xs-offset-2
-	h2(align="center") Waiting for Pass
-	#waiting_for_pass_div.well
+
+h2.text-center Out of the Room
+#out_of_room_div.card.hall_pass_card
+
+h2.text-center Waiting for Pass
+#waiting_for_pass_div.card.well.hall_pass_card
+
+br
 
 button#clear-all-hp.btn.btn-block.btn-sm.btn-danger Clear All
-br
-br
 script
 	| #{listItemTemplate}
