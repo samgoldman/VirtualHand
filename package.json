@@ -26,10 +26,13 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "jasmine"
+    "test": "nyc --reporter=lcov jasmine",
+    "coverage": "codecov"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "jasmine": "^3.5.0"
+    "jasmine": "^3.5.0",
+    "nyc": "^15.1.0",
+    "codecov": "^3.7.0"
   }
 }
