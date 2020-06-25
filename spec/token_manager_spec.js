@@ -22,7 +22,26 @@ describe("Token Manager", () => {
 			expect(spy_sign.calls.argsFor(0)[2]).toEqual({
 				expiresIn: 60 * 10
 			});
-
 		});
-	})
+
+		it("should call jwt.sign with a payload of role=guest when the user is not provided",() => {
+			expect(token_manager.getSocketToken).toBeDefined();
+
+			const spy_sign = spyOn(jwt, 'sign').and.returnValue('this_is_a_test_token2');
+
+			process.env.JWT_SECRET = 'TEST_SECRET2';
+
+			expect(token_manager.getSocketToken()).toEqual('this_is_a_test_token2');
+			expect(jwt.sign).toHaveBeenCalled();
+			expect(spy_sign.calls.count()).toEqual(1);
+			expect(spy_sign.calls.argsFor(0).length).toEqual(3);
+			expect(spy_sign.calls.argsFor(0)[0]).toEqual({
+				role: 'guest'
+			});
+			expect(spy_sign.calls.argsFor(0)[1]).toEqual('TEST_SECRET2');
+			expect(spy_sign.calls.argsFor(0)[2]).toEqual({
+				expiresIn: 60 * 10
+			});
+		});
+	});
 });
