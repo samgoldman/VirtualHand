@@ -1,8 +1,6 @@
 // app/models/assistanceRequest.js
 // load the things we need
 let mongoose = require('mongoose');
-let User = require('./user');
-let Course = require('./course');
 
 // define the schema for our user model
 let assistanceRequestSchema = mongoose.Schema({

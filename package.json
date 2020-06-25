@@ -24,12 +24,10 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "jasmine"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^4.0.1",
-    "superagent": "^3.8.1",
-    "supertest": "^3.0.0"
+    "jasmine": "^3.5.0"
   }
 }
