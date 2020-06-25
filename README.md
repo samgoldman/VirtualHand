@@ -1,3 +1,6 @@
+![Node.js CI](https://github.com/samgoldman/VirtualHand/workflows/Node.js%20CI/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/samgoldman/VirtualHand/branch/master/graph/badge.svg)](https://codecov.io/gh/samgoldman/VirtualHand)
+
 # VirtualHand
 
 Warning! This branch will auto-deploy to the overland server every night at midnight!
