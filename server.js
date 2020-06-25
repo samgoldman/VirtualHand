@@ -15,7 +15,8 @@ let mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURL, {
-    useMongoClient : true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
 require('./app/passport')(passport);
