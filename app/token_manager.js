@@ -1,7 +1,7 @@
-let jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
-function getSocketToken(user) {
-	let payload = {};
+const getSocketToken = user => {
+	const payload = {};
 
 	if (user) {
 		payload.uid = user._id;
@@ -14,7 +14,7 @@ function getSocketToken(user) {
 	return jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 10});
 }
 
-function verifyToken(token, callback) {
+const verifyToken = (token, callback) => {
 	jwt.verify(token, process.env.JWT_SECRET, callback);
 }
 
