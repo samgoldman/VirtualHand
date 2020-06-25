@@ -26,9 +26,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "jasmine",
-    "coverage": "nyc jasmine",
-    "codecov": "codecov $CODECOV_TOKEN"
+    "test": "nyc --reporter=lcov jasmine",
+    "coverage": "codecov $CODECOV_TOKEN"
   },
   "devDependencies": {
     "chai": "^4.1.2",
