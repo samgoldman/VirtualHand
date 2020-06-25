@@ -1,1 +1,3 @@
-exclude: spec/**
+all: true
+exclude: ['spec/**']
+include: ['app/**/*.js']
