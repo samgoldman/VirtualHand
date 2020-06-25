@@ -6,3 +6,4 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', 'UA-82069835-1', 'auto');
       ga('send', 'pageview');
+      ga('send', 'event', 'host', window.location.host);
