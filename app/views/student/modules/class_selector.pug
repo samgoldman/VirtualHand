@@ -1,7 +1,7 @@
 script
 	include class_selector.js
 	include ../../shared/class_selector_util.js
-select(size="5", id="class_selector", class="form-control")
+select.form-control(size="5", id="class_selector")
 	each enrollment in enrollments
 		if enrollment.admitted
 			option(value=enrollment.course._id) #{enrollment.course.courseName}
