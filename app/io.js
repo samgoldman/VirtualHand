@@ -1,18 +1,18 @@
 // Load the models
-let User = require('./models/user').model;
-let Enrollment = require('./models/enrollment').model;
-let Course = require('./models/course').model;
-let AssistanceRequest = require('./models/assistanceRequest').model;
-let HallPassRequest = require('./models/hallPassRequest').model;
-let nodemailer = require('nodemailer');
-let randomstring = require("randomstring");
-let Promise = require('bluebird');
-let Token = require('./token_manager');
+const User = require('./models/user').model;
+const Enrollment = require('./models/enrollment').model;
+const Course = require('./models/course').model;
+const AssistanceRequest = require('./models/assistanceRequest').model;
+const HallPassRequest = require('./models/hallPassRequest').model;
+const nodemailer = require('nodemailer');
+const randomstring = require("randomstring");
+const Promise = require('bluebird');
+const Token = require('./token_manager');
 
 // app/routes.js
 module.exports = function (io) {
 	// Create the object used to send the emails
-	let transporter = nodemailer.createTransport({
+	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
 			user: process.env.VH_EMAIL,
@@ -22,7 +22,7 @@ module.exports = function (io) {
 
 	let userCount = 0;
 
-	function authenticateIO(socket, next) {
+	const authenticateIO = (socket, next) => {
 		// Token must be present to authenticate
 		if (socket.handshake.query && socket.handshake.query.token) {
 			Token.verifyToken(socket.handshake.query.token, (err, decoded) => {
@@ -35,11 +35,9 @@ module.exports = function (io) {
 	}
 
 	io.use(authenticateIO)
-		.on('connection', function (socket) {
+		.on('connection', socket => {
 			userCount++;
-			socket.on('disconnect', function () {
-				userCount--;
-			});
+			socket.on('disconnect', () => userCount--);
 
 			// ALL - public included
 			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
@@ -53,43 +51,43 @@ module.exports = function (io) {
 
 			// Students only
 			if (socket.user_data.role === 'student') {
-				socket.on('Request_AssistanceRequestStatus', (data) => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
-					.on('Request_InitiateAssistanceRequest', (data) => initiateAssistanceRequest(socket.user_data.uid, data.cid))
-					.on('Request_ResolveAssistanceRequest', (data) => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid))
-					.on('Request_EnrollStudent', (data) => enrollStudent(socket, socket.user_data.uid, data.courseKey))
-					.on('Request_HallPassRequestStatus', (data) => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid))
-					.on('Request_InitiateHallPassRequest', (data) => initiateHallPassRequest(socket.user_data.uid, data.cid))
-					.on('Request_StudentResolveHallPassRequest', (data) => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
+				socket.on('Request_AssistanceRequestStatus', data => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateAssistanceRequest', data => initiateAssistanceRequest(socket.user_data.uid, data.cid))
+					.on('Request_ResolveAssistanceRequest', data => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid))
+					.on('Request_EnrollStudent', data => enrollStudent(socket, socket.user_data.uid, data.courseKey))
+					.on('Request_HallPassRequestStatus', data => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid))
+					.on('Request_InitiateHallPassRequest', data => initiateHallPassRequest(socket.user_data.uid, data.cid))
+					.on('Request_StudentResolveHallPassRequest', data => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
 			}
 
 			// Teachers only
 			if (socket.user_data.role === 'teacher') {
-				socket.on('Request_CourseCreate', (data) => createCourse(socket, socket.user_data.uid, data.courseName))
-					.on('Request_RandomStudent', (data) => getRandomStudent(socket, data.cid))
-					.on('Request_CourseRename', (data) => renameCourse(socket, data.cid, data.newCourseName))
-					.on('Request_AddStudents', (data) => addStudents(socket, data.cid, data.csv, data.defaultPassword))
-					.on('Request_RetrieveAssistanceRequests', (data) => retrieveAssistanceRequests(socket, data.cids, data.qty))
-					.on('Request_TeacherResolveAssistanceRequest', (data) => teacherResolveAssistanceRequest(data.arid))
-					.on('Request_StudentsForClass', (data) => sendStudentsForClass(socket, data.cid))
-					.on('Request_AdmitStudent', (data) => admitStudent(socket, data.cid, data.sid))
-					.on('Request_RemoveStudent', (data) => removeStudent(socket, data.cid, data.sid))
-					.on('Request_ChangeStudentPassword', (data) => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
-					.on('Request_RetrieveCourseKey', (data) => retrieveCourseKey(socket, data.cid))
-					.on('Request_AssignNewCourseKey', (data) => assignNewCourseKey(socket, data.cid))
-					.on('Request_RetrieveHallPassRequests', (data) => retrieveHallPassRequests(socket, data.cids))
-					.on('Request_TeacherResolveHallPassRequest', (data) => teacherResolveHallPassRequest(data.hrid))
-					.on('Request_TeacherGrantHallPassRequest', (data) => teacherGrantHallPassRequest(data.hrid))
-					.on('Request_TeacherResolveAllAssistanceRequests', (data) => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
-					.on('Request_TeacherResolveAllHallPassRequests', (data) => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid))
-					.on('Request_RemoveAllStudents', (data) => removeAllStudentsFromCourse(socket, socket.user_data.uid, data.cid))
-					.on('Request_DeleteCourse', (data) => deleteCourse(socket, socket.user_data.uid, data.cid));
+				socket.on('Request_CourseCreate', data => createCourse(socket, socket.user_data.uid, data.courseName))
+					.on('Request_RandomStudent', data => getRandomStudent(socket, data.cid))
+					.on('Request_CourseRename', data => renameCourse(socket, data.cid, data.newCourseName))
+					.on('Request_AddStudents', data => addStudents(socket, data.cid, data.csv, data.defaultPassword))
+					.on('Request_RetrieveAssistanceRequests', data => retrieveAssistanceRequests(socket, data.cids, data.qty))
+					.on('Request_TeacherResolveAssistanceRequest', data => teacherResolveAssistanceRequest(data.arid))
+					.on('Request_StudentsForClass', data => sendStudentsForClass(socket, data.cid))
+					.on('Request_AdmitStudent', data => admitStudent(socket, data.cid, data.sid))
+					.on('Request_RemoveStudent', data => removeStudent(socket, data.cid, data.sid))
+					.on('Request_ChangeStudentPassword', data => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
+					.on('Request_RetrieveCourseKey', data => retrieveCourseKey(socket, data.cid))
+					.on('Request_AssignNewCourseKey', data => assignNewCourseKey(socket, data.cid))
+					.on('Request_RetrieveHallPassRequests', data => retrieveHallPassRequests(socket, data.cids))
+					.on('Request_TeacherResolveHallPassRequest', data => teacherResolveHallPassRequest(data.hrid))
+					.on('Request_TeacherGrantHallPassRequest', data => teacherGrantHallPassRequest(data.hrid))
+					.on('Request_TeacherResolveAllAssistanceRequests', data => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
+					.on('Request_TeacherResolveAllHallPassRequests', data => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid))
+					.on('Request_RemoveAllStudents', data => removeAllStudentsFromCourse(socket, socket.user_data.uid, data.cid))
+					.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 			}
 		});
 
-	function recoverPassword(username, done) {
+	const recoverPassword = (username, done) => {
 		User.findOne({'username': username})
 			.exec()
-			.then(function (user) {
+			.then(user => {
 				if (!user || !user.email || user.email === "")
 					return "Cannot recover password: either user does not exist or there is no email on record.";
 
