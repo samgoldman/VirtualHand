@@ -1,4 +1,4 @@
-const token_manager = require('../app/token_manager');
+const token_manager = require('../../app/token_manager');
 const jwt = require('jsonwebtoken');
 
 describe("Token Manager", () => {
