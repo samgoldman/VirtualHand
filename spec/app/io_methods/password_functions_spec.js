@@ -59,5 +59,64 @@ describe('Password Functions', () => {
 
 			expect(test_user.password).toEqual('original_password');
 		});
+
+		it('should create a new password and email it to the user if the user has an email', async () => {
+			expect(recoverPassword).toBeDefined();
+
+			const test_username = 'testUser';
+
+			const test_user = {
+				password: 'original_password',
+				email: 'example@example.com',
+				generateHash: () => 'hashed_value',
+				save: () => {}
+			};
+
+			const mock_documentQuery = {
+				exec: () => new Promise((done) => done(test_user))
+			}
+
+			const spy_callback = spyOn(mock_callback_wrapper, 'callback').and.callThrough();
+			const spy_findOne = spyOn(User, 'findOne').and.returnValue(mock_documentQuery);
+			const spy_sendMail = spyOn(mock_transport, 'sendMail').and.returnValue(new Promise(() => {}));
+			const spy_exec = spyOn(mock_documentQuery, 'exec').and.callThrough();
+			const spy_generate = spyOn(randomstring, 'generate').and.returnValue('random_value');
+			const spy_save = spyOn(test_user, 'save').and.callThrough();
+			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+
+			expect(await recoverPassword(test_username, mock_transport, mock_callback_wrapper.callback)).toEqual(undefined);
+
+			expect(spy_findOne.calls.count()).toEqual(1);
+			expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+			expect(spy_findOne.calls.argsFor(0)[0]).toEqual({'username': test_username});
+
+			expect(spy_exec.calls.count()).toEqual(1);
+			expect(spy_exec.calls.argsFor(0).length).toEqual(0);
+
+			expect(spy_save.calls.count()).toEqual(1);
+			expect(spy_save.calls.argsFor(0).length).toEqual(0);
+
+			expect(spy_generateHash.calls.count()).toEqual(1);
+			expect(spy_generateHash.calls.argsFor(0).length).toEqual(1);
+			expect(spy_generateHash.calls.argsFor(0)[0]).toEqual('random_value');
+
+			expect(spy_sendMail.calls.count()).toEqual(1);
+			expect(spy_sendMail.calls.argsFor(0).length).toEqual(1);
+			expect(spy_sendMail.calls.argsFor(0)[0]).toEqual({
+				to: "example@example.com",
+				subject: 'Virtual Hand Password Reset',
+				text: `Virtual Hand has received a request for your account's password to be reset. Your new password is: random_value \nPlease change it right away.`
+			});
+
+			expect(spy_generate.calls.count()).toEqual(1);
+			expect(spy_generate.calls.argsFor(0).length).toEqual(1);
+			expect(spy_generate.calls.argsFor(0)[0]).toEqual(12)
+
+			expect(spy_callback.calls.count()).toEqual(1);
+			expect(spy_callback.calls.argsFor(0).length).toEqual(1);
+			expect(spy_callback.calls.argsFor(0)[0]).toEqual({message: "Your password has been reset. Please check your email for your new password."});
+
+			expect(test_user.password).toEqual('hashed_value');
+		});
 	});
 });
