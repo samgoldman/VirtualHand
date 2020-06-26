@@ -17,12 +17,6 @@ const recoverPassword = async (username, transporter, done) => {
 			to: user.email,
 			subject: 'Virtual Hand Password Reset',
 			text: email_text
-		}).then((error, info) => {
-			if (error) {
-				console.error(error);
-			} else {
-				console.log(`Message sent: ${info.response}`);
-			}
 		});
 
 		done({message: "Your password has been reset. Please check your email for your new password."});
