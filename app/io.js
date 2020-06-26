@@ -5,12 +5,12 @@ const Course = require('./models/course').model;
 const AssistanceRequest = require('./models/assistanceRequest').model;
 const HallPassRequest = require('./models/hallPassRequest').model;
 const nodemailer = require('nodemailer');
-const randomstring = require("randomstring");
 const Promise = require('bluebird');
 const Token = require('./token_manager');
+const {recoverPassword} = require("./io_methods/password_functions");
 
 // app/routes.js
-module.exports = function (io) {
+module.exports = io => {
 	// Create the object used to send the emails
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
@@ -41,7 +41,7 @@ module.exports = function (io) {
 
 			// ALL - public included
 			if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
-				socket.on('Request_RecoverPassword', (data, callback) => recoverPassword(data.user_name, callback));
+				socket.on('Request_RecoverPassword', (data, callback) => recoverPassword(data.user_name, transporter, callback));
 			}
 
 			// Logged in users
@@ -83,41 +83,6 @@ module.exports = function (io) {
 					.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 			}
 		});
-
-	const recoverPassword = (username, done) => {
-		User.findOne({'username': username})
-			.exec()
-			.then(user => {
-				if (!user || !user.email || user.email === "")
-					return "Cannot recover password: either user does not exist or there is no email on record.";
-
-				// TODO: need better password reset method!
-				// If all conditions are met, reset the password
-				const newPass = randomstring.generate(12);
-				user.password = user.generateHash(newPass);
-				user.save();
-				const email_text = `Virtual Hand has received a request for your account's password to be reset. Your new password is: ${newPass} \nPlease change it right away.`;
-				transporter.sendMail({
-					to: user.email,
-					subject: 'Virtual Hand Password Reset',
-					text: email_text
-				}, function (error, info) {
-					if (error) {
-						console.log(error);
-					} else {
-						console.log(`Message sent: ${info.response}`);
-					}
-				});
-
-				return "Your password has been reset. Please check your email to receive your new password.";
-			})
-			.then(function (message) {
-				done({message: message});
-			})
-			.catch(function (err) {
-				console.log(err);
-			});
-	}
 
 	function changePassword(userID, oldPassword, newPassword, done) {
 		User.findById(userID)
