@@ -5,7 +5,7 @@ const recoverPassword = async (username, transporter, done) => {
 	const user = await User.findOne({'username': username}).exec();
 
 	if (!user || !user.email || user.email === "")
-		done("Cannot recover password: either user does not exist or the user has no email on record.");
+		done({message: "Cannot recover password: either user does not exist or the user has no email on record."});
 	else {
 		// If all conditions are met, reset the password
 		const newPass = randomstring.generate(12);
