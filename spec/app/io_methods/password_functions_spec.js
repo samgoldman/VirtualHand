@@ -1,4 +1,4 @@
-const {recoverPassword} = require("../../../app/io_methods/password_functions");
+const {recoverPassword, changePassword} = require("../../../app/io_methods/password_functions");
 
 const randomstring = require("randomstring");
 const User = require('../../../app/models/user').model;
@@ -119,4 +119,50 @@ describe('Password Functions', () => {
 			expect(test_user.password).toEqual('hashed_value');
 		});
 	});
+
+	describe('>changePassword', () => {
+		it('should not update the password if the user id is not valid', async () => {
+			expect(changePassword).toBeDefined();
+
+			const test_user_id = 'abc123';
+
+			const test_user = {
+				password: 'original_password',
+				generateHash: () => 'hashed_value',
+				validPassword: () => {},
+				save: () => {}
+			};
+
+			const spy_callback = spyOn(mock_callback_wrapper, 'callback').and.callThrough();
+			const spy_findById = spyOn(User, 'findById').and.returnValue(new Promise((done) => done(null)));
+			const spy_generate = spyOn(randomstring, 'generate').and.returnValue('random_value');
+			const spy_save = spyOn(test_user, 'save').and.callThrough();
+			const spy_validPassword = spyOn(test_user, 'validPassword').and.returnValue(false);
+			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+
+			expect(await changePassword(test_user_id, 'original_password', 'new_password', mock_callback_wrapper.callback)).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0).length).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)[0]).toEqual(test_user_id);
+
+			expect(spy_save.calls.count()).toEqual(0);
+
+			expect(spy_generateHash.calls.count()).toEqual(0);
+
+			expect(spy_generate.calls.count()).toEqual(0);
+
+			expect(spy_validPassword.calls.count()).toEqual(0);
+
+			expect(spy_callback.calls.count()).toEqual(1);
+			expect(spy_callback.calls.argsFor(0).length).toEqual(1);
+			expect(spy_callback.calls.argsFor(0)[0]).toEqual({success: false, message: 'Error: invalid user id'});
+
+			expect(test_user.password).toEqual('original_password');
+		});
+
+		it('should not update the password if the old password is not valid', () => {});
+
+		it('should update the password if the old password is valid', () => {});
+	})
 });
