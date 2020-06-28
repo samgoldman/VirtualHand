@@ -37,7 +37,7 @@ function changePassword(userID, oldPassword, newPassword, done) {
 			done({success: true, message: 'Your password was changed successfully!'});
 		})
 		.catch(function (err) {
-			done({success: false, message: err});
+			done({success: false, message: err.message});
 		});
 }
 
