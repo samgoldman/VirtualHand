@@ -10,10 +10,9 @@ const createCourse = async (socket, uid, courseName) => {
 		data.message = "Class not created: Name must not be blank!";
 		data.success = false;
 	} else {
-		const newCourse = Course.newCourse(courseName, uid);
-		await newCourse.save();
+		const course = await Course.create({courseName: courseName, teacher: uid});
 
-		data.courseId = newCourse._id;
+		data.courseId = course._id;
 		data.courseName = courseName;
 		data.message = 'Class created successfully.';
 		data.success = true;
