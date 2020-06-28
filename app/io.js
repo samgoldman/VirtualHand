@@ -1,9 +1,10 @@
 // Load the models
-const User = require('./models/user').model;
-const Enrollment = require('./models/enrollment').model;
-const Course = require('./models/course').model;
-const AssistanceRequest = require('./models/assistanceRequest').model;
-const HallPassRequest = require('./models/hallPassRequest').model;
+const MODEL_PATH = './models/';
+const User = require(MODEL_PATH + 'user').model;
+const Enrollment = require(MODEL_PATH + 'enrollment').model;
+const Course = require(MODEL_PATH + 'course').model;
+const AssistanceRequest = require(MODEL_PATH + 'assistanceRequest').model;
+const HallPassRequest = require(MODEL_PATH + 'hallPassRequest').model;
 const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
@@ -350,8 +351,7 @@ module.exports = io => {
 			.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
 			.then(function(){
 				io.emit('Broadcast_HallPassRequestModified');
-			})
-			.catch((err) => {});
+			});
 	}
 
 	function teacherResolveAllHallPassRequests(uid, cid) {
@@ -368,8 +368,7 @@ module.exports = io => {
 			.update({granted: true, grantedTime: Date.now()})
 			.then(function(){
 				io.emit('Broadcast_HallPassRequestModified');
-			})
-			.catch((err) => {});
+			});
 	}
 
 	function removeAllStudentsFromCourse(socket, uid, cid) {
