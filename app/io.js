@@ -7,7 +7,7 @@ const HallPassRequest = require('./models/hallPassRequest').model;
 const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
-const {recoverPassword} = require("./io_methods/password_functions");
+const {recoverPassword, changePassword} = require("./io_methods/password_functions");
 
 // app/routes.js
 module.exports = io => {
@@ -83,24 +83,6 @@ module.exports = io => {
 					.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 			}
 		});
-
-	function changePassword(userID, oldPassword, newPassword, done) {
-		User.findById(userID)
-			.then(function (user) {
-				if (user.validPassword(oldPassword)) {
-					user.password = user.generateHash(newPassword);
-					user.save();
-				} else {
-					throw new Error('Incorrect old password!');
-				}
-			})
-			.then(function () {
-				done({success: true, message: 'Your password was changed successfully!'});
-			})
-			.catch(function (err) {
-				done({success: false, message: err});
-			});
-	}
 
 	function createCourse(socket, uid, courseName) {
 		User.findById(uid)

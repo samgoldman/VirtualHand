@@ -23,6 +23,25 @@ const recoverPassword = async (username, transporter, done) => {
 	}
 }
 
+function changePassword(userID, oldPassword, newPassword, done) {
+	User.findById(userID)
+		.then(function (user) {
+			if (user.validPassword(oldPassword)) {
+				user.password = user.generateHash(newPassword);
+				user.save();
+			} else {
+				throw new Error('Incorrect old password!');
+			}
+		})
+		.then(function () {
+			done({success: true, message: 'Your password was changed successfully!'});
+		})
+		.catch(function (err) {
+			done({success: false, message: err});
+		});
+}
+
 module.exports = {
-	recoverPassword: recoverPassword
+	recoverPassword: recoverPassword,
+	changePassword: changePassword
 }
