@@ -8,6 +8,7 @@ const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
+const {createCourse} = require('./io_methods/course_functions');
 
 // app/routes.js
 module.exports = io => {
@@ -83,29 +84,6 @@ module.exports = io => {
 					.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 			}
 		});
-
-	function createCourse(socket, uid, courseName) {
-		User.findById(uid)
-			.then(function (user) {
-				uid = user._id;
-				const data = {};
-				if (!courseName || courseName === "") {
-					data.message = "Class not created: Name must not be blank!";
-					data.success = false;
-				} else {
-					let newCourse = new Course();
-					newCourse.courseName = courseName;
-					newCourse.teacher = uid;
-					newCourse.save();
-
-					data.courseId = newCourse._id;
-					data.courseName = courseName;
-					data.message = "Class created successfully.";
-					data.success = true;
-				}
-				socket.emit('Response_CourseCreate', data);
-			});
-	}
 
 	function getRandomStudent(socket, cid) {
 		Enrollment.count({course: cid, valid: true, admitted: true})
