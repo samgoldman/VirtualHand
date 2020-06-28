@@ -30,6 +30,15 @@ courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, u
 		});
 };
 
+courseSchema.statics.newCourse = (courseName, teacher_id) => {
+	const newCourse = new Course();
+
+	newCourse.courseName = courseName;
+	newCourse.teacher = teacher_id;
+
+	return newCourse;
+}
+
 // Generate a random 6-7 character key
 courseSchema.statics.generateCourseKey = function generateCourseKey() {
 	return (Math.floor(Math.random() * 1000000000) + parseInt(Date.now() / 1000)).toString(36).toUpperCase().substring(0, 6);
