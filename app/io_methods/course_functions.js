@@ -1,5 +1,6 @@
 const Course = require('../models/course').model;
 const User = require('../models/user').model;
+const Enrollment = require('../models/enrollment').model;
 
 const createCourse = async (socket, uid, courseName) => {
 	const user = await User.findById(uid);
@@ -46,7 +47,24 @@ const renameCourse = async (socket, cid, newCourseName) => {
 	socket.emit('Response_RenameCourse', response);
 };
 
+const deleteCourse = async (socket, uid, cid) => {
+	const response = {success: false};
+
+	try {
+		await Course.verifyCourseTaughtBy(cid, uid);
+		await Enrollment.find({course: cid, valid: true}).updateMany({valid: false});
+		await Course.findById(cid).updateOne({valid: false});
+		response.success = true;
+		response.message = 'Successfully deleted class';
+	} catch (err) {
+		response.message = err.message;
+	}
+
+	socket.emit('Response_DeleteCourse', response);
+};
+
 module.exports = {
 	createCourse: createCourse,
-	renameCourse: renameCourse
+	renameCourse: renameCourse,
+	deleteCourse: deleteCourse
 }

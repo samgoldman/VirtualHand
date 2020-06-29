@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
-const {createCourse, renameCourse} = require('./io_methods/course_functions');
+const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
 
 // app/routes.js
 module.exports = io => {
@@ -356,15 +356,5 @@ module.exports = io => {
 				socket.emit('Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'});
 			})
 			.catch(err => socket.emit('Request_RemoveAllStudents', {success: false, message: err}));
-	}
-
-	function deleteCourse(socket, uid, cid) {
-		Course.verifyCourseTaughtBy(cid, uid)
-			.then(() => {return Enrollment.find({course: cid, valid: true}).update({valid: false})})
-			.then(() => {return Course.findById(cid).update({valid: false})})
-			.then(function() {
-				socket.emit('Response_DeleteCourse', {success: true, message: 'Successfully deleted class'});
-			})
-			.catch(err => socket.emit('Response_DeleteCourse', {success: false, message: err}));
 	}
 };
