@@ -266,5 +266,55 @@ describe('Course Functions', () => {
 				message: 'Teacher does not teach class!'
 			});
 		});
+
+		it('should delete the course if the user does teach it', async () => {
+			expect(deleteCourse).toBeDefined();
+
+			const mock_course_document_query = {
+				updateOne: () => new Promise(done => done(undefined))
+			};
+
+			const mock_enrollment_document_query = {
+				updateMany: () => new Promise(done => done(undefined))
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(mock_course_document_query);
+			const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined)));
+			const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_enrollment_document_query);
+			const spy_emit = spyOn(mock_socket, 'emit').and.returnValue(undefined);
+			const spy_updateOne = spyOn(mock_course_document_query, 'updateOne').and.returnValue(new Promise(done => done(undefined)));
+			const spy_updateMany = spyOn(mock_enrollment_document_query, 'updateMany').and.returnValue(new Promise(done => done(undefined)));
+
+			expect(await deleteCourse(mock_socket, 'user-id', 'course-id')).toEqual(undefined);
+
+			expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+			expect(spy_verifyCourseTaughtBy.calls.argsFor(0).length).toEqual(2);
+			expect(spy_verifyCourseTaughtBy.calls.argsFor(0)[0]).toEqual('course-id');
+			expect(spy_verifyCourseTaughtBy.calls.argsFor(0)[1]).toEqual('user-id');
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0).length).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)[0]).toEqual('course-id');
+
+			expect(spy_find.calls.count()).toEqual(1);
+			expect(spy_find.calls.argsFor(0).length).toEqual(1);
+			expect(spy_find.calls.argsFor(0)[0]).toEqual({course: 'course-id', valid: true});
+
+			expect(spy_updateMany.calls.count()).toEqual(1);
+			expect(spy_updateMany.calls.argsFor(0).length).toEqual(1);
+			expect(spy_updateMany.calls.argsFor(0)[0]).toEqual({valid: false});
+
+			expect(spy_updateOne.calls.count()).toEqual(1);
+			expect(spy_updateOne.calls.argsFor(0).length).toEqual(1);
+			expect(spy_updateOne.calls.argsFor(0)[0]).toEqual({valid: false});
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0).length).toEqual(2);
+			expect(spy_emit.calls.argsFor(0)[0]).toEqual('Response_DeleteCourse');
+			expect(spy_emit.calls.argsFor(0)[1]).toEqual({
+				success: true,
+				message: 'Successfully deleted class'
+			});
+		});
 	});
 });
