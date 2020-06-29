@@ -131,7 +131,7 @@ describe('Course Functions', () => {
 				};
 
 				const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(undefined)));
-				const spy_save = spyOn(test_course, 'save').and.returnValue(new Promise(() => undefined));
+				const spy_save = spyOn(test_course, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.returnValue(undefined);
 
 				expect(await renameCourse(mock_socket, '424242', newCourseName)).toEqual(undefined);
@@ -151,6 +151,75 @@ describe('Course Functions', () => {
 				expect(test_course._id).toEqual('424242');
 				expect(test_course.courseName).toEqual('original_course_name');
 			});
+		});
+
+		it(`should not rename the course if the course ID is invalid`, async () => {
+			expect(createCourse).toBeDefined();
+
+			const test_course = {
+				_id: '424242',
+				courseName: 'original_course_name',
+				save: () => {}
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(undefined)));
+			const spy_save = spyOn(test_course, 'save').and.returnValue(new Promise(done => done(undefined)));
+			const spy_emit = spyOn(mock_socket, 'emit').and.returnValue(undefined);
+
+			expect(await renameCourse(mock_socket, '424242', 'newCourseName')).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0).length).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)[0]).toEqual('424242');
+
+			expect(spy_save.calls.count()).toEqual(0);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0).length).toEqual(2);
+			expect(spy_emit.calls.argsFor(0)[0]).toEqual('Response_RenameCourse');
+			expect(spy_emit.calls.argsFor(0)[1]).toEqual({
+				success: false,
+				message: 'Class not renamed: Invalid course ID'
+			});
+
+			expect(test_course._id).toEqual('424242');
+			expect(test_course.courseName).toEqual('original_course_name');
+		});
+
+		it(`should rename the course if all conditions are met`, async () => {
+			expect(createCourse).toBeDefined();
+
+			const test_course = {
+				_id: '424242',
+				courseName: 'original_course_name',
+				save: () => {}
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(test_course)));
+			const spy_save = spyOn(test_course, 'save').and.returnValue(new Promise(done => done(undefined)));
+			const spy_emit = spyOn(mock_socket, 'emit').and.returnValue(undefined);
+
+			expect(await renameCourse(mock_socket, '424242', 'newCourseName')).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0).length).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)[0]).toEqual('424242');
+
+			expect(spy_save.calls.count()).toEqual(1);
+			expect(spy_save.calls.argsFor(0).length).toEqual(0);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0).length).toEqual(2);
+			expect(spy_emit.calls.argsFor(0)[0]).toEqual('Response_RenameCourse');
+			expect(spy_emit.calls.argsFor(0)[1]).toEqual({
+				success: true,
+				message: 'Class renamed successfully.',
+				courseId: '424242',
+				courseName: 'newCourseName'
+			});
+
+			expect(test_course._id).toEqual('424242');
+			expect(test_course.courseName).toEqual('newCourseName');
 		});
 	});
 });
