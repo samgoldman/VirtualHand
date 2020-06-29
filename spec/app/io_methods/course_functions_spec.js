@@ -1,6 +1,6 @@
 const Course = require('../../../app/models/course').model;
 const User = require('../../../app/models/user').model;
-const {createCourse} = require('../../../app/io_methods/course_functions');
+const {createCourse, renameCourse} = require('../../../app/io_methods/course_functions');
 
 const mock_socket = {
 	emit: () => {}
@@ -116,6 +116,41 @@ describe('Course Functions', () => {
 			});
 
 			expect(test_course._id).toEqual('424242');
+		});
+	});
+
+	describe('>renameCourse', () => {
+		[null, undefined, ''].forEach(newCourseName => {
+			it(`should not rename the course if the new course name is ${newCourseName}`, async () => {
+				expect(createCourse).toBeDefined();
+
+				const test_course = {
+					_id: '424242',
+					courseName: 'original_course_name',
+					save: () => {}
+				};
+
+				const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(undefined)));
+				const spy_save = spyOn(test_course, 'save').and.returnValue(new Promise(() => undefined));
+				const spy_emit = spyOn(mock_socket, 'emit').and.returnValue(undefined);
+
+				expect(await renameCourse(mock_socket, '424242', newCourseName)).toEqual(undefined);
+
+				expect(spy_findById.calls.count()).toEqual(0);
+
+				expect(spy_save.calls.count()).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0).length).toEqual(2);
+				expect(spy_emit.calls.argsFor(0)[0]).toEqual('Response_RenameCourse');
+				expect(spy_emit.calls.argsFor(0)[1]).toEqual({
+					success: false,
+					message: 'Class not renamed: Name must not be blank!'
+				});
+
+				expect(test_course._id).toEqual('424242');
+				expect(test_course.courseName).toEqual('original_course_name');
+			});
 		});
 	});
 });
