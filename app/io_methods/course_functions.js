@@ -20,8 +20,33 @@ const createCourse = async (socket, uid, courseName) => {
 	}
 
 	socket.emit('Response_CourseCreate', data);
-}
+};
+
+const renameCourse = async (socket, cid, newCourseName) => {
+	const response = {success: false};
+
+	if (!newCourseName || newCourseName === "") {
+		response.message = 'Class not renamed: Name must not be blank!';
+	} else {
+		const course = await Course.findById(cid);
+
+		if (!course) {
+			response.message = 'Class not renamed: Invalid course ID';
+		} else {
+			course.courseName = newCourseName;
+			await course.save();
+
+			response.success = true;
+			response.message = 'Class renamed successfully.';
+			response.courseId = course._id;
+			response.courseName = course.courseName;
+		}
+	}
+
+	socket.emit('Response_RenameCourse', response);
+};
 
 module.exports = {
-	createCourse: createCourse
+	createCourse: createCourse,
+	renameCourse: renameCourse
 }

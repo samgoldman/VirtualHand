@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
-const {createCourse} = require('./io_methods/course_functions');
+const {createCourse, renameCourse} = require('./io_methods/course_functions');
 
 // app/routes.js
 module.exports = io => {
@@ -99,28 +99,6 @@ module.exports = io => {
 				if (enrollment)
 					socket.emit('Response_RandomStudent', {'randomStudentName': enrollment.student.username});
 			});
-	}
-
-	function renameCourse(socket, cid, newCourseName) {
-		if (!newCourseName || newCourseName === "") {
-			socket.emit('Response_RenameCourse', {
-				success: false,
-				message: 'Class not renamed: Name must not be blank!'
-			});
-		} else {
-			Course.findByIdAndUpdate(cid, {courseName: newCourseName})
-				.then(function (course) {
-					return Course.findById(course._id);
-				})
-				.then(function (course) {
-					socket.emit('Response_CourseRename', {
-						success: true,
-						message: 'Class renamed successfully.',
-						courseId: course._id,
-						courseName: course.courseName
-					});
-				});
-		}
 	}
 
 	function addStudent(student) {

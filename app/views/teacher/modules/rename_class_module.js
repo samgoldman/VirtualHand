@@ -6,7 +6,7 @@ function RenameClassClicked() {
 	});
 }
 
-socket.on('Response_CourseRename', function (data) {
+socket.on('Response_RenameCourse', function (data) {
 	document.getElementById("rename_class_alert_box").innerHTML = data.message;
 	document.getElementById("rename_class_alert_box").style.display = "block";
 	if (data.success) {

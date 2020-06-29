@@ -8,8 +8,8 @@ const mock_socket = {
 
 describe('Course Functions', () => {
 	describe('>createCourse', () => {
-		[undefined, null].forEach(courseName => {
-			it(`not change the course name if the course name is ${courseName}`, async () => {
+		[undefined, null, ''].forEach(courseName => {
+			it(`should not create the course if the course name is ${courseName}`, async () => {
 				expect(createCourse).toBeDefined();
 
 				const test_user_id = 'abc123';
@@ -46,7 +46,7 @@ describe('Course Functions', () => {
 			});
 		});
 
-		it('not change the course name if the user ID is invalid', async () => {
+		it('should not create the course if the user ID is invalid', async () => {
 			expect(createCourse).toBeDefined();
 
 			const test_user_id = 'abc123';
@@ -78,7 +78,7 @@ describe('Course Functions', () => {
 			expect(test_course._id).toEqual('424242');
 		});
 
-		it('not change the course name if the course name is undefined', async () => {
+		it('should create the course if all criteria are met', async () => {
 			expect(createCourse).toBeDefined();
 
 			const test_user_id = 'abc123';
