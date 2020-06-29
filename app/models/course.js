@@ -24,7 +24,7 @@ courseSchema.statics.taughtBy = function taughtBy(uid) {
 
 courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, uid) {
 	return this.find({_id: cid, teacher: uid, valid: true})
-		.count()
+		.countDocuments()
 		.then(function(count) {
 			if (count <= 0) throw new Error('Teacher does not teach class!');
 		});
