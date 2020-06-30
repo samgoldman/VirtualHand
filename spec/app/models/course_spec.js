@@ -1,4 +1,5 @@
 const Course = require('../../../app/models/course').model;
+const randomstring = require('randomstring');
 
 describe('course', () => {
 	describe('>verifyCourseTaughtBy', () => {
@@ -54,6 +55,20 @@ describe('course', () => {
 
 			expect(spy_then.calls.count()).toEqual(1);
 			expect(spy_then.calls.argsFor(0).length).toEqual(1);
+		});
+	});
+
+	describe('>generateCourseKey', () => {
+		it('should call generate with a parameter of 6 and return the value', () => {
+			expect(Course.generateCourseKey).toBeDefined();
+
+			const spy_generate = spyOn(randomstring, 'generate').and.returnValue('abc123');
+
+			expect(Course.generateCourseKey()).toEqual('abc123');
+
+			expect(spy_generate.calls.count()).toEqual(1);
+			expect(spy_generate.calls.argsFor(0).length).toEqual(1);
+			expect(spy_generate.calls.argsFor(0)[0]).toEqual(6);
 		});
 	});
 });
