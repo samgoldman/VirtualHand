@@ -18,8 +18,7 @@ courseSchema.pre('save', function (next) {
 });
 
 courseSchema.statics.taughtBy = function taughtBy(uid) {
-	let Course = this;
-	return Course.find({teacher: uid, valid: true}).sort('courseName');
+	return this.find({teacher: uid, valid: true}).sort('courseName');
 };
 
 courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, uid) {
