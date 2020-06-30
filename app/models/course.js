@@ -12,7 +12,7 @@ const courseSchema = mongoose.Schema({
 	timestamp: {type: Date, default: Date.now}
 });
 
-courseSchema.pre('save', function (next) {
+courseSchema.pre('validate', function (next) {
 	this.timestamp = new Date();
 	next();
 });

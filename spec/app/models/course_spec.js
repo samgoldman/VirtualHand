@@ -96,4 +96,19 @@ describe('course', () => {
 			expect(spy_generate.calls.argsFor(0)[0]).toEqual(6);
 		});
 	});
+
+	describe('>pre validate hook', () => {
+		it('should update the timestamp when the course is updated', async () => {
+			const new_course = new Course({courseName: 'test_course', valid: false});
+
+			expect(new_course.timestamp).toBeDefined();
+
+			const original_timestamp = new_course.timestamp;
+
+			new_course.courseKey = 'abc123';
+			await new_course.validate();
+
+			expect(new_course.timestamp).toBeGreaterThan(original_timestamp);
+		});
+	});
 });
