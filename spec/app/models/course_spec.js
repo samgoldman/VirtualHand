@@ -11,7 +11,7 @@ describe('course', () => {
 					return mock_document_query;
 				},
 				then: (fn) => {fn(0)}
-			}
+			};
 
 			const spy_find = spyOn(Course, 'find').and.returnValue(mock_document_query);
 			const spy_countDocuments = spyOn(mock_document_query, 'countDocuments').and.callThrough();
@@ -38,7 +38,7 @@ describe('course', () => {
 					return mock_document_query;
 				},
 				then: (fn) => {fn(1)}
-			}
+			};
 
 			const spy_find = spyOn(Course, 'find').and.returnValue(mock_document_query);
 			const spy_countDocuments = spyOn(mock_document_query, 'countDocuments').and.callThrough();
@@ -55,6 +55,31 @@ describe('course', () => {
 
 			expect(spy_then.calls.count()).toEqual(1);
 			expect(spy_then.calls.argsFor(0).length).toEqual(1);
+		});
+	});
+
+	describe('>taughtBy', () => {
+		it('should return a documentQuery of sorted classes', async () => {
+			expect(Course.taughtBy).toBeDefined();
+
+			const mock_document_query = {
+				sort: () => {
+					return mock_document_query;
+				}
+			};
+
+			const spy_find = spyOn(Course, 'find').and.returnValue(mock_document_query);
+			const spy_sort = spyOn(mock_document_query, 'sort').and.callThrough();
+
+			expect(await Course.taughtBy('user-id')).toEqual(mock_document_query);
+
+			expect(spy_find.calls.count()).toEqual(1);
+			expect(spy_find.calls.argsFor(0).length).toEqual(1);
+			expect(spy_find.calls.argsFor(0)[0]).toEqual({teacher: 'user-id', valid: true});
+
+			expect(spy_sort.calls.count()).toEqual(1);
+			expect(spy_sort.calls.argsFor(0).length).toEqual(1);
+			expect(spy_sort.calls.argsFor(0)[0]).toEqual('courseName');
 		});
 	});
 
