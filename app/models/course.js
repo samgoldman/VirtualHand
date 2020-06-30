@@ -1,10 +1,10 @@
 // app/models/course.js
 // load the things we need
-let mongoose = require('mongoose');
-let User = require('./user');
+const mongoose = require('mongoose');
+const randomstring = require("randomstring");
 
 // define the schema for our user model
-let courseSchema = mongoose.Schema({
+const courseSchema = mongoose.Schema({
 	courseName: String,
 	courseKey: String,
 	teacher: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
@@ -30,10 +30,8 @@ courseSchema.statics.verifyCourseTaughtBy = function verifyCourseTaughtBy(cid, u
 		});
 };
 
-// Generate a random 6-7 character key
-courseSchema.statics.generateCourseKey = function generateCourseKey() {
-	return (Math.floor(Math.random() * 1000000000) + parseInt(Date.now() / 1000)).toString(36).toUpperCase().substring(0, 6);
-};
+// Generate a random 6 character key
+courseSchema.statics.generateCourseKey = () => randomstring.generate(6);
 
 // create the model for users and expose it to our app
 module.exports = {
