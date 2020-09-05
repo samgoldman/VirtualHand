@@ -104,6 +104,8 @@ describe('course', () => {
 			expect(new_course.timestamp).toBeDefined();
 
 			const original_timestamp = new_course.timestamp;
+			
+            while(new Date() <= original_timestamp) {}
 
 			new_course.courseKey = 'abc123';
 			await new_course.validate();

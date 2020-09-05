@@ -13,7 +13,7 @@ let userSchema = mongoose.Schema({
 	timestamp: {type: Date, default: Date.now}
 });
 
-userSchema.pre('save', function (next) {
+userSchema.pre('validate', function (next) {
 	this.timestamp = new Date();
 	next();
 });
