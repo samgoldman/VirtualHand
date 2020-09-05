@@ -3,7 +3,7 @@
   "main": "server.js",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.1",
-    "bcrypt-nodejs": "latest",
+    "bcrypt": "5.0.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.1",
     "bootstrap": "^4.5.0",
