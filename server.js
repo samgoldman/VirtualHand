@@ -10,7 +10,7 @@ let cookie_parser = require('cookie-parser');
 let body_parser = require('body-parser');
 const mongoStore = require('connect-mongo')(express_session);
 
-let port = process.env.PORT;
+let port = process.env.PORT || 8080;
 let mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 mongoose.Promise = Promise;

@@ -25,3 +25,4 @@ coverage
 run.bat
 
 *.idea*
+.vscode/launch.json
