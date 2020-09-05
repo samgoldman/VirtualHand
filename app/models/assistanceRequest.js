@@ -13,7 +13,7 @@ let assistanceRequestSchema = mongoose.Schema({
 	timestamp: {type: Date, default: Date.now}
 });
 
-assistanceRequestSchema.pre('save', function (next) {
+assistanceRequestSchema.pre('validate', function (next) {
 	this.timestamp = new Date();
 	next();
 });

@@ -17,7 +17,7 @@ let hallPassRequestSchema = mongoose.Schema({
 	timestamp: {type: Date, default: Date.now}
 });
 
-hallPassRequestSchema.pre('save', function (next) {
+hallPassRequestSchema.pre('validate', function (next) {
 	this.timestamp = new Date();
 	next();
 });

@@ -1,6 +1,5 @@
 const User = require('../../../app/models/user').model;
 const bcrypt = require('bcrypt');
-const user = require('../../../app/models/user');
 
 describe('user', () => {
     describe('>generateHash', () => {
