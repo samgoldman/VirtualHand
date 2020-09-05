@@ -2,16 +2,16 @@
   "name": "virtual_hand",
   "main": "server.js",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.13.1",
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "bcrypt": "5.0.0",
-    "bluebird": "^3.5.1",
-    "body-parser": "^1.18.1",
-    "bootstrap": "^4.5.0",
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
+    "bootstrap": "^4.5.2",
     "bufferutil": "^4.0.1",
     "connect-flash": "^0.1.1",
     "connect-mongo": "3.2.0",
     "cookie-parser": "^1.4.3",
-    "express": "^4.16.2",
+    "express": "^4.17.1",
     "express-session": "^1.15.5",
     "jquery": "^3.5.1",
     "jsonwebtoken": "^8.2.0",
@@ -23,7 +23,7 @@
     "popper.js": "^1.16.1",
     "pug": "^2.0.0-rc.4",
     "randomstring": "^1.1.0",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "serve-static": "^1.12.4",
     "socket.io": "2.3.0",
     "utf-8-validate": "^5.0.2"
@@ -31,12 +31,12 @@
   "scripts": {
     "start": "node server.js",
     "test": "nyc --reporter=lcov jasmine",
-    "coverage": "codecov $CODECOV_TOKEN"
+    "coverage": "codecov"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "codecov": "^3.7.1",
-    "jasmine": "^3.5.0",
+    "chai": "^4.2.0",
+    "codecov": "^3.7.2",
+    "jasmine": "^3.6.1",
     "nyc": "^15.1.0"
   }
 }
