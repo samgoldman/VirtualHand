@@ -25,7 +25,7 @@ enrollmentSchema.statics.getEnrolled = function getEnrolled(user) {
 
 enrollmentSchema.statics.findOrCreate = function (cid, uid, admitted) {
 	return this.findOne({course: cid, student: uid, valid: true})
-		.then(enrollment => enrollment || Enrollment.create({course: cid, student: uid, admitted: admitted}));
+		.then(enrollment => enrollment || this.create({course: cid, student: uid, admitted: admitted}));
 };
 
 enrollmentSchema.statics.confirmStudentInClass = function(sid, cid) {

@@ -46,5 +46,86 @@ describe('enrollment', () => {
 			expect(spy_sort.calls.argsFor(0).length).toEqual(1);
 			expect(spy_sort.calls.argsFor(0)[0]).toEqual('course.courseName');
 		});
+
+		describe('>findOrCreate', () => {
+			it('should search by course id and user id and if there is a match, return it', () => {
+				expect(Enrollment.findOrCreate).toBeDefined();
+
+				const returnValue = {'student': 'sid', 'course': 'cid'};
+
+				const mock_document_query = {
+					then: fn => fn(returnValue)
+				};
+	
+				const spy_findOne = spyOn(Enrollment, 'findOne').and.returnValue(mock_document_query)
+				const spy_then = spyOn(mock_document_query, 'then').and.callThrough();
+				const spy_create = spyOn(Enrollment, 'create').and.returnValue(undefined);
+	
+				expect(Enrollment.findOrCreate('cid', 'sid', false)).toEqual(returnValue);
+	
+				expect(spy_findOne.calls.count()).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0)[0]).toEqual({course: 'cid', student: 'sid', valid: true});
+	
+				expect(spy_then.calls.count()).toEqual(1);
+				expect(spy_then.calls.argsFor(0).length).toEqual(1);
+	
+				expect(spy_create.calls.count()).toEqual(0);
+			});
+	
+			it('should search by course id and user id and if there is no match, create a new enrollment with the admitted flag set to false if the parameter is false', () => {
+				expect(Enrollment.findOrCreate).toBeDefined();
+	
+				const returnValue = {'student': 'sid2', 'course': 'cid2'};
+
+				const mock_document_query = {
+					then: fn => fn(undefined)
+				};
+
+				const spy_findOne = spyOn(Enrollment, 'findOne').and.returnValue(mock_document_query)
+				const spy_then = spyOn(mock_document_query, 'then').and.callThrough();
+				const spy_create = spyOn(Enrollment, 'create').and.returnValue(returnValue);
+	
+				expect(Enrollment.findOrCreate('cid2', 'sid2', false)).toEqual(returnValue);
+	
+				expect(spy_findOne.calls.count()).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0)[0]).toEqual({course: 'cid2', student: 'sid2', valid: true});
+	
+				expect(spy_then.calls.count()).toEqual(1);
+				expect(spy_then.calls.argsFor(0).length).toEqual(1);
+	
+				expect(spy_create.calls.count()).toEqual(1);
+				expect(spy_create.calls.argsFor(0).length).toEqual(1);
+				expect(spy_create.calls.argsFor(0)[0]).toEqual({course: 'cid2', student: 'sid2', admitted: false});
+			});
+	
+			it('should search by course id and user id and if there is no match, create a new enrollment with the admitted flag set to true if the parameter is true', () => {
+				expect(Enrollment.findOrCreate).toBeDefined();
+	
+				const returnValue = {'student': 'sid2', 'course': 'cid2'};
+
+				const mock_document_query = {
+					then: fn => fn(undefined)
+				};
+
+				const spy_findOne = spyOn(Enrollment, 'findOne').and.returnValue(mock_document_query)
+				const spy_then = spyOn(mock_document_query, 'then').and.callThrough();
+				const spy_create = spyOn(Enrollment, 'create').and.returnValue(returnValue);
+	
+				expect(Enrollment.findOrCreate('cid2', 'sid2', true)).toEqual(returnValue);
+	
+				expect(spy_findOne.calls.count()).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+				expect(spy_findOne.calls.argsFor(0)[0]).toEqual({course: 'cid2', student: 'sid2', valid: true});
+	
+				expect(spy_then.calls.count()).toEqual(1);
+				expect(spy_then.calls.argsFor(0).length).toEqual(1);
+	
+				expect(spy_create.calls.count()).toEqual(1);
+				expect(spy_create.calls.argsFor(0).length).toEqual(1);
+				expect(spy_create.calls.argsFor(0)[0]).toEqual({course: 'cid2', student: 'sid2', admitted: true});
+			});
+		});
 	});
 });
