@@ -52,6 +52,7 @@ require('./app/routes.js')(app, passport);
 let server = require('http').createServer(app);
 
 let io = require('socket.io')(server);
+require('./app/io_broadcaster').init(io);
 require('./app/io.js')(io);
 
 server.listen(port, function () {

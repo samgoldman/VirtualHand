@@ -10,9 +10,10 @@ const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
-const {sendHallPassRequestStatus} = require('./io_methods/hallpass_functions');
+const {sendHallPassRequestStatus, studentResolveHallPassRequest} = require('./io_methods/hallpass_functions');
 
-// app/routes.js
+let global_io = null;
+
 module.exports = io => {
 	// Create the object used to send the emails
 	const transporter = nodemailer.createTransport({
@@ -22,6 +23,8 @@ module.exports = io => {
 			pass: process.env.VH_EMAIL_PASSWORD
 		}
 	});
+
+	global_io = io;
 
 	let userCount = 0;
 
@@ -302,17 +305,6 @@ module.exports = io => {
 				io.emit('Broadcast_HallPassRequestModified');
 			})
 			.catch(function (err) {
-				console.log(err);
-			});
-	}
-
-	function studentResolveHallPassRequest(sid, cid) {
-		HallPassRequest.find({student: sid, course: cid, resolved: false})
-			.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
-			.then(function(){
-				io.emit('Broadcast_HallPassRequestModified');
-			})
-			.catch((err) => {
 				console.log(err);
 			});
 	}
