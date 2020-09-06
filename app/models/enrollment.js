@@ -20,19 +20,17 @@ enrollmentSchema.pre('validate', function (next) {
 });
 
 enrollmentSchema.statics.getEnrolled = function getEnrolled(user) {
-	let Request = this;
-	return Request.find({student: user._id, valid: true}).populate('course').sort('course.courseName');
+	return this.find({student: user._id, valid: true}).populate('course').sort('course.courseName');
 };
 
 enrollmentSchema.statics.findOrCreate = function (cid, uid, admitted) {
-	let Enrollment = this;
-	return Enrollment.findOne({course: cid, student: uid, valid: true})
+	return this.findOne({course: cid, student: uid, valid: true})
 		.then(enrollment => enrollment || Enrollment.create({course: cid, student: uid, admitted: admitted}));
 };
 
 enrollmentSchema.statics.confirmStudentInClass = function(sid, cid) {
 	return this.find({student: sid, course: cid})
-		.count()
+		.countDocuments()
 		.then(function(count) {
 			if (count <= 0) throw new Error('Student not in class!');
 		});
