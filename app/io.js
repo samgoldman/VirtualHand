@@ -10,6 +10,7 @@ const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
+const {sendHallPassRequestStatus} = require('./io_methods/hallpass_functions');
 
 // app/routes.js
 module.exports = io => {
@@ -277,14 +278,6 @@ module.exports = io => {
 			.catch(function (err) {
 				socket.emit('Response_EnrollStudent', {success: false, message: err});
 			})
-	}
-
-	function sendHallPassRequestStatus(socket, uid, cid) {
-		HallPassRequest.findOne({course: cid, student: uid, resolved: false})
-			.exec()
-			.then(function (request) {
-				socket.emit('Response_HallPassRequestStatus', {request: request})
-			});
 	}
 
 	function retrieveHallPassRequests(socket, cids) {

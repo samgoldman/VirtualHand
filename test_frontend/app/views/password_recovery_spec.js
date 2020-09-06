@@ -2,7 +2,7 @@
 
 define(['app/views/password_recovery'], 
     password_recovery => {
-        console.log('test');
+
         describe ('password_recovery', () => {
             describe('recoverPassCallback', () => {
                 it('should alert the user with the given message', () => {

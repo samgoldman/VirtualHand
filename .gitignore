@@ -26,3 +26,5 @@ run.bat
 
 *.idea*
 .vscode/launch.json
+
+/build/*
