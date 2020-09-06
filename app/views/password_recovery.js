@@ -1,4 +1,4 @@
-function recoverPassCallback(data) {
+const recoverPassCallback = (data) => {
 	alert(data.message);
 }
 

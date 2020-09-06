@@ -30,13 +30,22 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "nyc --reporter=lcov jasmine",
+    "test": "nyc --reporter=lcov jasmine && karma start --single-run --browsers ChromeHeadless",
     "coverage": "codecov"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "codecov": "^3.7.2",
     "jasmine": "^3.6.1",
-    "nyc": "^15.1.0"
+    "jasmine-core": "^3.6.0",
+    "karma": "^5.2.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-coverage": "^2.0.3",
+    "karma-firefox-launcher": "^1.3.0",
+    "karma-jasmine": "^4.0.1",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-requirejs": "^1.1.0",
+    "nyc": "^15.1.0",
+    "requirejs": "^2.3.6"
   }
 }

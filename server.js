@@ -40,7 +40,7 @@ app.use(cookie_parser()); // read cookies (needed for auth)
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: true })); // get information from html forms
 app.use(serve_static(`${__dirname}/public`));
-app.use(serve_static(`${__dirname}/client/static/favicon`));
+app.use(serve_static(`${__dirname}/public/static/favicon`));
 app.use('/js', serve_static(`${__dirname}/node_modules/bootstrap/dist/js`)); // redirect bootstrap JS
 app.use('/js', serve_static(`${__dirname}/node_modules/jquery/dist`)); // redirect JS jQuery
 app.use('/css', serve_static(`${__dirname}/node_modules/bootstrap/dist/css`)); // redirect CSS bootstrap
