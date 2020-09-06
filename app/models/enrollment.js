@@ -29,7 +29,7 @@ enrollmentSchema.statics.findOrCreate = function (cid, uid, admitted) {
 };
 
 enrollmentSchema.statics.confirmStudentInClass = function(sid, cid) {
-	return this.find({student: sid, course: cid})
+	return this.find({student: sid, course: cid, valid: true})
 		.countDocuments()
 		.then(function(count) {
 			if (count <= 0) throw new Error('Student not in class!');

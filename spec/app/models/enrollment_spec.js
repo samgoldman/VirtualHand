@@ -128,4 +128,60 @@ describe('enrollment', () => {
 			});
 		});
 	});
+
+	describe('>confirmStudentInClass', () => {
+		it('should throw an error if there is not a valid enrollment linking the student and the class', async() => {
+			expect(Enrollment.confirmStudentInClass).toBeDefined();
+
+			const mock_document_query = {
+				countDocuments: () => {
+					return mock_document_query;
+				},
+				then: fn => fn(0)
+			};
+
+			const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_document_query);
+			const spy_countDocuments = spyOn(mock_document_query, 'countDocuments').and.callThrough();
+			const spy_then = spyOn(mock_document_query, 'then').and.callThrough();
+
+			expect(() => Enrollment.confirmStudentInClass('user-id', 'course-id')).toThrowError('Student not in class!');
+
+			expect(spy_find.calls.count()).toEqual(1);
+			expect(spy_find.calls.argsFor(0).length).toEqual(1);
+			expect(spy_find.calls.argsFor(0)[0]).toEqual({course: 'course-id', student: 'user-id', valid: true});
+
+			expect(spy_countDocuments.calls.count()).toEqual(1);
+			expect(spy_countDocuments.calls.argsFor(0).length).toEqual(0);
+
+			expect(spy_then.calls.count()).toEqual(1);
+			expect(spy_then.calls.argsFor(0).length).toEqual(1);
+		});
+
+		it('should resolve if there is a valid enrollment linking the student and the class', async() => {
+			expect(Enrollment.confirmStudentInClass).toBeDefined();
+
+			const mock_document_query = {
+				countDocuments: () => {
+					return mock_document_query;
+				},
+				then: fn => fn(1)
+			};
+
+			const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_document_query);
+			const spy_countDocuments = spyOn(mock_document_query, 'countDocuments').and.callThrough();
+			const spy_then = spyOn(mock_document_query, 'then').and.callThrough();
+
+			expect(await Enrollment.confirmStudentInClass('user-id2', 'course-id2')).toEqual(undefined);
+
+			expect(spy_find.calls.count()).toEqual(1);
+			expect(spy_find.calls.argsFor(0).length).toEqual(1);
+			expect(spy_find.calls.argsFor(0)[0]).toEqual({course: 'course-id2', student: 'user-id2', valid: true});
+
+			expect(spy_countDocuments.calls.count()).toEqual(1);
+			expect(spy_countDocuments.calls.argsFor(0).length).toEqual(0);
+
+			expect(spy_then.calls.count()).toEqual(1);
+			expect(spy_then.calls.argsFor(0).length).toEqual(1);
+		});
+	});
 });
