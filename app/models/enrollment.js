@@ -14,7 +14,7 @@ let enrollmentSchema = mongoose.Schema({
 	timestamp: {type: Date, default: Date.now}
 });
 
-enrollmentSchema.pre('save', function (next) {
+enrollmentSchema.pre('validate', function (next) {
 	this.timestamp = new Date();
 	next();
 });
