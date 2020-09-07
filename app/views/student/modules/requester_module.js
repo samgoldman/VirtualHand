@@ -89,7 +89,7 @@ const ding = () => {
 	document.querySelector("#ding").play();
 }
 
-const RequesterModuleInit = () => {
+let RequesterModuleInit = () => {
 	document.querySelector("#requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
 	document.querySelector("#requestHallPassButton").addEventListener('click', ToggleHallPassButton);
 	document.querySelector("#class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
