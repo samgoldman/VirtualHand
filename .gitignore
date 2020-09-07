@@ -28,3 +28,6 @@ run.bat
 .vscode/launch.json
 
 /build/*
+
+# Generated files
+/app/views/teacher/modules/hall_pass_list_item_template_compiled.js
