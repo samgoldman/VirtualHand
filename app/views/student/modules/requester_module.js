@@ -1,4 +1,4 @@
-function ToggleAssistanceButton() {
+const ToggleAssistanceButton = () => {
 	let button = document.getElementById("requestAssistanceButton");
 	if (button.innerHTML === "Lower Hand") {
 		socket.emit('Request_ResolveAssistanceRequest', {cid: getSelectedClassId()});
@@ -7,16 +7,12 @@ function ToggleAssistanceButton() {
 	}
 }
 
-function UpdateAssistanceRequestStatus() {
+const UpdateAssistanceRequestStatus = () => {
 	$('#requestAssistanceButton').removeAttr("disabled");
 	socket.emit('Request_AssistanceRequestStatus', {cid: getSelectedClassId()});
 }
 
-socket.on('Broadcast_AssistanceRequestModified', function () {
-	UpdateAssistanceRequestStatus();
-});
-
-socket.on('Response_AssistanceRequestStatus', function (data) {
+const ProcessAssistanceRequestStatus = data => {
 	if (data.status) {
 		document.getElementById("requestAssistanceButton").innerHTML = "Lower Hand";
 		document.getElementById("requestAssistanceButton").classList.add('btn-danger');
@@ -30,11 +26,9 @@ socket.on('Response_AssistanceRequestStatus', function (data) {
 		document.getElementById("requestAssistanceButton").classList.remove('btn-default');
 		document.getElementById("requestAssistanceButton").classList.remove('btn-danger');
 	}
-});
+}
 
-
-
-function ToggleHallPassButton() {
+const ToggleHallPassButton = () => {
 	let button = document.getElementById("requestHallPassButton");
 	if (button.innerHTML === "You are waiting for a hall pass. Click to withdraw your request.") {
 		socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
@@ -43,16 +37,12 @@ function ToggleHallPassButton() {
 	}
 }
 
-function UpdateHallPassRequestStatus() {
+const UpdateHallPassRequestStatus = () => {
 	$('#requestHallPassButton').removeAttr("disabled");
 	socket.emit('Request_HallPassRequestStatus', {cid: getSelectedClassId()});
 }
 
-socket.on('Broadcast_HallPassRequestModified', function () {
-	UpdateHallPassRequestStatus();
-});
-
-socket.on('Response_HallPassRequestStatus', function (data) {
+const ProcessHallPassRequestStatus = data => {
 	if(!data.request) {
 		document.getElementById("requestHallPassButton").innerHTML = "Request a Hall Pass";
 		document.getElementById("requestHallPassButton").classList.add('btn-success');
@@ -89,24 +79,30 @@ socket.on('Response_HallPassRequestStatus', function (data) {
 		$('#pass_timer')[0].innerHTML = timeString;
 		setTimeout(UpdateHallPassRequestStatus, 1000);
 	}
-});
+}
 
-function ReturnHallPass() {
+const ReturnHallPass = () => {
 	socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
 }
 
-function ding() {
-	let ding = document.getElementById("ding");
-	ding.play();
+const ding = () => {
+	document.querySelector("#ding").play();
 }
 
-window.addEventListener("load", function () {
-	document.getElementById("requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
-	document.getElementById("requestHallPassButton").addEventListener('click', ToggleHallPassButton);
-	document.getElementById("class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
-	document.getElementById("class_selector").addEventListener('change', UpdateHallPassRequestStatus);
-	document.getElementById("return-pass-button").addEventListener('click', ReturnHallPass);
+const RequesterModuleInit = () => {
+	document.querySelector("#requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
+	document.querySelector("#requestHallPassButton").addEventListener('click', ToggleHallPassButton);
+	document.querySelector("#class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
+	document.querySelector("#class_selector").addEventListener('change', UpdateHallPassRequestStatus);
+	document.querySelector("#return-pass-button").addEventListener('click', ReturnHallPass);
+
+	socket.on('Response_HallPassRequestStatus', ProcessHallPassRequestStatus);
+	socket.on('Broadcast_HallPassRequestModified', UpdateHallPassRequestStatus);
+	socket.on('Response_AssistanceRequestStatus', ProcessAssistanceRequestStatus);
+	socket.on('Broadcast_AssistanceRequestModified', UpdateAssistanceRequestStatus);
 
 	$('#audioModule').hide();
 	$('#hall-pass-modal').on('shown.bs.modal', ding);
-});
+};
+
+window.addEventListener("load", RequesterModuleInit);
