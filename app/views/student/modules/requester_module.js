@@ -13,18 +13,15 @@ const UpdateAssistanceRequestStatus = () => {
 }
 
 const ProcessAssistanceRequestStatus = data => {
+	const button = document.querySelector('#requestAssistanceButton');
 	if (data.status) {
-		document.getElementById("requestAssistanceButton").innerHTML = "Lower Hand";
-		document.getElementById("requestAssistanceButton").classList.add('btn-danger');
-
-		document.getElementById("requestAssistanceButton").classList.remove('btn-default');
-		document.getElementById("requestAssistanceButton").classList.remove('btn-success');
+		button.innerHTML = "Lower Hand";
+		button.classList.add('btn-danger');
+		button.classList.remove('btn-default', 'btn-success');
 	} else {
-		document.getElementById("requestAssistanceButton").innerHTML = "Raise Hand";
-		document.getElementById("requestAssistanceButton").classList.add('btn-success');
-
-		document.getElementById("requestAssistanceButton").classList.remove('btn-default');
-		document.getElementById("requestAssistanceButton").classList.remove('btn-danger');
+		button.innerHTML = "Raise Hand";
+		button.classList.add('btn-success');
+		button.classList.remove('btn-default', 'btn-danger');
 	}
 }
 
@@ -89,7 +86,7 @@ const ding = () => {
 	document.querySelector("#ding").play();
 }
 
-let RequesterModuleInit = () => {
+const RequesterModuleInit = () => {
 	document.querySelector("#requestAssistanceButton").addEventListener('click', ToggleAssistanceButton);
 	document.querySelector("#requestHallPassButton").addEventListener('click', ToggleHallPassButton);
 	document.querySelector("#class_selector").addEventListener('change', UpdateAssistanceRequestStatus);
