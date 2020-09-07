@@ -18,10 +18,10 @@ const templates = {
 	teacher_assistance_request_history: './app/views/teacher/teacher_history_assistance_request.pug'
 };
 
+fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
+
 const compiledTemplates = {};
 Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
-
-fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
 
 function renderFile(filename, data) {
 	if (process.env.VH_ENV === 'DEVELOPMENT') {
