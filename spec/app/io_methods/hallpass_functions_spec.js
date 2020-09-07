@@ -196,13 +196,163 @@ describe('Hallpass Functions', () => {
             expect(spy_log.calls.count()).toEqual(0);
         });
         
-        // should create a new request and broadcast globally if existing request is null or undefined
+        it('should create a new request and broadcast globally if existing request is undefined', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
 
-        // should log the error if the creation attempt results in an error
+            const student_id = 'student_id_3', course_id = 'course_id_3';
 
-        // should log the error if the broadcast results in an error
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
 
-        // should log the error if the search for an existing request results in an error
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0).length).toEqual(1);
+            expect(spy_create.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false, granted: false});
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0).length).toEqual(2);
+            expect(spy_broadcastGlobally.calls.argsFor(0)[0]).toEqual('Broadcast_HallPassRequestModified');
+            expect(spy_broadcastGlobally.calls.argsFor(0)[1]).toEqual(null);
+
+            expect(spy_log.calls.count()).toEqual(0);
+        });
+        
+        it('should create a new request and broadcast globally if existing request is undefined', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done(null)));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
+
+            const student_id = 'student_id_4', course_id = 'course_id_4';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0).length).toEqual(1);
+            expect(spy_create.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false, granted: false});
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0).length).toEqual(2);
+            expect(spy_broadcastGlobally.calls.argsFor(0)[0]).toEqual('Broadcast_HallPassRequestModified');
+            expect(spy_broadcastGlobally.calls.argsFor(0)[1]).toEqual(null);
+
+            expect(spy_log.calls.count()).toEqual(0);
+        });
+
+        it('should log the error if the creation attempt results in an error', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => {throw new Error('Creation error')}));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
+
+            const student_id = 'student_id_5', course_id = 'course_id_5';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0).length).toEqual(1);
+            expect(spy_create.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false, granted: false});
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(0);
+
+            expect(spy_log.calls.count()).toEqual(1);
+            expect(spy_log.calls.argsFor(0).length).toEqual(1);
+            expect(spy_log.calls.argsFor(0)[0]).toEqual(new Error('Creation error'));
+        });
+
+        it('should log the error if the broadcast results in an error', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.throwError(new Error('Broadcast error'));
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
+
+            const student_id = 'student_id_6', course_id = 'course_id_6';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0).length).toEqual(1);
+            expect(spy_create.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false, granted: false});
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0).length).toEqual(2);
+            expect(spy_broadcastGlobally.calls.argsFor(0)[0]).toEqual('Broadcast_HallPassRequestModified');
+            expect(spy_broadcastGlobally.calls.argsFor(0)[1]).toEqual(null);
+
+            expect(spy_log.calls.count()).toEqual(1);
+            expect(spy_log.calls.argsFor(0).length).toEqual(1);
+            expect(spy_log.calls.argsFor(0)[0]).toEqual(new Error('Broadcast error'));
+        });
+
+        it('should log the error if the search for an existing request results in an error', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => {throw new Error('Search error')}));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
+
+            const student_id = 'student_id_6', course_id = 'course_id_6';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(0);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(0);
+
+            expect(spy_log.calls.count()).toEqual(1);
+            expect(spy_log.calls.argsFor(0).length).toEqual(1);
+            expect(spy_log.calls.argsFor(0)[0]).toEqual(new Error('Search error'));
+        });
 
     });
 });
