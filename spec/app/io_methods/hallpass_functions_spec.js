@@ -143,8 +143,8 @@ describe('Hallpass Functions', () => {
 
         it('should log the error is confirming the student is in the course results in an error', async () => {
             const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(() => {throw new Error('Student not enrolled')}))
-            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(() => undefined));
-            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(() => undefined));
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
             const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
             const spy_log = spyOn(console, 'log').and.returnValue(undefined);
 
@@ -169,8 +169,33 @@ describe('Hallpass Functions', () => {
         });
         
 
-        // should do nothing if the query for an existing request is defined and not null
+        it('should do nothing if the query for an existing request is defined and not null', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(done => done(undefined)))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(done => done('defined_and_not_null')));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
 
+            const student_id = 'student_id_2', course_id = 'course_id_2';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0).length).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)[0]).toEqual({student: student_id, course: course_id, resolved: false});
+
+            expect(spy_create.calls.count()).toEqual(0);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(0);
+
+            expect(spy_log.calls.count()).toEqual(0);
+        });
+        
         // should create a new request and broadcast globally if existing request is null or undefined
 
         // should log the error if the creation attempt results in an error
