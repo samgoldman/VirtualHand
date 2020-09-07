@@ -40,19 +40,18 @@ const UpdateHallPassRequestStatus = () => {
 }
 
 const ProcessHallPassRequestStatus = data => {
+	const button = document.querySelector("#requestHallPassButton");
 	if(!data.request) {
-		document.getElementById("requestHallPassButton").innerHTML = "Request a Hall Pass";
-		document.getElementById("requestHallPassButton").classList.add('btn-success');
+		button.innerHTML = "Request a Hall Pass";
+		button.classList.add('btn-success');
+		button.classList.remove('btn-default', 'btn-danger');
 
-		document.getElementById("requestHallPassButton").classList.remove('btn-default');
-		document.getElementById("requestHallPassButton").classList.remove('btn-danger');
 		$('#hall-pass-modal').modal('hide');
 	} else if (!data.request.granted) {
-		document.getElementById("requestHallPassButton").innerHTML = "You are waiting for a hall pass. Click to withdraw your request.";
-		document.getElementById("requestHallPassButton").classList.add('btn-danger');
+		button.innerHTML = "You are waiting for a hall pass. Click to withdraw your request.";
+		button.classList.add('btn-danger');
+		button.classList.remove('btn-default', 'btn-success');
 
-		document.getElementById("requestHallPassButton").classList.remove('btn-default');
-		document.getElementById("requestHallPassButton").classList.remove('btn-success');
 		$('#hall-pass-modal').modal('hide');
 	} else {
 		$('#hall-pass-modal').modal({backdrop: 'static', keyboard: false});
@@ -73,7 +72,7 @@ const ProcessHallPassRequestStatus = data => {
 		if(hours>0) timeString+= hours + ':';
 		timeString += ("0" + minutes).slice(-2) + ':' + ("0" + seconds).slice(-2);
 
-		$('#pass_timer')[0].innerHTML = timeString;
+		document.querySelector('#pass_timer').innerHTML = timeString;
 		setTimeout(UpdateHallPassRequestStatus, 1000);
 	}
 }

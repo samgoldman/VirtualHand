@@ -12,6 +12,92 @@ define((require) => {
             });
         });
 
+        describe('>ProcessHallPassRequestStatus', () => {
+            it('should be defined', () => {
+                expect(ProcessHallPassRequestStatus).toBeDefined();
+            });
+
+            it('should reset the hall pass request button and close the modal if the data does not contain a request', () => {
+                const mock_element = {
+                    innerHTML: 'test',
+                    classList: {
+                        add: () => undefined,
+                        remove: () => undefined
+                    }
+                };
+
+                const mock_jquery_result = {
+                    modal: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_add = spyOn(mock_element.classList, 'add').and.callThrough();
+                const spy_remove = spyOn(mock_element.classList, 'remove').and.callThrough();
+                const spy_jquery = jasmine.createSpy('$').and.returnValue(mock_jquery_result);
+                $ = spy_jquery;
+                const spy_modal = spyOn(mock_jquery_result, 'modal').and.returnValue(undefined);
+
+                expect(ProcessHallPassRequestStatus({request: undefined})).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_add.calls.count()).toEqual(1);
+                expect(spy_add.calls.argsFor(0)).toEqual(['btn-success']);
+
+                expect(spy_remove.calls.count()).toEqual(1);
+                expect(spy_remove.calls.argsFor(0)).toEqual(['btn-default', 'btn-danger']);
+
+                expect(spy_jquery.calls.count()).toEqual(1);
+                expect(spy_jquery.calls.argsFor(0)).toEqual(['#hall-pass-modal']);
+
+                expect(spy_modal.calls.count()).toEqual(1);
+                expect(spy_modal.calls.argsFor(0)).toEqual(['hide']);
+
+                expect(mock_element.innerHTML).toEqual("Request a Hall Pass");
+            });
+
+            it('should set hall pass request button to waiting and close the modal if the data contains a request, but it is not granted', () => {
+                const mock_element = {
+                    innerHTML: 'test',
+                    classList: {
+                        add: () => undefined,
+                        remove: () => undefined
+                    }
+                };
+
+                const mock_jquery_result = {
+                    modal: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_add = spyOn(mock_element.classList, 'add').and.callThrough();
+                const spy_remove = spyOn(mock_element.classList, 'remove').and.callThrough();
+                const spy_jquery = jasmine.createSpy('$').and.returnValue(mock_jquery_result);
+                $ = spy_jquery;
+                const spy_modal = spyOn(mock_jquery_result, 'modal').and.returnValue(undefined);
+
+                expect(ProcessHallPassRequestStatus({request: {granted: false}})).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_add.calls.count()).toEqual(1);
+                expect(spy_add.calls.argsFor(0)).toEqual(['btn-danger']);
+
+                expect(spy_remove.calls.count()).toEqual(1);
+                expect(spy_remove.calls.argsFor(0)).toEqual(['btn-default', 'btn-success']);
+
+                expect(spy_jquery.calls.count()).toEqual(1);
+                expect(spy_jquery.calls.argsFor(0)).toEqual(['#hall-pass-modal']);
+
+                expect(spy_modal.calls.count()).toEqual(1);
+                expect(spy_modal.calls.argsFor(0)).toEqual(['hide']);
+
+                expect(mock_element.innerHTML).toEqual("You are waiting for a hall pass. Click to withdraw your request.");
+            });
+        });
+
         describe('>ProcessAssistanceRequestStatus', () => {
             it('should be defined', () => {
                 expect(ProcessAssistanceRequestStatus).toBeDefined();
