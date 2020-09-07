@@ -1,5 +1,6 @@
 const HallPassRequest = require('../../../app/models/hallPassRequest').model;
-const {sendHallPassRequestStatus, studentResolveHallPassRequest} = require('../../../app/io_methods/hallpass_functions');
+const Enrollment = require('../../../app/models/enrollment').model;
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('../../../app/io_methods/hallpass_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 const mock_socket = {
@@ -133,5 +134,50 @@ describe('Hallpass Functions', () => {
             expect(spy_now.calls.count()).toEqual(1);
             expect(spy_now.calls.argsFor(0).length).toEqual(0);
         });
+    });
+
+    describe('>initiateHallPassRequest', () => {
+        it('should be defined', () => {
+            expect(initiateHallPassRequest).toBeDefined();
+        });
+
+        it('should log the error is confirming the student is in the course results in an error', async () => {
+            const spy_confirmStudentInClass = spyOn(Enrollment, 'confirmStudentInClass').and.returnValue(new Promise(() => {throw new Error('Student not enrolled')}))
+            const spy_findOne = spyOn(HallPassRequest, 'findOne').and.returnValue(new Promise(() => undefined));
+            const spy_create = spyOn(HallPassRequest, 'create').and.returnValue(new Promise(() => undefined));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_log = spyOn(console, 'log').and.returnValue(undefined);
+
+            const student_id = 'student_id_1', course_id = 'course_id_1';
+
+            expect(await initiateHallPassRequest(student_id, course_id)).toBeUndefined();
+
+            expect(spy_confirmStudentInClass.calls.count()).toEqual(1);
+            expect(spy_confirmStudentInClass.calls.argsFor(0).length).toEqual(2);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[0]).toEqual(student_id);
+            expect(spy_confirmStudentInClass.calls.argsFor(0)[1]).toEqual(course_id);
+
+            expect(spy_findOne.calls.count()).toEqual(0);
+
+            expect(spy_create.calls.count()).toEqual(0);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(0);
+
+            expect(spy_log.calls.count()).toEqual(1);
+            expect(spy_log.calls.argsFor(0).length).toEqual(1);
+            expect(spy_log.calls.argsFor(0)[0]).toEqual(new Error('Student not enrolled'));
+        });
+        
+
+        // should do nothing if the query for an existing request is defined and not null
+
+        // should create a new request and broadcast globally if existing request is null or undefined
+
+        // should log the error if the creation attempt results in an error
+
+        // should log the error if the broadcast results in an error
+
+        // should log the error if the search for an existing request results in an error
+
     });
 });

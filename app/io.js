@@ -10,7 +10,7 @@ const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
-const {sendHallPassRequestStatus, studentResolveHallPassRequest} = require('./io_methods/hallpass_functions');
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
 
 let global_io = null;
 
@@ -289,23 +289,6 @@ module.exports = io => {
 			.populate('student')
 			.then(function (requests) {
 				socket.emit('Response_RetrieveHallPassRequests', {requests: requests});
-			});
-	}
-
-	function initiateHallPassRequest(sid, cid) {
-		Enrollment.confirmStudentInClass(sid, cid)
-			.then(HallPassRequest.findOne({student: sid, course: cid, resolved: false}))
-			.then(function (hpr) {
-				if (hpr)
-					throw 'Request for this student in this class already exists';
-				else
-					return HallPassRequest.create({student: sid, course: cid, resolved: false, granted: false});
-			})
-			.then(function () {
-				io.emit('Broadcast_HallPassRequestModified');
-			})
-			.catch(function (err) {
-				console.log(err);
 			});
 	}
 
