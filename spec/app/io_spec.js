@@ -59,4 +59,19 @@ describe('io', () => {
             process.env.VH_EMAIL_PASSWORD = original_email_pwd;
         });
     });
+
+    describe('>handle_disconnect', () => {
+        it('should be defined', () => {
+            expect(io.__get__('handle_disconnect')).toBeDefined();
+        });
+
+        it('should always decrement userCount once', () => {
+            [1, 2, 3, 100].forEach(n => {
+                io.__set__('userCount', n);
+
+                expect(io.__get__('handle_disconnect')()).toEqual(n);
+                expect(io.__get__('userCount')).toEqual(n - 1);
+            });
+        });
+    });
 });

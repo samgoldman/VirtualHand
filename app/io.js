@@ -28,9 +28,11 @@ const authenticateIO = (socket, next) => {
 	next(new Error('Authentication Error'));
 }
 
+const handle_disconnect = () => userCount--;
+
 const route_connection = socket => {
 	userCount++;
-	socket.on('disconnect', () => userCount--);
+	socket.on('disconnect', handle_disconnect);
 
 	// ALL - public included
 	if (socket.user_data.role === 'guest' || socket.user_data.role === 'student' || socket.user_data.role === 'teacher' || socket.user_data.role === 'admin') {
