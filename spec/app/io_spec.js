@@ -1,9 +1,14 @@
 const rewire = require('rewire');
 const nodemailer = require('nodemailer');
+const Token = require('../../app/token_manager');
 
-const io = rewire('../../app/io');
+let io = null;
 
 describe('io', () => {
+    beforeEach(() => {
+        io = rewire('../../app/io');
+    });
+
     describe('>initialization', () => {
         it('should be defined', () => {
             expect(io).toBeDefined();
@@ -72,6 +77,89 @@ describe('io', () => {
                 expect(io.__get__('handle_disconnect')()).toEqual(n);
                 expect(io.__get__('userCount')).toEqual(n - 1);
             });
+        });
+    });
+
+    describe('>authenticateIO', () => {
+        it('should be defined', () => {
+            expect(io.__get__('authenticateIO')).toBeDefined();
+        });
+
+        it('should validate the token in the handshake and add the decoded data to the socket object if there was no error', () => {
+            const mock_socket = {handshake: {query: {token: 'test_token'}}};
+
+            const spy_verifyToken = spyOn(Token, 'verifyToken').and.returnValue(undefined);
+            const spy_next = jasmine.createSpy('next').and.returnValue(undefined);
+
+            expect(io.__get__('authenticateIO')(mock_socket, spy_next)).toBeUndefined();
+
+            expect(spy_verifyToken.calls.count()).toEqual(1);
+            expect(spy_verifyToken.calls.argsFor(0).length).toEqual(2);
+            expect(spy_verifyToken.calls.argsFor(0)[0]).toEqual('test_token');
+            const callback = spy_verifyToken.calls.argsFor(0)[1];
+
+            expect(callback(undefined, 'decoded_data')).toBeUndefined();
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0).length).toEqual(0);
+
+            expect(mock_socket.user_data).toEqual('decoded_data');
+        });
+
+        it('should call next with an error if the query is not defined', () => {
+            const mock_socket = {handshake: {}};
+
+            const spy_verifyToken = spyOn(Token, 'verifyToken').and.returnValue(undefined);
+            const spy_next = jasmine.createSpy('next').and.returnValue(undefined);
+
+            expect(io.__get__('authenticateIO')(mock_socket, spy_next)).toBeUndefined();
+
+            expect(spy_verifyToken.calls.count()).toEqual(0);
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0).length).toEqual(1);
+            expect(spy_next.calls.argsFor(0)[0].message).toEqual('Authentication Error');
+
+            expect(mock_socket.user_data).toBeUndefined();
+        });
+
+        it('should call next with an error if the token is not defined', () => {
+            const mock_socket = {handshake: {query: {}}};
+
+            const spy_verifyToken = spyOn(Token, 'verifyToken').and.returnValue(undefined);
+            const spy_next = jasmine.createSpy('next').and.returnValue(undefined);
+
+            expect(io.__get__('authenticateIO')(mock_socket, spy_next)).toBeUndefined();
+
+            expect(spy_verifyToken.calls.count()).toEqual(0);
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0).length).toEqual(1);
+            expect(spy_next.calls.argsFor(0)[0].message).toEqual('Authentication Error');
+
+            expect(mock_socket.user_data).toBeUndefined();
+        });
+
+        it('should validate the token in the handshake and call next with an error if there was an error', () => {
+            const mock_socket = {handshake: {query: {token: 'test_token'}}};
+
+            const spy_verifyToken = spyOn(Token, 'verifyToken').and.returnValue(undefined);
+            const spy_next = jasmine.createSpy('next').and.returnValue(undefined);
+
+            expect(io.__get__('authenticateIO')(mock_socket, spy_next)).toBeUndefined();
+
+            expect(spy_verifyToken.calls.count()).toEqual(1);
+            expect(spy_verifyToken.calls.argsFor(0).length).toEqual(2);
+            expect(spy_verifyToken.calls.argsFor(0)[0]).toEqual('test_token');
+            const callback = spy_verifyToken.calls.argsFor(0)[1];
+
+            expect(callback('some_error', 'decoded_data')).toBeUndefined();
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0).length).toEqual(1);
+            expect(spy_next.calls.argsFor(0)[0].message).toEqual('Authentication Error');
+
+            expect(mock_socket.user_data).toBeUndefined();
         });
     });
 });

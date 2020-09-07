@@ -20,12 +20,13 @@ const authenticateIO = (socket, next) => {
 	// Token must be present to authenticate
 	if (socket.handshake.query && socket.handshake.query.token) {
 		Token.verifyToken(socket.handshake.query.token, (err, decoded) => {
-			if (err) return next(new Error('Authentication error'));
+			if (err) return next(new Error('Authentication Error'));
 			socket.user_data = decoded;
 			next();
 		});
+	} else {
+		next(new Error('Authentication Error'));
 	}
-	next(new Error('Authentication Error'));
 }
 
 const handle_disconnect = () => userCount--;
