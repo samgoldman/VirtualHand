@@ -26,6 +26,13 @@ module.exports = function(config) {
       ]
     },
   
-    browsers: ['ChromeHeadless', 'Chrome', 'Firefox']
+    browsers: ['ChromeHeadless', 'Chrome', 'Firefox'],
+    flags: [
+      '--disable-web-security',
+      '--disable-gpu',
+      '--no-sandbox'
+    ]
     });
+
+    
 };
