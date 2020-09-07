@@ -28,6 +28,9 @@ describe('io', () => {
             const spy_use = spyOn(mock_io, 'use').and.callThrough();
             const spy_on = spyOn(mock_io, 'on').and.callThrough();
 
+            expect(io.__get__('global_io')).toBeNull();
+            expect(io.__get__('transporter')).toBeNull();
+
             expect(io(mock_io)).toBeUndefined();
 
             expect(spy_createTransport.calls.count()).toEqual(1);
@@ -48,6 +51,9 @@ describe('io', () => {
             expect(spy_on.calls.argsFor(0).length).toEqual(2);
             expect(spy_on.calls.argsFor(0)[0]).toEqual('connection');
             expect(spy_on.calls.argsFor(0)[1]).toEqual('test_value_for_route_connection');
+
+            expect(io.__get__('global_io')).toEqual(mock_io);
+            expect(io.__get__('transporter')).toEqual('nodemailer_transport');
 
             process.env.VH_EMAIL = original_email;
             process.env.VH_EMAIL_PASSWORD = original_email_pwd;
