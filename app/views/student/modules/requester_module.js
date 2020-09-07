@@ -69,7 +69,7 @@ const ProcessHallPassRequestStatus = data => {
 
 		let timeString = '';
 		if(days>0) timeString+= days + ':';
-		if(hours>0) timeString+= hours + ':';
+		if(hours>0 || days>0) timeString+= ("0" + hours).slice(-2) + ':';
 		timeString += ("0" + minutes).slice(-2) + ':' + ("0" + seconds).slice(-2);
 
 		document.querySelector('#pass_timer').innerHTML = timeString;

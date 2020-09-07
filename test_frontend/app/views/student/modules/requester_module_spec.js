@@ -96,6 +96,66 @@ define((require) => {
 
                 expect(mock_element.innerHTML).toEqual("You are waiting for a hall pass. Click to withdraw your request.");
             });
+
+            [{now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-01 00:00:00'), expected: '00:00'},
+            {now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-01 00:00:10'), expected: '00:10'},
+            {now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-01 00:10:00'), expected: '10:00'},
+            {now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-01 10:00:00'), expected: '10:00:00'},
+            {now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-02 00:00:42'), expected: '1:00:00:42'},
+            {now: new Date('2020-01-01 00:00:00'), grantedTime: new Date('2020-01-03 17:12:09'), expected: '2:17:12:09'}]
+            .forEach(testCase => {
+                it(`should display the modal with ${testCase.expected} when the granted time is ${testCase.grantedTime} and the current time is ${testCase.now}`, () => {
+                    const mock_button = {
+                        innerHTML: 'test',
+                        classList: {
+                            add: () => undefined,
+                            remove: () => undefined
+                        }
+                    };
+                    const mock_timedisplay = {
+                        innerHTML: 'test'
+                    };
+
+                    const mock_jquery_result = {
+                        modal: () => undefined
+                    }
+
+                    const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_button, mock_timedisplay);
+                    const spy_add = spyOn(mock_button.classList, 'add').and.callThrough();
+                    const spy_remove = spyOn(mock_button.classList, 'remove').and.callThrough();
+                    const spy_jquery = jasmine.createSpy('$').and.returnValue(mock_jquery_result);
+                    $ = spy_jquery;
+                    const spy_modal = spyOn(mock_jquery_result, 'modal').and.returnValue(undefined);
+                    const spy_now = spyOn(Date, 'now').and.returnValue(testCase.now);
+                    const spy_setTimeout = spyOn(window, 'setTimeout')
+
+                    expect(ProcessHallPassRequestStatus({request: {granted: true, grantedTime: testCase.grantedTime}})).toBeUndefined();
+
+                    expect(spy_querySelector.calls.count()).toEqual(2);
+                    expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+                    expect(spy_querySelector.calls.argsFor(1)).toEqual(['#pass_timer']);
+                
+                    expect(spy_add.calls.count()).toEqual(0);
+
+                    expect(spy_remove.calls.count()).toEqual(0);
+
+                    expect(spy_jquery.calls.count()).toEqual(1);
+                    expect(spy_jquery.calls.argsFor(0)).toEqual(['#hall-pass-modal']);
+
+                    expect(spy_modal.calls.count()).toEqual(1);
+                    expect(spy_modal.calls.argsFor(0)).toEqual([{backdrop: 'static', keyboard: false}]);
+
+                    expect(spy_now.calls.count()).toEqual(1);
+                    expect(spy_now.calls.argsFor(0)).toEqual([]);
+
+                    expect(spy_setTimeout.calls.count()).toEqual(1);
+                    expect(spy_setTimeout.calls.argsFor(0)).toEqual([UpdateHallPassRequestStatus, 1000]);
+
+                    expect(mock_button.innerHTML).toEqual("test");
+                    expect(mock_timedisplay.innerHTML).toEqual(testCase.expected);
+                });
+            });
+        
         });
 
         describe('>ProcessAssistanceRequestStatus', () => {
