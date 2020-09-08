@@ -57,22 +57,17 @@ const ProcessHallPassRequestStatus = data => {
 		$('#hall-pass-modal').modal({backdrop: 'static', keyboard: false});
 
 		// delta in seconds
-		let delta = Math.abs(Date.now() - new Date(data.request.grantedTime)) / 1000;
+		const delta = parseInt(Math.abs(Date.now() - new Date(data.request.grantedTime)) / 1000);
 
-		let days = Math.floor(delta / 86400);
-		delta -= days * 86400;
-		let hours = Math.floor(delta / 3600) % 24;
-		delta -= hours * 3600;
-		let minutes = Math.floor(delta / 60) % 60;
-		delta -= minutes * 60;
-		let seconds = parseInt(delta % 60);
+		const days = Math.floor(delta / 86400);
+		const hours = Math.floor((delta / 3600) - days * 24) % 24;
+		const minutes = Math.floor((delta / 60) - (days * 24 * 60) - (hours * 60)) % 60;
+		const seconds = parseInt((delta - (days * 24 * 60 * 60) - (hours * 60 * 60) - (minutes * 60)));
 
-		let timeString = '';
-		if(days>0) timeString+= days + ':';
-		if(hours>0 || days>0) timeString+= ("0" + hours).slice(-2) + ':';
-		timeString += ("0" + minutes).slice(-2) + ':' + ("0" + seconds).slice(-2);
+		const day_portion = days > 0 ? `${days}:` : '';
+		const hour_portion = days > 0 || hours > 0 ? `${("0" + hours).slice(-2)}:` : '';
 
-		document.querySelector('#pass_timer').innerHTML = timeString;
+		document.querySelector('#pass_timer').innerHTML = `${day_portion}${hour_portion}${("0" + minutes).slice(-2)}:${("0" + seconds).slice(-2)}`
 		setTimeout(UpdateHallPassRequestStatus, 1000);
 	}
 }
