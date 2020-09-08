@@ -5,7 +5,7 @@ define((require) => {
             require('app/views/teacher/modules/assistance_request_list_module');
         });
 
-        define('>RetrieveAssistanceRequests', () => {
+        describe('>RetrieveAssistanceRequests', () => {
             it('should be defined', () => {
                 expect(RetrieveAssistanceRequests).toBeDefined();
             });
@@ -15,18 +15,19 @@ define((require) => {
                     const mock_socket = {
                         emit: () => undefined
                     };
+                    socket = mock_socket;
 
                     const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
                     const spy_getSelectedClassIds = jasmine.createSpy('getSelectedClassIds').and.returnValue(selectedCourseList);
-                    selectedClassIds = spy_getSelectedClassIds;
+                    getSelectedClassIds = spy_getSelectedClassIds;
 
                     expect(RetrieveAssistanceRequests()).toBeUndefined();
 
                     expect(spy_emit.calls.count()).toEqual(1);
-                    expect(spy_emit.calls.argsFor(0)).toEqual([{cids: selectedCourseList, qty: 5}]);
+                    expect(spy_emit.calls.argsFor(0)).toEqual(['Request_RetrieveAssistanceRequests', {cids: selectedCourseList, qty: 5}]);
 
                     expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
-                    expect(spy_emit.calls.argsFor(0)).toEqual([]);
+                    expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
                 });
             });
         });
