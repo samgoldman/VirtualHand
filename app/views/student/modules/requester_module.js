@@ -8,7 +8,7 @@ const ToggleAssistanceButton = () => {
 }
 
 const UpdateAssistanceRequestStatus = () => {
-	$('#requestAssistanceButton').removeAttr("disabled");
+	document.querySelector('#requestAssistanceButton').removeAttribute("disabled");
 	socket.emit('Request_AssistanceRequestStatus', {cid: getSelectedClassId()});
 }
 
@@ -35,7 +35,7 @@ const ToggleHallPassButton = () => {
 }
 
 const UpdateHallPassRequestStatus = () => {
-	$('#requestHallPassButton').removeAttr("disabled");
+	document.querySelector('#requestHallPassButton').removeAttribute("disabled");
 	socket.emit('Request_HallPassRequestStatus', {cid: getSelectedClassId()});
 }
 

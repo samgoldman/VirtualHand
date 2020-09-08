@@ -69,6 +69,82 @@ define((require) => {
             });
         });
 
+        describe('>UpdateAssistanceRequestStatus', () => {
+            it('should be defined', () => {
+                expect(UpdateAssistanceRequestStatus).toBeDefined();
+            });
+
+            it('should enable the assistance request button and request an update from the server', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.callThrough();
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('42');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(UpdateAssistanceRequestStatus()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestAssistanceButton']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(1);
+                expect(spy_removeAttribute.calls.argsFor(0)).toEqual(['disabled']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_AssistanceRequestStatus', {cid: '42'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+        });
+
+        describe('>UpdateHallPassRequestStatus', () => {
+            it('should be defined', () => {
+                expect(UpdateHallPassRequestStatus).toBeDefined();
+            });
+
+            it('should enable the hall pass request button and request an update from the server', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.callThrough();
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('35');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(UpdateHallPassRequestStatus()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(1);
+                expect(spy_removeAttribute.calls.argsFor(0)).toEqual(['disabled']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_HallPassRequestStatus', {cid: '35'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+        });
+
         describe('>ProcessHallPassRequestStatus', () => {
             it('should be defined', () => {
                 expect(ProcessHallPassRequestStatus).toBeDefined();
