@@ -1,24 +1,18 @@
 let numRequests = 0;
 
-socket.on('Broadcast_AssistanceRequestModified', function () {
-	RetrieveAssistanceRequests();
-});
-
-socket.on('Response_RetrieveAssistanceRequests', function (data) {
+const HandleRetrieveAssistanceRequests = data => {
 	let requests = data.requests;
 
 	if (requests.length > numRequests) {
-		if (document.getElementById("audioCheck").checked) {
-			let ding = document.getElementById("ding");
-			ding.play();
+		if (document.querySelector("#audioCheck").checked) {
+			document.querySelector("#ding").play();
 		}
 	}
 
 	numRequests = requests.length;
 
 	for (let i = 0; i < 5; i++) {
-		let id = "listItem" + i;
-		let listItem = document.getElementById(id);
+		let listItem = document.querySelector(`#listItem${i}`);
 		if (i >= requests.length) {
 			listItem.innerHTML = "";
 			listItem.setAttribute('value', "");
@@ -27,26 +21,25 @@ socket.on('Response_RetrieveAssistanceRequests', function (data) {
 			listItem.setAttribute('value', requests[i]._id);
 		}
 	}
-});
+}
 
-function handDown(index) {
-	let id = "listItem" + index;
-	let listItem = document.getElementById(id);
+const handDown = index => {
+	const listItem = document.querySelector(`listItem${index}`);
 	if (listItem.getAttribute('value') !== "")
 		socket.emit('Request_TeacherResolveAssistanceRequest', {arid: listItem.getAttribute('value')});
 }
 
-function RetrieveAssistanceRequests() {
+const RetrieveAssistanceRequests = () => {
 	socket.emit('Request_RetrieveAssistanceRequests', {cids: getSelectedClassIds(), qty: 5});
 }
 
-function ClearAllAssistanceRequests() {
+const ClearAllAssistanceRequests = () => {
 	getSelectedClassIds().forEach((key) => {
 		socket.emit('Request_TeacherResolveAllAssistanceRequests', {cid: key});
 	});
 }
 
-function KeyDownHandler(e) {
+const KeyDownHandler = (e) => {
 	let keynum;
 
 	if (window.event) { // IE
@@ -70,8 +63,13 @@ function KeyDownHandler(e) {
 	}
 }
 
-window.addEventListener("load", function () {
+const AssistanceRequestListModuleInit = () => {
 	document.body.addEventListener('keyup', KeyDownHandler);
+	socket.on('Broadcast_AssistanceRequestModified', RetrieveAssistanceRequests);
+	socket.on('Response_RetrieveAssistanceRequests', HandleRetrieveAssistanceRequests);
+
 	$('#class_selector').change(RetrieveAssistanceRequests);
 	$('#clear-all-ar').click(ClearAllAssistanceRequests);
-});
+};
+
+window.addEventListener("load", AssistanceRequestListModuleInit);
