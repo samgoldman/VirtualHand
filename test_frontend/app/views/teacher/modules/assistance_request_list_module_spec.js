@@ -76,5 +76,33 @@ define((require) => {
                 expect(spy_click.calls.argsFor(0)).toEqual([ClearAllAssistanceRequests]);
             });
         });
+
+        describe('>ClearAllAssistanceRequests', () => {
+            it('should be defined', () => {
+                expect(ClearAllAssistanceRequests).toBeDefined();
+            });
+
+            [[], ['a'], ['a', 'b', 'random_course_id_42']].forEach(selectedCourseList => {
+                it(`should request assistance requests for selected courses (${selectedCourseList})`, () => {
+                    const mock_socket = {
+                        emit: () => undefined
+                    };
+                    socket = mock_socket;
+
+                    const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                    const spy_getSelectedClassIds = jasmine.createSpy('getSelectedClassIds').and.returnValue(selectedCourseList);
+                    getSelectedClassIds = spy_getSelectedClassIds;
+
+                    expect(ClearAllAssistanceRequests()).toBeUndefined();
+
+                    expect(spy_emit.calls.count()).toEqual(selectedCourseList.length);
+                    for(let i = 0; i < selectedCourseList.length; i++)
+                        expect(spy_emit.calls.argsFor(i)).toEqual(['Request_TeacherResolveAllAssistanceRequests', {cid: selectedCourseList[i]}]);
+
+                    expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
+                    expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
+                });
+            });
+        });
     });
 });
