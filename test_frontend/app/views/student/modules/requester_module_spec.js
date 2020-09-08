@@ -10,6 +10,63 @@ define((require) => {
             it('should be defined', async () => {
                 expect(RequesterModuleInit).toBeDefined();
             });
+
+            it('should add event listeners, socket.io handlers, and setup the audio', () => {
+                const mock_element = {
+                    addEventListener: () => undefined
+                };
+
+                const mock_socket = {
+                    on: () => undefined
+                };
+
+                const mock_jquery_result = {
+                    hide: () => undefined,
+                    on: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_socket_on = spyOn(mock_socket, 'on').and.callThrough();
+                const spy_addEventListener = spyOn(mock_element, 'addEventListener').and.callThrough();
+                const spy_jquery_on = spyOn(mock_jquery_result, 'on').and.callThrough();
+                const spy_jquery = jasmine.createSpy('$').and.returnValue(mock_jquery_result);
+                $ = spy_jquery;
+                const spy_hide = spyOn(mock_jquery_result, 'hide').and.callThrough();
+
+                expect(RequesterModuleInit()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(5);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestAssistanceButton']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#requestHallPassButton']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#class_selector']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#class_selector']);
+                expect(spy_querySelector.calls.argsFor(4)).toEqual(['#return-pass-button']);
+
+                expect(spy_addEventListener.calls.count()).toEqual(5);
+                expect(spy_addEventListener.calls.argsFor(0)).toEqual(['click', ToggleAssistanceButton]);
+                expect(spy_addEventListener.calls.argsFor(1)).toEqual(['click', ToggleHallPassButton]);
+                expect(spy_addEventListener.calls.argsFor(2)).toEqual(['change', UpdateAssistanceRequestStatus]);
+                expect(spy_addEventListener.calls.argsFor(3)).toEqual(['change', UpdateHallPassRequestStatus]);
+                expect(spy_addEventListener.calls.argsFor(4)).toEqual(['click', ReturnHallPass]);
+
+                expect(spy_socket_on.calls.count()).toEqual(4);
+                expect(spy_socket_on.calls.argsFor(0)).toEqual(['Response_HallPassRequestStatus', ProcessHallPassRequestStatus]);
+                expect(spy_socket_on.calls.argsFor(1)).toEqual(['Broadcast_HallPassRequestModified', UpdateHallPassRequestStatus]);
+                expect(spy_socket_on.calls.argsFor(2)).toEqual(['Response_AssistanceRequestStatus', ProcessAssistanceRequestStatus]);
+                expect(spy_socket_on.calls.argsFor(3)).toEqual(['Broadcast_AssistanceRequestModified', UpdateAssistanceRequestStatus]);
+
+                expect(spy_jquery.calls.count()).toEqual(2);
+                expect(spy_jquery.calls.argsFor(0)).toEqual(['#audioModule']);
+                expect(spy_jquery.calls.argsFor(1)).toEqual(['#hall-pass-modal']);
+
+                expect(spy_jquery_on.calls.count()).toEqual(1);
+                expect(spy_jquery_on.calls.argsFor(0)).toEqual(['shown.bs.modal', ding]);
+
+                expect(spy_hide.calls.count()).toEqual(1);
+                expect(spy_hide.calls.argsFor(0)).toEqual([]);
+            });
         });
 
         describe('>ProcessHallPassRequestStatus', () => {
