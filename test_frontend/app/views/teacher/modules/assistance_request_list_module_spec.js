@@ -31,5 +31,50 @@ define((require) => {
                 });
             });
         });
+
+        describe('>AssistanceRequestListModuleInit', () => {
+            it('should be defined', () => {
+                expect(AssistanceRequestListModuleInit).toBeDefined();
+            });
+
+            it('should setup event listeners and socket.io handlers', () => {
+                const mock_socket = {
+                    on: () => undefined
+                };
+
+                const mock_jquery_result = {
+                    change: () => undefined,
+                    click: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_on = spyOn(mock_socket, 'on').and.callThrough();
+                const spy_addEventListener = spyOn(document.body, 'addEventListener').and.returnValue(undefined);
+                const spy_jquery = jasmine.createSpy('$').and.returnValue(mock_jquery_result);
+                $ = spy_jquery;
+                const spy_change = spyOn(mock_jquery_result, 'change').and.callThrough();
+                const spy_click = spyOn(mock_jquery_result, 'click').and.callThrough();
+
+                expect(AssistanceRequestListModuleInit()).toBeUndefined();
+
+                expect(spy_addEventListener.calls.count()).toEqual(1);
+                expect(spy_addEventListener.calls.argsFor(0)).toEqual(['keyup', KeyDownHandler]);
+
+                expect(spy_on.calls.count()).toEqual(2);
+                expect(spy_on.calls.argsFor(0)).toEqual(['Broadcast_AssistanceRequestModified', RetrieveAssistanceRequests]);
+                expect(spy_on.calls.argsFor(1)).toEqual(['Response_RetrieveAssistanceRequests', HandleRetrieveAssistanceRequests]);
+
+                expect(spy_jquery.calls.count()).toEqual(2);
+                expect(spy_jquery.calls.argsFor(0)).toEqual(['#class_selector']);
+                expect(spy_jquery.calls.argsFor(1)).toEqual(['#clear-all-ar']);
+                
+                expect(spy_change.calls.count()).toEqual(1);
+                expect(spy_change.calls.argsFor(0)).toEqual([RetrieveAssistanceRequests]);
+
+                expect(spy_click.calls.count()).toEqual(1);
+                expect(spy_click.calls.argsFor(0)).toEqual([ClearAllAssistanceRequests]);
+            });
+        });
     });
 });
