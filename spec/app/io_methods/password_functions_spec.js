@@ -1,7 +1,9 @@
-const {recoverPassword, changePassword} = require("../../../app/io_methods/password_functions");
+const {recoverPassword, changePassword, changeStudentPassword} = require("../../../app/io_methods/password_functions");
 
 const randomstring = require("randomstring");
 const User = require('../../../app/models/user').model;
+const Course = require('../../../app/models/course').model;
+const Enrollment = require('../../../app/models/enrollment').model;
 
 const mock_transport = {
 	sendMail: () => {}
@@ -237,6 +239,225 @@ describe('Password Functions', () => {
 			expect(spy_callback.calls.argsFor(0)[0]).toEqual({success: true, message: 'Password changed successfully'});
 
 			expect(test_user.password).toEqual('hashed_value');
+		});
+
+		describe('>changeStudentPassword', () => {
+			it('should be defined', () => {
+				expect(changeStudentPassword).toBeDefined();
+			});
+
+			it('should generate and save a new password if all components come back defined (i.e. they exist)', async () => {
+				const student = new User();
+				student.password = 'original_password';
+
+				const mock_socket = {
+					emit: () => undefined
+				};
+
+				const spy_user_findById = spyOn(User, 'findById').and.returnValues(new Promise(done => done("some_value")), new Promise(done => done(student)));
+				const spy_course_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done("some_value")));
+				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value", "yet_another_value"])));
+				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
+				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+
+				const teacher_id = 'teacher_id_1';
+				const course_id = 'course_id_1';
+				const student_id = 'student_id_1';
+				const password = 'new_password';
+
+				expect(await changeStudentPassword(mock_socket, teacher_id, course_id, student_id, password)).toBeUndefined();
+
+				expect(spy_user_findById.calls.count()).toEqual(2);
+				expect(spy_user_findById.calls.argsFor(0)).toEqual([teacher_id]);
+				expect(spy_user_findById.calls.argsFor(1)).toEqual([student_id]);
+
+				expect(spy_course_findOne.calls.count()).toEqual(1);
+				expect(spy_course_findOne.calls.argsFor(0)).toEqual([{_id: course_id, teacher: teacher_id, valid: true}]);
+				
+				expect(spy_enrollment_find.calls.count()).toEqual(1);
+				expect(spy_enrollment_find.calls.argsFor(0)).toEqual([{course: course_id, student: student_id, valid: true, enrolled: true}]);
+
+				expect(spy_save.calls.count()).toEqual(1);
+				expect(spy_save.calls.argsFor(0).length).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0)).toEqual(['Response_ChangeStudentPassword', {success: true, message: 'Successfully changed the password'}]);
+
+				expect(spy_generateHash.calls.count()).toEqual(1);
+				expect(spy_generateHash.calls.argsFor(0)).toEqual([password]);
+
+				expect(student.password).toEqual('hashed_password');
+			});
+
+			it('should notify the user that the password could not be changed if the query for the teacher comes back undefined', async () => {
+				const student = new User();
+				student.password = 'original_password';
+
+				const mock_socket = {
+					emit: () => undefined
+				};
+
+				const spy_user_findById = spyOn(User, 'findById').and.returnValues(new Promise(done => done(undefined)), new Promise(done => done(student)));
+				const spy_course_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done("some_value")));
+				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value"])));
+				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
+				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+
+				const teacher_id = 'teacher_id_2';
+				const course_id = 'course_id_2';
+				const student_id = 'student_id_2';
+				const password = 'new_password';
+
+				expect(await changeStudentPassword(mock_socket, teacher_id, course_id, student_id, password)).toBeUndefined();
+
+				expect(spy_user_findById.calls.count()).toEqual(2);
+				expect(spy_user_findById.calls.argsFor(0)).toEqual([teacher_id]);
+				expect(spy_user_findById.calls.argsFor(1)).toEqual([student_id]);
+
+				expect(spy_course_findOne.calls.count()).toEqual(1);
+				expect(spy_course_findOne.calls.argsFor(0)).toEqual([{_id: course_id, teacher: teacher_id, valid: true}]);
+				
+				expect(spy_enrollment_find.calls.count()).toEqual(1);
+				expect(spy_enrollment_find.calls.argsFor(0)).toEqual([{course: course_id, student: student_id, valid: true, enrolled: true}]);
+
+				expect(spy_save.calls.count()).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0)).toEqual(['Response_ChangeStudentPassword', {success: false, message: 'Unable to change the students password!'}]);
+
+				expect(spy_generateHash.calls.count()).toEqual(0);
+				
+				expect(student.password).toEqual('original_password');
+			});
+
+			it('should notify the user that the password could not be changed if the query for the course comes back undefined', async () => {
+				const student = new User();
+				student.password = 'original_password';
+
+				const mock_socket = {
+					emit: () => undefined
+				};
+
+				const spy_user_findById = spyOn(User, 'findById').and.returnValues(new Promise(done => done("some_teacher")), new Promise(done => done(student)));
+				const spy_course_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value"])));
+				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
+				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+
+				const teacher_id = 'teacher_id_3';
+				const course_id = 'course_id_3';
+				const student_id = 'student_id_3';
+				const password = 'new_password';
+
+				expect(await changeStudentPassword(mock_socket, teacher_id, course_id, student_id, password)).toBeUndefined();
+
+				expect(spy_user_findById.calls.count()).toEqual(2);
+				expect(spy_user_findById.calls.argsFor(0)).toEqual([teacher_id]);
+				expect(spy_user_findById.calls.argsFor(1)).toEqual([student_id]);
+
+				expect(spy_course_findOne.calls.count()).toEqual(1);
+				expect(spy_course_findOne.calls.argsFor(0)).toEqual([{_id: course_id, teacher: teacher_id, valid: true}]);
+				
+				expect(spy_enrollment_find.calls.count()).toEqual(1);
+				expect(spy_enrollment_find.calls.argsFor(0)).toEqual([{course: course_id, student: student_id, valid: true, enrolled: true}]);
+
+				expect(spy_save.calls.count()).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0)).toEqual(['Response_ChangeStudentPassword', {success: false, message: 'Unable to change the students password!'}]);
+
+				expect(spy_generateHash.calls.count()).toEqual(0);
+				
+				expect(student.password).toEqual('original_password');
+			});
+
+			it('should notify the user that the password could not be changed if the query for the enrollment comes back undefined', async () => {
+				const student = new User();
+				student.password = 'original_password';
+
+				const mock_socket = {
+					emit: () => undefined
+				};
+
+				const spy_user_findById = spyOn(User, 'findById').and.returnValues(new Promise(done => done("some_teacher")), new Promise(done => done(student)));
+				const spy_course_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done("some_course")));
+				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(undefined)));
+				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
+				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+
+				const teacher_id = 'teacher_id_4';
+				const course_id = 'course_id_4';
+				const student_id = 'student_id_4';
+				const password = 'new_password';
+
+				expect(await changeStudentPassword(mock_socket, teacher_id, course_id, student_id, password)).toBeUndefined();
+
+				expect(spy_user_findById.calls.count()).toEqual(2);
+				expect(spy_user_findById.calls.argsFor(0)).toEqual([teacher_id]);
+				expect(spy_user_findById.calls.argsFor(1)).toEqual([student_id]);
+
+				expect(spy_course_findOne.calls.count()).toEqual(1);
+				expect(spy_course_findOne.calls.argsFor(0)).toEqual([{_id: course_id, teacher: teacher_id, valid: true}]);
+				
+				expect(spy_enrollment_find.calls.count()).toEqual(1);
+				expect(spy_enrollment_find.calls.argsFor(0)).toEqual([{course: course_id, student: student_id, valid: true, enrolled: true}]);
+
+				expect(spy_save.calls.count()).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0)).toEqual(['Response_ChangeStudentPassword', {success: false, message: 'Unable to change the students password!'}]);
+
+				expect(spy_generateHash.calls.count()).toEqual(0);
+				
+				expect(student.password).toEqual('original_password');
+			});
+
+			it('should notify the user that the password could not be changed if the query for the student comes back undefined', async () => {
+				const student = new User();
+				student.password = 'original_password';
+
+				const mock_socket = {
+					emit: () => undefined
+				};
+
+				const spy_user_findById = spyOn(User, 'findById').and.returnValues(new Promise(done => done("some_teacher")), new Promise(done => done(undefined)));
+				const spy_course_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done("some_course")));
+				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["enrollment"])));
+				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
+				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+
+				const teacher_id = 'teacher_id_5';
+				const course_id = 'course_id_5';
+				const student_id = 'student_id_5';
+				const password = 'new_password';
+
+				expect(await changeStudentPassword(mock_socket, teacher_id, course_id, student_id, password)).toBeUndefined();
+
+				expect(spy_user_findById.calls.count()).toEqual(2);
+				expect(spy_user_findById.calls.argsFor(0)).toEqual([teacher_id]);
+				expect(spy_user_findById.calls.argsFor(1)).toEqual([student_id]);
+
+				expect(spy_course_findOne.calls.count()).toEqual(1);
+				expect(spy_course_findOne.calls.argsFor(0)).toEqual([{_id: course_id, teacher: teacher_id, valid: true}]);
+				
+				expect(spy_enrollment_find.calls.count()).toEqual(1);
+				expect(spy_enrollment_find.calls.argsFor(0)).toEqual([{course: course_id, student: student_id, valid: true, enrolled: true}]);
+
+				expect(spy_save.calls.count()).toEqual(0);
+
+				expect(spy_emit.calls.count()).toEqual(1);
+				expect(spy_emit.calls.argsFor(0)).toEqual(['Response_ChangeStudentPassword', {success: false, message: 'Unable to change the students password!'}]);
+
+				expect(spy_generateHash.calls.count()).toEqual(0);
+				
+				expect(student.password).toEqual('original_password');
+			});
+
 		});
 	})
 });

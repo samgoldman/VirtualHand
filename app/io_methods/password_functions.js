@@ -48,7 +48,7 @@ const changeStudentPassword = async (socket, teacher_id, course_id, student_id, 
 	const teacher = await User.findById(teacher_id);
 	const course = await Course.findOne({_id: course_id, teacher: teacher_id, valid: true});
 	const enrollment = await Enrollment.find({course: course_id, student: student_id, valid: true, enrolled: true});
-	const student = await User.findOne({_id: student_id});
+	const student = await User.findById(student_id);
 
 	if (undefined === teacher || undefined === course || undefined === enrollment || undefined === student) {
 		socket.emit('Response_ChangeStudentPassword', {
