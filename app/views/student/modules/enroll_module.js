@@ -7,7 +7,7 @@ const EnrollClicked = () => {
 const handleEnrollStudentResponse = data => {
 	const alert_box = document.querySelector('#enroll_alert_box');
 	alert_box.innerHTML = data.message;
-	alert_box.style.display = block;
+	alert_box.style.display = 'block';
 };
 
 const EnrollModuleInit = () => {
