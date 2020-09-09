@@ -145,6 +145,182 @@ define((require) => {
             });
         });
 
+        describe('>ToggleAssistanceButton', () => {
+            it('should be defined', () => {
+                expect(ToggleAssistanceButton).toBeDefined();
+            });
+
+            it('should get the status of the button and if it is "Lower Hand", send a request to the server to lower the student\'s hand', () => {
+                const mock_element = {
+                    innerHTML: "Lower Hand"
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('123');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleAssistanceButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestAssistanceButton']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_ResolveAssistanceRequest', {cid: '123'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+
+            it('should get the status of the button and if it is "Raise Hand", send a request to the server to raise the student\'s hand', () => {
+                const mock_element = {
+                    innerHTML: "Raise Hand"
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleAssistanceButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestAssistanceButton']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_InitiateAssistanceRequest', {cid: '94'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+
+            it('should get the status of the button and if it is not a valid status, do nothing', () => {
+                const mock_element = {
+                    innerHTML: "Invalid status"
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleAssistanceButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestAssistanceButton']);
+
+                expect(spy_emit.calls.count()).toEqual(0);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(0);
+            });
+        });
+
+        describe('>ToggleHallPassButton', () => {
+            it('should be defined', () => {
+                expect(ToggleHallPassButton).toBeDefined();
+            });
+
+            it('should get the status of the button and if it is "You are waiting for a hall pass. Click to withdraw your request.", send a request to the server to retract the request', () => {
+                const mock_element = {
+                    innerHTML: "You are waiting for a hall pass. Click to withdraw your request."
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('54');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleHallPassButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_StudentResolveHallPassRequest', {cid: '54'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+
+            it('should get the status of the button and if it is "Request a Hall Pass", send a request to the server to request a hall pass', () => {
+                const mock_element = {
+                    innerHTML: "Request a Hall Pass"
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleHallPassButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_InitiateHallPassRequest', {cid: '94'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+
+            it('should get the status of the button and if it is not a valid status, do nothing', () => {
+                const mock_element = {
+                    innerHTML: "Invalid status"
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ToggleHallPassButton()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#requestHallPassButton']);
+
+                expect(spy_emit.calls.count()).toEqual(0);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(0);
+            });
+        });
+
         describe('>ReturnHallPass', () => {
             it('should be defined', () => {
                 expect(ReturnHallPass).toBeDefined();

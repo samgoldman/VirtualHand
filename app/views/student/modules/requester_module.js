@@ -1,5 +1,5 @@
 const ToggleAssistanceButton = () => {
-	let button = document.getElementById("requestAssistanceButton");
+	const button = document.querySelector("#requestAssistanceButton");
 	if (button.innerHTML === "Lower Hand") {
 		socket.emit('Request_ResolveAssistanceRequest', {cid: getSelectedClassId()});
 	} else if (button.innerHTML === "Raise Hand") {
@@ -26,7 +26,7 @@ const ProcessAssistanceRequestStatus = data => {
 }
 
 const ToggleHallPassButton = () => {
-	let button = document.getElementById("requestHallPassButton");
+	let button = document.querySelector("#requestHallPassButton");
 	if (button.innerHTML === "You are waiting for a hall pass. Click to withdraw your request.") {
 		socket.emit('Request_StudentResolveHallPassRequest', {cid: getSelectedClassId()});
 	} else if (button.innerHTML === "Request a Hall Pass") {
