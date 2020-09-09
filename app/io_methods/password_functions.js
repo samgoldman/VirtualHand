@@ -50,22 +50,20 @@ const changeStudentPassword = async (socket, teacher_id, course_id, student_id, 
 	const enrollment = await Enrollment.find({course: course_id, student: student_id, valid: true, enrolled: true});
 	const student = await User.findOne({_id: student_id});
 
-	let result = {
-		success: true,
-		message: 'Successfully changed the password'
-	};
-
-	if (undefined === teacher || undefined === course || undefined === enrollment || undefined === student) 
-		message = {
-			success: true,
+	if (undefined === teacher || undefined === course || undefined === enrollment || undefined === student) {
+		socket.emit('Response_ChangeStudentPassword', {
+			success: false,
 			message: 'Unable to change the students password!'
-		}
-	else {
+		});
+	} else {
 		student.password = student.generateHash(password);
 		await student.save();
+		socket.emit('Response_ChangeStudentPassword', {
+			success: true,
+			message: 'Successfully changed the password'
+		});
 	}
 		
-	socket.emit('Response_ChangeStudentPassword', result);
 }
 
 module.exports = {
