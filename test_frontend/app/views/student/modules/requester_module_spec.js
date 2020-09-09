@@ -145,6 +145,32 @@ define((require) => {
             });
         });
 
+        describe('>ReturnHallPass', () => {
+            it('should be defined', () => {
+                expect(ReturnHallPass).toBeDefined();
+            });
+
+            it('should send the return pass event to the server', () => {
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                socket = mock_socket;
+
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('75');
+                getSelectedClassId = spy_getSelectedClassId;
+
+                expect(ReturnHallPass()).toBeUndefined();
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_StudentResolveHallPassRequest', {cid: '75'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+            });
+        });
+
         describe('>ProcessHallPassRequestStatus', () => {
             it('should be defined', () => {
                 expect(ProcessHallPassRequestStatus).toBeDefined();
