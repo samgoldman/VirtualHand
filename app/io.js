@@ -8,7 +8,7 @@ const HallPassRequest = require(MODEL_PATH + 'hallPassRequest').model;
 const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
-const {recoverPassword, changePassword} = require("./io_methods/password_functions");
+const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
 
@@ -197,35 +197,6 @@ function removeStudent(socket, cid, uid) {
 	Enrollment.find({course: cid, student: uid, valid: true}).update({valid: false})
 		.then(function () {
 			socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
-		});
-}
-
-function changeStudentPassword(socket, tid, cid, sid, password) {
-	User.findById(tid)
-		.then(function (teacher) {
-			if (!teacher) throw "Teacher doesn't exist";
-			return Course.findOne({_id: cid, teacher: tid, valid: true});
-		})
-		.then(function (course) {
-			if (!course) throw "Teacher doesn't teacher that course";
-			return Enrollment.find({course: cid, student: sid, valid: true, enrolled: true});
-		})
-		.then(function (enrollment) {
-			if (!enrollment) throw "Student isn't in that class";
-			return User.findOne({_id: sid});
-		})
-		.then(function (user) {
-			user.password = user.generateHash(password);
-			user.save();
-		})
-		.then(function () {
-			socket.emit('Response_ChangeStudentPassword', {
-				success: true,
-				message: 'Successfully changed the password'
-			});
-		})
-		.catch(function (err) {
-			socket.emit('Response_ChangeStudentPassword', {success: false, message: err});
 		});
 }
 
