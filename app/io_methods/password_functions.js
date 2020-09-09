@@ -1,5 +1,7 @@
 const randomstring = require("randomstring");
 const User = require('../models/user').model;
+const Course = require('../models/course').model;
+const Enrollment = require('../models/enrollment').model;
 
 const recoverPassword = async (username, transporter, done) => {
 	const user = await User.findOne({'username': username}).exec();
@@ -59,8 +61,8 @@ const changeStudentPassword = async (socket, teacher_id, course_id, student_id, 
 			message: 'Unable to change the students password!'
 		}
 	else {
-		user.password = user.generateHash(password);
-		await user.save();
+		student.password = student.generateHash(password);
+		await student.save();
 	}
 		
 	socket.emit('Response_ChangeStudentPassword', result);
