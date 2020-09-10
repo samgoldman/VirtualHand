@@ -4,10 +4,8 @@ function ClassSelectorChanged() {
 }
 
 function getSelectedClassId() {
-	let options = document.querySelector("#class_selector").querySelector("option");
-	for (let i = options.length; i--;)
-		if (options[i].selected)
-			return options[i].value;
+	const options = document.querySelector("#class_selector").querySelector("option").filter(option => option.selected);
+	return options.length > 0 ? options[options.length - 1].value : undefined;
 }
 
 function ClassSelectorInit() {
