@@ -15,8 +15,7 @@ define((require) => {
                     addEventListener: () => undefined
                 };
                 
-                const spy_sortClasses = jasmine.createSpy('sortClasses').and.returnValue(undefined);
-                sortClasses = spy_sortClasses;
+                const spy_sortClasses = spyOn(window, 'sortClasses').and.returnValue(undefined);
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_addEventListener = spyOn(mock_element, 'addEventListener').and.callThrough();
 
