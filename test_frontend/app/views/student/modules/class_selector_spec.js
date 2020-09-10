@@ -31,5 +31,21 @@ define((require) => {
                 expect(spy_addEventListener.calls.argsFor(0)).toEqual(['change', ClassSelectorChanged]);
             });
         });
+
+        describe('>ClassSelectorChanged', () => {
+            it('>should be defined', () => {
+                expect(ClassSelectorChanged).toBeDefined();
+            });
+
+            it('>should call sortClasses', () => {
+                const spy_sortClasses = spyOn(window, 'sortClasses').and.returnValue(undefined);
+                
+                expect(ClassSelectorChanged()).toBeUndefined();
+
+                expect(spy_sortClasses.calls.count()).toEqual(1);
+                expect(spy_sortClasses.calls.argsFor(0)).toEqual([]);
+                
+            });
+        });
     });
 });
