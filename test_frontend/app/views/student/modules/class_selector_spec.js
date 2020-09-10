@@ -47,5 +47,40 @@ define((require) => {
                 
             });
         });
+
+        describe('>getSelectedClassId', () => {
+            it('should be defined', () => {
+                expect(getSelectedClassId).toBeDefined();
+            });
+
+            [
+                {options: [], expected: undefined},
+                {options: [new Option('t', 'v1', false, false)], expected: undefined},
+                {options: [new Option('t', 'v2', false, true)], expected: 'v2'},
+                {options: [new Option('t', 'v3', true, false)], expected: undefined},
+                {options: [new Option('t', 'v4', true, true)], expected: 'v4'},
+                {options: [new Option('t', 'v5', false, false), new Option('t', 'v6', false, false)], expected: undefined},
+                {options: [new Option('t', 'v7', false, true), new Option('t', 'v8', false, false)], expected: 'v7'},
+                {options: [new Option('t', 'v9', false, false), new Option('t', 'v10', false, true)], expected: 'v10'},
+                {options: [new Option('t', 'v11', false, true), new Option('t', 'v12', false, true)], expected: 'v12'}
+            ].forEach(testCase => {
+                it('should return the last option that selected or undefined if no such option', () => {
+                    const mock_element = {
+                        querySelector: () => undefined
+                    };
+
+                    const spy_document_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                    const spy_element_querySelector = spyOn(mock_element, 'querySelector').and.returnValue(testCase.options);
+
+                    expect(getSelectedClassId()).toEqual(testCase.expected);
+
+                    expect(spy_document_querySelector).toHaveBeenCalledTimes(1);
+                    expect(spy_document_querySelector.calls.argsFor(0)).toEqual(['#class_selector']);
+                    
+                    expect(spy_element_querySelector).toHaveBeenCalledTimes(1);
+                    expect(spy_element_querySelector.calls.argsFor(0)).toEqual(['option']);
+                });
+            });
+        });
     });
 });

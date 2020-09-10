@@ -88,8 +88,7 @@ define((require) => {
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.callThrough();
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('42');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('42');
 
                 expect(UpdateAssistanceRequestStatus()).toBeUndefined();
 
@@ -126,8 +125,7 @@ define((require) => {
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.callThrough();
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('35');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('35');
 
                 expect(UpdateHallPassRequestStatus()).toBeUndefined();
 
@@ -163,8 +161,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('123');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('123');
 
                 expect(ToggleAssistanceButton()).toBeUndefined();
 
@@ -191,8 +188,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('94');
 
                 expect(ToggleAssistanceButton()).toBeUndefined();
 
@@ -219,8 +215,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('94');
 
                 expect(ToggleAssistanceButton()).toBeUndefined();
 
@@ -251,8 +246,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('54');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('54');
 
                 expect(ToggleHallPassButton()).toBeUndefined();
 
@@ -279,8 +273,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('94');
 
                 expect(ToggleHallPassButton()).toBeUndefined();
 
@@ -307,8 +300,7 @@ define((require) => {
 
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('94');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('94');
 
                 expect(ToggleHallPassButton()).toBeUndefined();
 
@@ -334,8 +326,7 @@ define((require) => {
                 socket = mock_socket;
 
                 const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-                const spy_getSelectedClassId = jasmine.createSpy('getSelectedClassId').and.returnValue('75');
-                getSelectedClassId = spy_getSelectedClassId;
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('75');
 
                 expect(ReturnHallPass()).toBeUndefined();
 
