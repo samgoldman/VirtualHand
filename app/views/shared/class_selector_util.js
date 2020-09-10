@@ -1,4 +1,4 @@
-const sortClasses = () => {
+function sortClasses() {
 	let selElem = document.getElementById("class_selector");
 	let tmpAry = [];
 	for (let i = 0; i < selElem.options.length; i++) {

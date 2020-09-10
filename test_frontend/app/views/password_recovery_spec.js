@@ -30,6 +30,11 @@ define(['app/views/password_recovery'],
                 it('should retrieve the submitted username and emit a password recovery request', () => {
                     expect(recoverPass).toBeDefined();
 
+                    const mock_socket = {
+                        emit: () => undefined
+                    };
+                    socket = mock_socket;
+
                     const spy_querySelector = spyOn(document, 'querySelector').and.returnValue({value: 'test_value'});
                     const spy_emit = spyOn(socket, 'emit').and.returnValue(undefined);
 
