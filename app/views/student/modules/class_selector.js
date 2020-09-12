@@ -4,8 +4,8 @@ function ClassSelectorChanged() {
 }
 
 function getSelectedClassId() {
-	const options = document.querySelector("#class_selector").querySelector("option").filter(option => option.selected);
-	return options.length > 0 ? options[options.length - 1].value : undefined;
+	const option = document.querySelector("#class_selector").querySelector("option:checked");
+	return undefined !== option ? option.value : undefined;
 }
 
 function ClassSelectorInit() {

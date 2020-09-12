@@ -24,12 +24,12 @@ const HandleRetrieveAssistanceRequests = data => {
 }
 
 const handDown = index => {
-	const listItem = document.querySelector(`listItem${index}`);
+	const listItem = document.querySelector(`#listItem${index}`);
 	if (listItem.getAttribute('value') !== "")
 		socket.emit('Request_TeacherResolveAssistanceRequest', {arid: listItem.getAttribute('value')});
 }
 
-const RetrieveAssistanceRequests = () => {
+function RetrieveAssistanceRequests() {
 	socket.emit('Request_RetrieveAssistanceRequests', {cids: getSelectedClassIds(), qty: 5});
 }
 
@@ -70,6 +70,7 @@ const AssistanceRequestListModuleInit = () => {
 
 	$('#class_selector').change(RetrieveAssistanceRequests);
 	$('#clear-all-ar').click(ClearAllAssistanceRequests);
+	RetrieveAssistanceRequests();
 };
 
 window.addEventListener("load", AssistanceRequestListModuleInit);

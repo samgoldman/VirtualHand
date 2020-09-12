@@ -55,6 +55,7 @@ define((require) => {
                 $ = spy_jquery;
                 const spy_change = spyOn(mock_jquery_result, 'change').and.callThrough();
                 const spy_click = spyOn(mock_jquery_result, 'click').and.callThrough();
+                const spy_RetrieveAssistanceRequests = spyOn(window, 'RetrieveAssistanceRequests').and.returnValue(undefined);
 
                 expect(AssistanceRequestListModuleInit()).toBeUndefined();
 
@@ -74,6 +75,10 @@ define((require) => {
 
                 expect(spy_click.calls.count()).toEqual(1);
                 expect(spy_click.calls.argsFor(0)).toEqual([ClearAllAssistanceRequests]);
+
+                expect(spy_RetrieveAssistanceRequests.calls.count()).toEqual(1);
+                expect(spy_RetrieveAssistanceRequests.calls.argsFor(0).length).toEqual(0);
+                
             });
         });
 
