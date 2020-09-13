@@ -46,7 +46,7 @@ describe('routes', () => {
             expect(spy_compileFile.calls.argsFor(7)).toEqual(['./app/views/teacher/teacher_history_assistance_request.pug', undefined]);
 
             //TODO improve testing for get and post
-            expect(spy_get.calls.count()).toEqual(12);
+            expect(spy_get.calls.count()).toEqual(11);
             expect(spy_get.calls.argsFor(0)[0]).toEqual('/home');
             expect(spy_get.calls.argsFor(1)[0]).toEqual('/teacher/home');
             expect(spy_get.calls.argsFor(2)[0]).toEqual('/teacher/hallpass');
@@ -54,11 +54,10 @@ describe('routes', () => {
             expect(spy_get.calls.argsFor(4)[0]).toEqual('/teacher/history/assistancerequest/:cid');
             expect(spy_get.calls.argsFor(5)[0]).toEqual('/student/home');
             expect(spy_get.calls.argsFor(6)[0]).toEqual('/logout');
-            expect(spy_get.calls.argsFor(7)[0]).toEqual('/');
-            expect(spy_get.calls.argsFor(8)[0]).toEqual('/login');
-            expect(spy_get.calls.argsFor(9)[0]).toEqual('/signup');
-            expect(spy_get.calls.argsFor(10)[0]).toEqual('/recoverpassword');
-            expect(spy_get.calls.argsFor(11)[0]).toEqual('/notification_audio');
+            expect(spy_get.calls.argsFor(7)[0]).toEqual(['/', '/login']);
+            expect(spy_get.calls.argsFor(8)[0]).toEqual('/signup');
+            expect(spy_get.calls.argsFor(9)[0]).toEqual('/recoverpassword');
+            expect(spy_get.calls.argsFor(10)[0]).toEqual('/notification_audio');
 
             expect(spy_post.calls.count()).toEqual(2);
             expect(spy_post.calls.argsFor(0)[0]).toEqual('/login');

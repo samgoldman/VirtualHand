@@ -116,11 +116,7 @@ module.exports = function (app, passport) {
 		res.redirect('/');
 	});
 
-	app.get('/', function (req, res) {
-		res.redirect('/login');
-	});
-
-	app.get('/login', isNotLoggedIn, function (req, res) {
+	app.get(['/', '/login'], isNotLoggedIn, function (req, res) {
 		res.send(renderFile(templates.login, {
 			message: req.flash('loginMessage')
 		}));
