@@ -6,6 +6,7 @@ const Enrollment = require('./models/enrollment').model;
 const HallPassRequest = require('./models/hallPassRequest').model;
 const AssistanceRequest = require('./models/assistanceRequest').model;
 const Token = require('./token_manager');
+const {isLoggedIn, isNotLoggedIn, isTeacher, isStudent} = require('./route_methods/route_middleware')
 
 const templates = {
 	student_home: './app/views/student/student_home.pug',
@@ -156,37 +157,3 @@ module.exports = function (app, passport) {
 		readStream.pipe(res);
 	});
 };
-
-function isLoggedIn(req, res, next) {
-	// if user is authenticated in the session, carry on
-	if (req.isAuthenticated())
-		return next();
-
-	// if they aren't redirect them to the login page
-	res.redirect('/login');
-}
-
-function isNotLoggedIn(req, res, next) {
-	// if user is authenticated in the session, carry on
-	if (req.isAuthenticated()) {
-		res.redirect('/home');
-	} else {
-		return next();
-	}
-}
-
-// If the user is a teacher, continue,
-// Otherwise, redirect them home
-function isTeacher(req, res, next) {
-	if(req.user.role === 'teacher')
-		return next();
-	res.redirect('/home');
-}
-
-// If the user is a student, continue,
-// Otherwise, redirect them home
-function isStudent(req, res, next) {
-	if(req.user.role === 'student')
-		return next();
-	res.redirect('/home');
-}
