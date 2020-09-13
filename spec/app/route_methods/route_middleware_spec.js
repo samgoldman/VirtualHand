@@ -53,6 +53,7 @@ describe('route_middleware', () => {
         });
 
     });
+
     describe('>isNotLoggedIn', () => {
         it('should be defined', () => {expect(isNotLoggedIn).toBeDefined()});
 
@@ -104,4 +105,93 @@ describe('route_middleware', () => {
             expect(spy_redirect.calls.argsFor(0)).toEqual(['/home']);
         });
     });
+
+    describe('>isTeacher', () => {
+        it('should be defined', () => {expect(isTeacher).toBeDefined()});
+
+        it('should call next if the user is a teacher', () => {
+            const mock_req = {
+                user: {role: 'teacher'}
+            };
+
+            const mock_res = {
+                redirect: () => 'some_value'
+            };
+
+            const spy_next = jasmine.createSpy('next').and.returnValue('next_return');
+            const spy_redirect = spyOn(mock_res, 'redirect').and.callThrough();
+          
+            expect(isTeacher(mock_req, mock_res, spy_next)).toEqual('next_return');
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0)).toEqual([]);
+
+            expect(spy_redirect.calls.count()).toEqual(0);
+        });
+
+        it('should redirect if the user is not a teacher', () => {
+            const mock_req = {
+                user: {role: 'student'}
+            };
+
+            const mock_res = {
+                redirect: () => 'some_value'
+            };
+
+            const spy_next = jasmine.createSpy('next').and.returnValue('next_return');
+            const spy_redirect = spyOn(mock_res, 'redirect').and.callThrough();
+          
+            expect(isTeacher(mock_req, mock_res, spy_next)).toBeUndefined();
+
+            expect(spy_next.calls.count()).toEqual(0);
+
+            expect(spy_redirect.calls.count()).toEqual(1);
+            expect(spy_redirect.calls.argsFor(0)).toEqual(['/home']);
+        });
+    });
+
+    describe('>isStudent', () => {
+        it('should be defined', () => {expect(isStudent).toBeDefined()});
+
+        it('should call next if the user is a student', () => {
+            const mock_req = {
+                user: {role: 'student'}
+            };
+
+            const mock_res = {
+                redirect: () => 'some_value'
+            };
+
+            const spy_next = jasmine.createSpy('next').and.returnValue('next_return');
+            const spy_redirect = spyOn(mock_res, 'redirect').and.callThrough();
+          
+            expect(isStudent(mock_req, mock_res, spy_next)).toEqual('next_return');
+
+            expect(spy_next.calls.count()).toEqual(1);
+            expect(spy_next.calls.argsFor(0)).toEqual([]);
+
+            expect(spy_redirect.calls.count()).toEqual(0);
+        });
+
+        it('should redirect if the user is not a student', () => {
+            const mock_req = {
+                user: {role: 'teacher'}
+            };
+
+            const mock_res = {
+                redirect: () => 'some_value'
+            };
+
+            const spy_next = jasmine.createSpy('next').and.returnValue('next_return');
+            const spy_redirect = spyOn(mock_res, 'redirect').and.callThrough();
+          
+            expect(isStudent(mock_req, mock_res, spy_next)).toBeUndefined();
+
+            expect(spy_next.calls.count()).toEqual(0);
+
+            expect(spy_redirect.calls.count()).toEqual(1);
+            expect(spy_redirect.calls.argsFor(0)).toEqual(['/home']);
+        });
+    });
+
 });
