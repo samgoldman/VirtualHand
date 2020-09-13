@@ -11,6 +11,7 @@ const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
+const {sendAssistanceRequestStatus} = require('./io_methods/assistance_functions');
 
 let global_io = null;
 let userCount = 0;
@@ -120,13 +121,6 @@ function addStudents(socket, cid, csv, defaultPassword) {
 				success: true,
 				message: 'Students successfully added to the class.'
 			});
-		});
-}
-
-function sendAssistanceRequestStatus(socket, uid, cid) {
-	AssistanceRequest.count({course: cid, student: uid, resolved: false})
-		.then(function (count) {
-			socket.emit('Response_AssistanceRequestStatus', {status: (count !== 0)})
 		});
 }
 
