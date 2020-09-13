@@ -6,7 +6,8 @@ const Enrollment = require('./models/enrollment').model;
 const HallPassRequest = require('./models/hallPassRequest').model;
 const AssistanceRequest = require('./models/assistanceRequest').model;
 const Token = require('./token_manager');
-const {isLoggedIn, isNotLoggedIn, isTeacher, isStudent} = require('./route_methods/route_middleware')
+const {isLoggedIn, isNotLoggedIn, isTeacher, isStudent} = require('./route_methods/route_middleware');
+const {handle_home} = require('./route_methods/route_handlers');
 
 const templates = {
 	student_home: './app/views/student/student_home.pug',
@@ -36,13 +37,7 @@ module.exports = function (app, passport) {
 	Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
 
 
-	app.get('/home', isLoggedIn, function (req, res) {
-		if (req.user.role === 'teacher') {
-			res.redirect('/teacher/home');
-		} else if (req.user.role === 'student') {
-			res.redirect('/student/home');
-		}
-	});
+	app.get('/home', isLoggedIn, handle_home);
 
 	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
 		Course.taughtBy(req.user._id)
