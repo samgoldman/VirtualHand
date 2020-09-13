@@ -21,7 +21,6 @@ const templates = {
 fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
 
 const compiledTemplates = {};
-Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
 
 function renderFile(filename, data) {
 	if (process.env.VH_ENV === 'DEVELOPMENT') {
@@ -33,9 +32,9 @@ function renderFile(filename, data) {
 
 module.exports = function (app, passport) {
 	const dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
-	const stlLogoFilepath = path.join(__dirname + '/../client/static/stl_logo.png');
-	const vhLogoFilepath = path.join(__dirname + '/../client/static/vh_logo.png');
-
+	
+	Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
+	
 	app.get('/home', isLoggedIn, function (req, res) {
 		if (req.user.role === 'teacher') {
 			res.redirect('/teacher/home');
@@ -149,18 +148,6 @@ module.exports = function (app, passport) {
 		res.send(renderFile(templates.password_recovery, {
 			token: Token.getSocketToken(null)
 		}));
-	});
-
-	app.get('/stl_logo', function (req, res) {
-		res.set({'Content-Type': 'image/png'});
-		let readStream = fs.createReadStream(stlLogoFilepath);
-		readStream.pipe(res);
-	});
-
-	app.get('/vh_logo', function (req, res) {
-		res.set({'Content-Type': 'image/png'});
-		let readStream = fs.createReadStream(vhLogoFilepath);
-		readStream.pipe(res);
 	});
 
 	app.get('/notification_audio', function (req, res) {
