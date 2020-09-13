@@ -18,8 +18,6 @@ const templates = {
 	teacher_assistance_request_history: './app/views/teacher/teacher_history_assistance_request.pug'
 };
 
-fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
-
 const compiledTemplates = {};
 
 function renderFile(filename, data) {
@@ -33,8 +31,10 @@ function renderFile(filename, data) {
 module.exports = function (app, passport) {
 	const dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
 	
+	fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
 	Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
-	
+
+
 	app.get('/home', isLoggedIn, function (req, res) {
 		if (req.user.role === 'teacher') {
 			res.redirect('/teacher/home');
