@@ -30,3 +30,9 @@ jobs:
     - run: npm run coverage
       env:
         CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+        ADMIN_INITIAL_PASSWORD: ${{secrets.ADMIN_INITIAL_PASSWORD}}
+        JWT_SECRET: ${{secrets.JWT_SECRET}}
+        MONGODB_URI: ${{secrets.MONGODB_URI}}
+        SESSION_SECRET: ${{secrets.SESSION_SECRET}}
+        VH_EMAIL: ${{secrets.VH_EMAIL}}
+        VH_EMAIL_PASSWORD: ${{secrets.VH_EMAIL_PASSWORD}}
