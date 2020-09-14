@@ -202,24 +202,26 @@ describe('io', () => {
         // For now, it's not very feasible to test the handlers attached
         // Once all are broken out, change this to check each one
 
-        it('should only attach relevant io handlers for guests when the user\' role is guest', () => {
-                io.__set__('userCount', 0);
-                mock_socket.user_data.role = 'guest';
+        [{role: 'guest', expected_events: ['disconnect', 'Request_RecoverPassword']}].forEach(testCase => {
+            const {role, expected_events} = testCase;
+            it(`should only attach relevant io handlers for ${role}s when the user's role is ${role}`, () => {
+                    io.__set__('userCount', 0);
+                    mock_socket.user_data.role = role;
 
-                expect(route_connection(mock_socket)).toBeUndefined();
+                    expect(route_connection(mock_socket)).toBeUndefined();
 
-                const num_handlers_exected = 2;
-                const expected_events = ['disconnect', 'Request_RecoverPassword'];
+                    const num_handlers_exected = expected_events.length;
 
-                expect(spy_on.calls.count()).toEqual(num_handlers_exected);
-                // Every attach call to have two parameters: a string and a function
-                for (let i = 0; i < num_handlers_exected; i++) {
-                    expect(spy_on.calls.argsFor(i).length).toEqual(2);
-                    expect(spy_on.calls.argsFor(i)[0]).toEqual(expected_events[i]);
-                    expect(spy_on.calls.argsFor(i)[1]).toBeInstanceOf(Function);
-                }
+                    expect(spy_on.calls.count()).toEqual(num_handlers_exected);
+                    // Every attach call to have two parameters: a string and a function
+                    for (let i = 0; i < num_handlers_exected; i++) {
+                        expect(spy_on.calls.argsFor(i).length).toEqual(2);
+                        expect(spy_on.calls.argsFor(i)[0]).toEqual(expected_events[i]);
+                        expect(spy_on.calls.argsFor(i)[1]).toBeInstanceOf(Function);
+                    }
 
-                expect(io.__get__('userCount')).toEqual(1);
+                    expect(io.__get__('userCount')).toEqual(1);
+            });
         });
     });
 });
