@@ -48,36 +48,36 @@ const route_connection = socket => {
 
 	// Students only
 	if (socket.user_data.role === 'student') {
-		socket.on('Request_AssistanceRequestStatus', data => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid))
-			.on('Request_InitiateAssistanceRequest', data => initiateAssistanceRequest(socket.user_data.uid, data.cid))
-			.on('Request_ResolveAssistanceRequest', data => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid))
-			.on('Request_EnrollStudent', data => enrollStudent(socket, socket.user_data.uid, data.courseKey))
-			.on('Request_HallPassRequestStatus', data => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid))
-			.on('Request_InitiateHallPassRequest', data => initiateHallPassRequest(socket.user_data.uid, data.cid))
-			.on('Request_StudentResolveHallPassRequest', data => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
+		socket.on('Request_AssistanceRequestStatus', data => sendAssistanceRequestStatus(socket, socket.user_data.uid, data.cid));
+		socket.on('Request_InitiateAssistanceRequest', data => initiateAssistanceRequest(socket.user_data.uid, data.cid));
+		socket.on('Request_ResolveAssistanceRequest', data => resolveAssistanceRequestByStudentAndClass(socket.user_data.uid, data.cid));
+		socket.on('Request_EnrollStudent', data => enrollStudent(socket, socket.user_data.uid, data.courseKey));
+		socket.on('Request_HallPassRequestStatus', data => sendHallPassRequestStatus(socket, socket.user_data.uid, data.cid));
+		socket.on('Request_InitiateHallPassRequest', data => initiateHallPassRequest(socket.user_data.uid, data.cid));
+		socket.on('Request_StudentResolveHallPassRequest', data => studentResolveHallPassRequest(socket.user_data.uid, data.cid));
 	}
 
 	// Teachers only
 	if (socket.user_data.role === 'teacher') {
-		socket.on('Request_CourseCreate', data => createCourse(socket, socket.user_data.uid, data.courseName))
-			.on('Request_RandomStudent', data => getRandomStudent(socket, data.cid))
-			.on('Request_CourseRename', data => renameCourse(socket, data.cid, data.newCourseName))
-			.on('Request_AddStudents', data => addStudents(socket, data.cid, data.csv, data.defaultPassword))
-			.on('Request_RetrieveAssistanceRequests', data => retrieveAssistanceRequests(socket, data.cids, data.qty))
-			.on('Request_TeacherResolveAssistanceRequest', data => teacherResolveAssistanceRequest(data.arid))
-			.on('Request_StudentsForClass', data => sendStudentsForClass(socket, data.cid))
-			.on('Request_AdmitStudent', data => admitStudent(socket, data.cid, data.sid))
-			.on('Request_RemoveStudent', data => removeStudent(socket, data.cid, data.sid))
-			.on('Request_ChangeStudentPassword', data => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password))
-			.on('Request_RetrieveCourseKey', data => retrieveCourseKey(socket, data.cid))
-			.on('Request_AssignNewCourseKey', data => assignNewCourseKey(socket, data.cid))
-			.on('Request_RetrieveHallPassRequests', data => retrieveHallPassRequests(socket, data.cids))
-			.on('Request_TeacherResolveHallPassRequest', data => teacherResolveHallPassRequest(data.hrid))
-			.on('Request_TeacherGrantHallPassRequest', data => teacherGrantHallPassRequest(data.hrid))
-			.on('Request_TeacherResolveAllAssistanceRequests', data => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid))
-			.on('Request_TeacherResolveAllHallPassRequests', data => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid))
-			.on('Request_RemoveAllStudents', data => removeAllStudentsFromCourse(socket, socket.user_data.uid, data.cid))
-			.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
+		socket.on('Request_CourseCreate', data => createCourse(socket, socket.user_data.uid, data.courseName));
+		socket.on('Request_RandomStudent', data => getRandomStudent(socket, data.cid));
+		socket.on('Request_CourseRename', data => renameCourse(socket, data.cid, data.newCourseName));
+		socket.on('Request_AddStudents', data => addStudents(socket, data.cid, data.csv, data.defaultPassword));
+		socket.on('Request_RetrieveAssistanceRequests', data => retrieveAssistanceRequests(socket, data.cids, data.qty));
+		socket.on('Request_TeacherResolveAssistanceRequest', data => teacherResolveAssistanceRequest(data.arid));
+		socket.on('Request_StudentsForClass', data => sendStudentsForClass(socket, data.cid));
+		socket.on('Request_AdmitStudent', data => admitStudent(socket, data.cid, data.sid));
+		socket.on('Request_RemoveStudent', data => removeStudent(socket, data.cid, data.sid));
+		socket.on('Request_ChangeStudentPassword', data => changeStudentPassword(socket, socket.user_data.uid, data.cid, data.sid, data.password));
+		socket.on('Request_RetrieveCourseKey', data => retrieveCourseKey(socket, data.cid));
+		socket.on('Request_AssignNewCourseKey', data => assignNewCourseKey(socket, data.cid));
+		socket.on('Request_RetrieveHallPassRequests', data => retrieveHallPassRequests(socket, data.cids));
+		socket.on('Request_TeacherResolveHallPassRequest', data => teacherResolveHallPassRequest(data.hrid));
+		socket.on('Request_TeacherGrantHallPassRequest', data => teacherGrantHallPassRequest(data.hrid));
+		socket.on('Request_TeacherResolveAllAssistanceRequests', data => teacherResolveAllAssistanceRequests(socket.user_data.uid, data.cid));
+		socket.on('Request_TeacherResolveAllHallPassRequests', data => teacherResolveAllHallPassRequests(socket.user_data.uid, data.cid));
+		socket.on('Request_RemoveAllStudents', data => removeAllStudentsFromCourse(socket, socket.user_data.uid, data.cid));
+		socket.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 	}
 };
 
