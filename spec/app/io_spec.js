@@ -162,4 +162,40 @@ describe('io', () => {
             expect(mock_socket.user_data).toBeUndefined();
         });
     });
+
+    describe('>route_connection', () => {
+        let mock_socket = {
+            on: () => undefined,
+            user_data: {role: undefined}
+        };
+        let spy_on = null;
+        let route_connection = null;
+        
+        beforeEach(() => {
+            spy_on = spyOn(mock_socket, 'on').and.callThrough();
+            route_connection = io.__get__('route_connection');
+
+            //io.__set__('handle_disconnect', 'handle_disconnect_SET');
+        });
+
+        it('should be defined', () => {
+            expect(route_connection).toBeDefined();
+        });
+
+        [{userCount: 0, expected: 1}, {userCount: 22, expected: 23}].forEach(testCase => {
+            it(`should increment userCount from ${testCase.userCount} to ${testCase.expected}, set socket disconnect, and do nothing if the role is not valid`, () => {
+                io.__set__('userCount', testCase.userCount);
+                mock_socket.user_data.role = undefined;
+
+                expect(route_connection(mock_socket)).toBeUndefined();
+
+                expect(spy_on.calls.count()).toEqual(1);
+                expect(spy_on.calls.argsFor(0).length).toEqual(2);
+                expect(spy_on.calls.argsFor(0)[0]).toEqual('disconnect');
+                expect(spy_on.calls.argsFor(0)[1]).toEqual(io.__get__('handle_disconnect'));
+
+                expect(io.__get__('userCount')).toEqual(testCase.expected);
+            });
+        });
+    });
 });
