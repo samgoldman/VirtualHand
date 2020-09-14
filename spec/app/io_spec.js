@@ -165,7 +165,7 @@ describe('io', () => {
 
     describe('>route_connection', () => {
         let mock_socket = {
-            on: () => undefined,
+            on: () => mock_socket,
             user_data: {role: undefined}
         };
         let spy_on = null;
@@ -203,7 +203,18 @@ describe('io', () => {
         // Once all are broken out, change this to check each one
 
         [{role: 'guest', expected_events: ['disconnect', 'Request_RecoverPassword']},
-         {role: 'admin', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange']}].forEach(testCase => {
+         {role: 'admin', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange']},
+         {role: 'student', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange', 'Request_AssistanceRequestStatus', 'Request_InitiateAssistanceRequest', 'Request_ResolveAssistanceRequest', 'Request_EnrollStudent', 'Request_HallPassRequestStatus', 'Request_InitiateHallPassRequest', 'Request_StudentResolveHallPassRequest']},
+         {role: 'teacher', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange', 'Request_CourseCreate', 'Request_RandomStudent',
+                'Request_CourseRename', 'Request_AddStudents',
+                'Request_RetrieveAssistanceRequests', 'Request_TeacherResolveAssistanceRequest',
+                'Request_StudentsForClass', 'Request_AdmitStudent',
+                'Request_RemoveStudent', 'Request_ChangeStudentPassword',
+                'Request_RetrieveCourseKey', 'Request_AssignNewCourseKey',
+                'Request_RetrieveHallPassRequests', 'Request_TeacherResolveHallPassRequest',
+                'Request_TeacherGrantHallPassRequest', 'Request_TeacherResolveAllAssistanceRequests',
+                'Request_TeacherResolveAllHallPassRequests', 'Request_RemoveAllStudents', 'Request_DeleteCourse']}
+         ].forEach(testCase => {
             const {role, expected_events} = testCase;
             it(`should only attach relevant io handlers for ${role}s when the user's role is ${role}`, () => {
                     io.__set__('userCount', 0);
