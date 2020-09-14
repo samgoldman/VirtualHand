@@ -2,19 +2,20 @@ function RequestKey() {
 	socket.emit('Request_RetrieveCourseKey', {cid: getSelectedClassId()});
 }
 
-socket.on('Response_RetrieveCourseKey', function (data) {
-	$('#course_key_header').text(data.key);
-});
-
 function RequestNewKey() {
 	socket.emit('Request_AssignNewCourseKey', {cid: getSelectedClassId()});
 }
 
-socket.on('Response_AssignNewCourseKey', function () {
-	RequestKey();
-});
+function HandleResponseRetrieveCourseKey(data) {
+	document.querySelector('#course_key_header').innerText = data.key;
+}
 
-window.addEventListener("load", function () {
-	$('#class_key_button').click(RequestKey);
-	$('#new_key_button').click(RequestNewKey);
-});
+const CourseKeyModuleInit = () => {
+	document.querySelector('#class_key_button').addEventListener('click', RequestKey);
+	document.querySelector('#new_key_button').addEventListener('click', RequestNewKey);
+
+	socket.on('Response_AssignNewCourseKey', RequestKey);
+	socket.on('Response_RetrieveCourseKey', HandleResponseRetrieveCourseKey);
+};
+
+window.addEventListener("load", CourseKeyModuleInit);
