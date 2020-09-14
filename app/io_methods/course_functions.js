@@ -63,8 +63,19 @@ const deleteCourse = async (socket, uid, cid) => {
 	socket.emit('Response_DeleteCourse', response);
 };
 
+
+const retrieveCourseKey = async (socket, cid) => {
+	const course = await Course.findById(cid);
+	if (!course.courseKey || course.courseKey === "") {
+		course.courseKey = Course.generateCourseKey();
+		await course.save();
+	}
+	socket.emit('Response_RetrieveCourseKey', {cid: course._id, key: course.courseKey});
+};
+
 module.exports = {
 	createCourse: createCourse,
 	renameCourse: renameCourse,
-	deleteCourse: deleteCourse
+	deleteCourse: deleteCourse,
+	retrieveCourseKey: retrieveCourseKey
 }

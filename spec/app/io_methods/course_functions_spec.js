@@ -1,7 +1,7 @@
 const Course = require('../../../app/models/course').model;
 const User = require('../../../app/models/user').model;
 const Enrollment = require('../../../app/models/enrollment').model;
-const {createCourse, renameCourse, deleteCourse} = require('../../../app/io_methods/course_functions');
+const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('../../../app/io_methods/course_functions');
 
 const mock_socket = {
 	emit: () => {}
@@ -316,5 +316,103 @@ describe('Course Functions', () => {
 				message: 'Successfully deleted class'
 			});
 		});
+	});
+
+	describe('>retrieveCourseKey', () => {
+		it('should be defined', () => {
+			expect(retrieveCourseKey).toBeDefined();
+		});
+
+		it('should respond with the existing key if it is defined and not a zero length string', async () => {
+			const mock_course = {
+				save: () => new Promise(done => done(undefined)),
+				courseKey: 'courseKey_1',
+				_id: 'other_cid'
+			};
+
+			const mock_socket = {
+				emit: () => undefined
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(mock_course)));
+			const spy_generateCourseKey = spyOn(Course, 'generateCourseKey').and.returnValue('courseKey_2');
+			const spy_save = spyOn(mock_course, 'save').and.callThrough();
+			const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+			expect(await retrieveCourseKey(mock_socket, 'cid1')).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)).toEqual(['cid1']);
+
+			expect(spy_generateCourseKey.calls.count()).toEqual(0);
+
+			expect(spy_save.calls.count()).toEqual(0);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveCourseKey', {cid: 'other_cid', key: 'courseKey_1'}]);
+		});
+		
+		it('should generate a new key if the existing key is undefined and respond with the new key', async () => {
+			const mock_course = {
+				save: () => new Promise(done => done(undefined)),
+				courseKey: undefined,
+				_id: 'other_cid'
+			};
+
+			const mock_socket = {
+				emit: () => undefined
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(mock_course)));
+			const spy_generateCourseKey = spyOn(Course, 'generateCourseKey').and.returnValue('courseKey_2');
+			const spy_save = spyOn(mock_course, 'save').and.callThrough();
+			const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+			expect(await retrieveCourseKey(mock_socket, 'cid1')).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)).toEqual(['cid1']);
+
+			expect(spy_generateCourseKey.calls.count()).toEqual(1);
+			expect(spy_generateCourseKey.calls.argsFor(0)).toEqual([]);
+
+			expect(spy_save.calls.count()).toEqual(1);
+			expect(spy_save.calls.argsFor(0)).toEqual([]);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveCourseKey', {cid: 'other_cid', key: 'courseKey_2'}]);
+		});
+		
+		it('should generate a new key if the existing key is zero length and respond with the new key', async () => {
+			const mock_course = {
+				save: () => new Promise(done => done(undefined)),
+				courseKey: "",
+				_id: 'other_cid'
+			};
+
+			const mock_socket = {
+				emit: () => undefined
+			};
+
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(new Promise(done => done(mock_course)));
+			const spy_generateCourseKey = spyOn(Course, 'generateCourseKey').and.returnValue('courseKey_2');
+			const spy_save = spyOn(mock_course, 'save').and.callThrough();
+			const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+			expect(await retrieveCourseKey(mock_socket, 'cid1')).toEqual(undefined);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)).toEqual(['cid1']);
+
+			expect(spy_generateCourseKey.calls.count()).toEqual(1);
+			expect(spy_generateCourseKey.calls.argsFor(0)).toEqual([]);
+
+			expect(spy_save.calls.count()).toEqual(1);
+			expect(spy_save.calls.argsFor(0)).toEqual([]);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveCourseKey', {cid: 'other_cid', key: 'courseKey_2'}]);
+		});
+
 	});
 });

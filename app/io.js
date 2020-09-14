@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
-const {createCourse, renameCourse, deleteCourse} = require('./io_methods/course_functions');
+const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
 const {sendAssistanceRequestStatus} = require('./io_methods/assistance_functions');
 
@@ -192,20 +192,6 @@ function removeStudent(socket, cid, uid) {
 		.then(function () {
 			socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
 		});
-}
-
-function retrieveCourseKey(socket, cid) {
-	Course.findById(cid)
-		.then(function (course) {
-			if (!course.courseKey || course.courseKey === "") {
-				course.courseKey = Course.generateCourseKey();
-				course.save();
-			}
-			socket.emit('Response_RetrieveCourseKey', {cid: course._id, key: course.courseKey});
-		})
-		.then(function (newKey) {
-
-		})
 }
 
 function assignNewCourseKey(socket, cid) {
