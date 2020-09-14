@@ -67,5 +67,26 @@ define((require) => {
                 });
             })
         });
+
+        describe('>HandleResponseRetrieveCourseKey', () => {
+            it('should be defined', () => {
+                expect(HandleResponseRetrieveCourseKey).toBeDefined();
+            });
+
+            it('should update the header with the retrieved key', () => {
+                const mock_element = {
+                    innerText: 'original_text'
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+
+                expect(HandleResponseRetrieveCourseKey({key: 'new_key'})).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#course_key_header']);
+
+                expect(mock_element.innerText).toEqual('new_key');
+            });
+        });
     });
 });
