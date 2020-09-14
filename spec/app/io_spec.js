@@ -197,5 +197,29 @@ describe('io', () => {
                 expect(io.__get__('userCount')).toEqual(testCase.expected);
             });
         });
+
+        // TODO
+        // For now, it's not very feasible to test the handlers attached
+        // Once all are broken out, change this to check each one
+
+        it('should only attach relevant io handlers for guests when the user\' role is guest', () => {
+                io.__set__('userCount', 0);
+                mock_socket.user_data.role = 'guest';
+
+                expect(route_connection(mock_socket)).toBeUndefined();
+
+                const num_handlers_exected = 2;
+                const expected_events = ['disconnect', 'Request_RecoverPassword'];
+
+                expect(spy_on.calls.count()).toEqual(num_handlers_exected);
+                // Every attach call to have two parameters: a string and a function
+                for (let i = 0; i < num_handlers_exected; i++) {
+                    expect(spy_on.calls.argsFor(i).length).toEqual(2);
+                    expect(spy_on.calls.argsFor(i)[0]).toEqual(expected_events[i]);
+                    expect(spy_on.calls.argsFor(i)[1]).toBeInstanceOf(Function);
+                }
+
+                expect(io.__get__('userCount')).toEqual(1);
+        });
     });
 });
