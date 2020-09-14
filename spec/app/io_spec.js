@@ -202,7 +202,8 @@ describe('io', () => {
         // For now, it's not very feasible to test the handlers attached
         // Once all are broken out, change this to check each one
 
-        [{role: 'guest', expected_events: ['disconnect', 'Request_RecoverPassword']}].forEach(testCase => {
+        [{role: 'guest', expected_events: ['disconnect', 'Request_RecoverPassword']},
+         {role: 'admin', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange']}].forEach(testCase => {
             const {role, expected_events} = testCase;
             it(`should only attach relevant io handlers for ${role}s when the user's role is ${role}`, () => {
                     io.__set__('userCount', 0);
