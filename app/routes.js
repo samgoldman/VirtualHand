@@ -7,7 +7,6 @@ const HallPassRequest = require('./models/hallPassRequest').model;
 const AssistanceRequest = require('./models/assistanceRequest').model;
 const Token = require('./token_manager');
 const {isLoggedIn, isNotLoggedIn, isTeacher, isStudent} = require('./route_methods/route_middleware');
-const {handle_home} = require('./route_methods/route_handlers');
 
 const templates = {
 	student_home: './app/views/student/student_home.pug',
@@ -111,11 +110,7 @@ module.exports = function (app, passport) {
 		res.redirect('/');
 	});
 
-	app.get(['/', '/login'], isNotLoggedIn, function (req, res) {
-		res.send(renderFile(templates.login, {
-			message: req.flash('loginMessage')
-		}));
-	});
+	app.get(['/', '/login'], isNotLoggedIn, handle_login);
 
 	app.post('/login', isNotLoggedIn, passport.authenticate('local-login', {
 		successRedirect: '/home', // redirect to the secure home section
@@ -147,4 +142,18 @@ module.exports = function (app, passport) {
 		let readStream = fs.createReadStream(dingFilepath);
 		readStream.pipe(res);
 	});
+};
+
+const handle_home = (req, res) => {
+    if (req.user.role === 'teacher') {
+        res.redirect('/teacher/home');
+    } else if (req.user.role === 'student') {
+        res.redirect('/student/home');
+    }
+};
+
+const handle_login = (req, res) => {
+    res.send(renderFile(templates.login, {
+        message: req.flash('loginMessage')
+    }));
 };
