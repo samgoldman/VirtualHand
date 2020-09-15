@@ -1,6 +1,6 @@
 const { EXIT_CODE } = require('karma/lib/constants');
 const puppeteer = require('puppeteer');
-const server = require('../server');
+const server = require('../../server');
 
 describe('test', () => {
 
