@@ -1,6 +1,6 @@
 const passport_local = require('passport-local');
 const rewire = require('rewire');
-
+const User = require('../../app/models/user').model;
 const passport = rewire('../../app/passport');
 
 describe('passport', () => {
@@ -40,6 +40,31 @@ describe('passport', () => {
             expect(spy_use.calls.argsFor(0)[0]).toEqual('local-signup');
             expect(spy_use.calls.argsFor(1).length).toEqual(2);
             expect(spy_use.calls.argsFor(1)[0]).toEqual('local-login');
+        });
+    });
+
+    describe('>deserializeUser', () => {
+        let deserializeUser = null;
+
+        beforeEach(() => {
+            deserializeUser = passport.__get__('deserializeUser');
+        });
+
+        it('should be defined', () => {
+            expect(deserializeUser).toBeDefined();
+        });
+
+        it('to search for a user by id and call done with it', async () => {
+            const spy_findById = spyOn(User, 'findById').and.returnValue(new Promise(done => done('user_value')));
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+
+            expect(await deserializeUser('user_id', spy_done)).toBeUndefined();
+
+            expect(spy_findById.calls.count()).toEqual(1);
+            expect(spy_findById.calls.argsFor(0)).toEqual(['user_id']);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, 'user_value']);
         });
     });
 });
