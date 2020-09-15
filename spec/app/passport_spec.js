@@ -67,4 +67,25 @@ describe('passport', () => {
             expect(spy_done.calls.argsFor(0)).toEqual([null, 'user_value']);
         });
     });
+
+    describe('>serializeUser', () => {
+        let serializeUser = null;
+
+        beforeEach(() => {
+            serializeUser = passport.__get__('serializeUser');
+        });
+
+        it('should be defined', () => {
+            expect(serializeUser).toBeDefined();
+        });
+
+        it('should call done with the users ID', async () => {
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+
+            expect(await serializeUser({_id: 'test_user_id'}, spy_done)).toBeUndefined();
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, 'test_user_id']);
+        });
+    });
 });
