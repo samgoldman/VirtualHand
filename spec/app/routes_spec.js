@@ -272,8 +272,76 @@ describe('routes', () => {
             expect(spy_renderFile.calls.count()).toEqual(1);
             expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/password_recovery.pug', {token: 'token_value'}]);
 
+            expect(spy_getSocketToken.calls.count()).toEqual(1);
+            expect(spy_getSocketToken.calls.argsFor(0)).toEqual([null]);
+
             routes.__set__('renderFile', renderFile_original);
         });
     });
 
+    describe('>renderFile', () => {
+        const renderFile = routes.__get__('renderFile');
+
+        it('should be defined', () => {
+            expect(renderFile).toBeDefined();
+        });
+
+        it('should return the value from compiledTemplates if VH_ENV is not DEVELOPMENT', () => {
+            const compiledTemplates_original = routes.__get__('compiledTemplates');
+            const templates = {
+                val1: () => 'val2',
+                val3: () => 'val4' 
+            };
+
+            routes.__set__('compiledTemplates', templates);
+
+            const VH_ENV_original = process.env.VH_ENV;
+            process.env.VH_ENV = 'NOT_DEVELOPMENT';
+
+            const spy_renderFile_pug = spyOn(pug, 'renderFile').and.returnValue('val5');
+            const spy_val1 = spyOn(templates, 'val1').and.callThrough();
+            const spy_val3 = spyOn(templates, 'val3').and.callThrough();
+            
+            expect(renderFile('val1', 'random_data')).toEqual('val2');
+
+            expect(spy_renderFile_pug.calls.count()).toEqual(0);
+
+            expect(spy_val1.calls.count()).toEqual(1);
+            expect(spy_val1.calls.argsFor(0)).toEqual(['random_data']);
+
+            expect(spy_val3.calls.count()).toEqual(0);
+            
+            routes.__set__('compiledTemplates', compiledTemplates_original);
+            process.env.VH_ENV = VH_ENV_original;
+        });
+
+        it('should render the file fresh if VH_ENV is DEVELOPMENT', () => {
+            const compiledTemplates_original = routes.__get__('compiledTemplates');
+            const templates = {
+                val1: () => 'val2',
+                val3: () => 'val4' 
+            };
+
+            routes.__set__('compiledTemplates', templates);
+
+            const VH_ENV_original = process.env.VH_ENV;
+            process.env.VH_ENV = 'DEVELOPMENT';
+
+            const spy_renderFile_pug = spyOn(pug, 'renderFile').and.returnValue('val5');
+            const spy_val1 = spyOn(templates, 'val1').and.callThrough();
+            const spy_val3 = spyOn(templates, 'val3').and.callThrough();
+            
+            expect(renderFile('val1', 'random_data')).toEqual('val5');
+
+            expect(spy_renderFile_pug.calls.count()).toEqual(1);
+            expect(spy_renderFile_pug.calls.argsFor(0)).toEqual(['val1', 'random_data', undefined]);
+
+            expect(spy_val1.calls.count()).toEqual(0);
+
+            expect(spy_val3.calls.count()).toEqual(0);
+
+            routes.__set__('compiledTemplates', compiledTemplates_original);
+            process.env.VH_ENV = VH_ENV_original;
+        });
+    })
 });
