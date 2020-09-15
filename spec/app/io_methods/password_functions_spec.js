@@ -22,7 +22,6 @@ describe('Password Functions', () => {
 
 			const test_user = {
 				password: 'original_password',
-				generateHash: () => 'hashed_value',
 				save: () => {}
 			};
 
@@ -36,7 +35,7 @@ describe('Password Functions', () => {
 			const spy_exec = spyOn(mock_documentQuery, 'exec').and.callThrough();
 			const spy_generate = spyOn(randomstring, 'generate').and.returnValue('random_value');
 			const spy_save = spyOn(test_user, 'save').and.callThrough();
-			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+			const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 			expect(await recoverPassword(test_username, mock_transport, mock_callback_wrapper.callback)).toEqual(undefined);
 
@@ -70,7 +69,6 @@ describe('Password Functions', () => {
 			const test_user = {
 				password: 'original_password',
 				email: 'example@example.com',
-				generateHash: () => 'hashed_value',
 				save: () => {}
 			};
 
@@ -84,7 +82,7 @@ describe('Password Functions', () => {
 			const spy_exec = spyOn(mock_documentQuery, 'exec').and.callThrough();
 			const spy_generate = spyOn(randomstring, 'generate').and.returnValue('random_value');
 			const spy_save = spyOn(test_user, 'save').and.callThrough();
-			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+			const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 			expect(await recoverPassword(test_username, mock_transport, mock_callback_wrapper.callback)).toEqual(undefined);
 
@@ -130,7 +128,6 @@ describe('Password Functions', () => {
 
 			const test_user = {
 				password: 'original_password',
-				generateHash: () => 'hashed_value',
 				validPassword: () => {},
 				save: () => {}
 			};
@@ -139,7 +136,7 @@ describe('Password Functions', () => {
 			const spy_findById = spyOn(User, 'findById').and.returnValue(new Promise((done) => done(null)));
 			const spy_save = spyOn(test_user, 'save').and.callThrough();
 			const spy_validPassword = spyOn(test_user, 'validPassword').and.returnValue(false);
-			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+			const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 			expect(await changePassword(test_user_id, 'original_password', 'new_password', mock_callback_wrapper.callback)).toEqual(undefined);
 
@@ -167,7 +164,6 @@ describe('Password Functions', () => {
 
 			const test_user = {
 				password: 'original_password',
-				generateHash: () => 'hashed_value',
 				validPassword: () => {},
 				save: () => {}
 			};
@@ -176,7 +172,7 @@ describe('Password Functions', () => {
 			const spy_findById = spyOn(User, 'findById').and.returnValue(new Promise((done) => done(test_user)));
 			const spy_save = spyOn(test_user, 'save').and.callThrough();
 			const spy_validPassword = spyOn(test_user, 'validPassword').and.returnValue(false);
-			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+			const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 			expect(await changePassword(test_user_id, 'original_password', 'new_password', mock_callback_wrapper.callback)).toEqual(undefined);
 
@@ -206,7 +202,6 @@ describe('Password Functions', () => {
 
 			const test_user = {
 				password: 'original_password',
-				generateHash: () => 'hashed_value',
 				validPassword: () => {},
 				save: () => {}
 			};
@@ -215,7 +210,7 @@ describe('Password Functions', () => {
 			const spy_findById = spyOn(User, 'findById').and.returnValue(new Promise((done) => done(test_user)));
 			const spy_save = spyOn(test_user, 'save').and.callThrough();
 			const spy_validPassword = spyOn(test_user, 'validPassword').and.returnValue(true);
-			const spy_generateHash = spyOn(test_user, 'generateHash').and.callThrough();
+			const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 			expect(await changePassword(test_user_id, 'original_password', 'new_password', mock_callback_wrapper.callback)).toEqual(undefined);
 
@@ -259,7 +254,7 @@ describe('Password Functions', () => {
 				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value", "yet_another_value"])));
 				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+				const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_password');
 
 				const teacher_id = 'teacher_id_1';
 				const course_id = 'course_id_1';
@@ -303,7 +298,7 @@ describe('Password Functions', () => {
 				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value"])));
 				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+				const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 				const teacher_id = 'teacher_id_2';
 				const course_id = 'course_id_2';
@@ -345,7 +340,7 @@ describe('Password Functions', () => {
 				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["some_other_value"])));
 				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+				const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 				const teacher_id = 'teacher_id_3';
 				const course_id = 'course_id_3';
@@ -387,7 +382,7 @@ describe('Password Functions', () => {
 				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(undefined)));
 				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+				const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 				const teacher_id = 'teacher_id_4';
 				const course_id = 'course_id_4';
@@ -429,7 +424,7 @@ describe('Password Functions', () => {
 				const spy_enrollment_find = spyOn(Enrollment, 'find').and.returnValue(new Promise(done => done(["enrollment"])));
 				const spy_save = spyOn(student, 'save').and.returnValue(new Promise(done => done(undefined)));
 				const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
-				const spy_generateHash = spyOn(student, 'generateHash').and.returnValue('hashed_password');
+				const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_value');
 
 				const teacher_id = 'teacher_id_5';
 				const course_id = 'course_id_5';

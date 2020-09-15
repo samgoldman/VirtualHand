@@ -22,24 +22,18 @@ const deserializeUser = async (id, done) => {
 };
 
 const signupStrategy = async (req, username, password, done) => {
-	const user = await User.findOne({'username': username}).exec();
+	const user = await User.findOne({'username': username});
 
 	// Username is taken, do not continue
 	if (user)
 		return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
 
-	// Create the user
-	const newUser = new User();
-	newUser.username = username;
-	newUser.password = newUser.generateHash(password);
-	newUser.email = req.body.email;
-	newUser.role = req.body.role;
-	done(null, await newUser.save());
+	done(null, await User.create({username: username, password: User.generateHash(password), email: req.body.email, role: req.body.role}));
 };
 
 const loginStrategy = async (req, username, password, done) => {
 	try {
-		const user = await User.findOne({'username': username}).exec();
+		const user = await User.findOne({'username': username});
 		if (!user || !user.validPassword(password))
 			return done(null, false, req.flash('loginMessage', 'Incorrect credentials'));
 		done(null, await user.save());

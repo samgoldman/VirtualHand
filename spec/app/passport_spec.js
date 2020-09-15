@@ -1,3 +1,4 @@
+const { sign } = require('jsonwebtoken');
 const passport_local = require('passport-local');
 const rewire = require('rewire');
 const User = require('../../app/models/user').model;
@@ -86,6 +87,81 @@ describe('passport', () => {
 
             expect(spy_done.calls.count()).toEqual(1);
             expect(spy_done.calls.argsFor(0)).toEqual([null, 'test_user_id']);
+        });
+    });
+
+    describe('>signupStrategy', () => {
+        let signupStrategy = null;
+
+        beforeEach(() => {
+            signupStrategy = passport.__get__('signupStrategy');
+        });
+
+        it('should be defined', () => {
+            expect(signupStrategy).toBeDefined();
+        });
+
+        it('should not create a user if there is already a user with that username', async () => {
+            const mock_req = {
+                flash: () => 'flash_return_value',
+                body: {
+                    email: 'example@test.com',
+                    role: 'teacher'
+                }
+            };
+
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_findOne = spyOn(User, 'findOne').and.returnValue(new Promise(done => done('some_user')));
+            const spy_create = spyOn(User, 'create').and.returnValue(new Promise(done => done('create_return_value')));
+            const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_val');
+
+            expect(await signupStrategy(mock_req, 'test_username', 'test_pass', spy_done)).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, false, 'flash_return_value']);
+            
+            expect(spy_generateHash.calls.count()).toEqual(0);
+
+            expect(spy_flash.calls.count()).toEqual(1);
+            expect(spy_flash.calls.argsFor(0)).toEqual(['signupMessage', 'That username is already taken.']);
+
+            expect(spy_create.calls.count()).toEqual(0);
+        });
+        
+        it('should create a user if there is not already a user with that username', async () => {
+            const mock_req = {
+                flash: () => 'flash_return_value',
+                body: {
+                    email: 'example@test.com',
+                    role: 'teacher'
+                }
+            };
+
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_findOne = spyOn(User, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(User, 'create').and.returnValue(new Promise(done => done('create_return_value')));
+            const spy_generateHash = spyOn(User, 'generateHash').and.returnValue('hashed_val');
+
+            expect(await signupStrategy(mock_req, 'test_username', 'test_pass', spy_done)).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, 'create_return_value']);
+
+            expect(spy_flash.calls.count()).toEqual(0);
+
+            expect(spy_generateHash.calls.count()).toEqual(1);
+            expect(spy_generateHash.calls.argsFor(0)).toEqual(['test_pass']);
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0)).toEqual([{username: 'test_username', password: 'hashed_val', email: 'example@test.com', role: 'teacher'}]);
         });
     });
 });

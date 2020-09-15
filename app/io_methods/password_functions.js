@@ -11,7 +11,7 @@ const recoverPassword = async (username, transporter, done) => {
 	else {
 		// If all conditions are met, reset the password
 		const newPass = randomstring.generate(12);
-		user.password = user.generateHash(newPass);
+		user.password = User.generateHash(newPass);
 		await user.save();
 
 		const email_text = `Virtual Hand has received a request for your account's password to be reset. Your new password is: ${newPass} \nPlease change it right away.`;
@@ -35,7 +35,7 @@ const changePassword = async (userID, oldPassword, newPassword, done) => {
 	} else if (!user.validPassword(oldPassword)) {
 		result.message = 'Error: incorrect old password';
 	} else {
-		user.password = user.generateHash(newPassword);
+		user.password = User.generateHash(newPassword);
 		await user.save();
 		result.success = true;
 		result.message = 'Password changed successfully';
@@ -56,7 +56,7 @@ const changeStudentPassword = async (socket, teacher_id, course_id, student_id, 
 			message: 'Unable to change the students password!'
 		});
 	} else {
-		student.password = student.generateHash(password);
+		student.password = User.generateHash(password);
 		await student.save();
 		socket.emit('Response_ChangeStudentPassword', {
 			success: true,

@@ -22,7 +22,7 @@ function generateHash(password) {
 	return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 }
 
-userSchema.methods.generateHash = generateHash;
+userSchema.statics.generateHash = generateHash;
 
 // checking if password is valid
 userSchema.methods.validPassword = function (password) {

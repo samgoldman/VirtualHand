@@ -4,14 +4,12 @@ const bcrypt = require('bcrypt');
 describe('user', () => {
     describe('>generateHash', () => {
         it('should call bcrypt.hashSync with the given password and return the result', () => {
-            const testUser = User();
-            
-            expect(testUser.generateHash).toBeDefined();
+            expect(User.generateHash).toBeDefined();
 
             const spy_hashSync = spyOn(bcrypt, 'hashSync').and.returnValue('abc123');
             const spy_genSaltSync = spyOn(bcrypt, 'genSaltSync').and.returnValue('xyz789');
 
-            expect(testUser.generateHash('test_pass')).toEqual('abc123');
+            expect(User.generateHash('test_pass')).toEqual('abc123');
 
             expect(spy_hashSync.calls.count()).toEqual(1);
             expect(spy_hashSync.calls.argsFor(0).length).toEqual(2);
