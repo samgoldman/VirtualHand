@@ -121,13 +121,15 @@ module.exports = function (app, passport) {
 		failureFlash: true
 	}));
 
-	app.get('/recoverpassword', isNotLoggedIn, function (req, res) {
+	app.get('/recoverpassword', isNotLoggedIn, handle_recoverpassword);
+
+	app.get('/notification_audio', handle_notification_audio);
+};
+
+const handle_recoverpassword = (req, res) => {
 		res.send(renderFile(templates.password_recovery, {
 			token: Token.getSocketToken(null)
 		}));
-	});
-
-	app.get('/notification_audio', handle_notification_audio);
 };
 
 const handle_notification_audio = (req, res) => {

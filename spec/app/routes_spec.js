@@ -1,9 +1,9 @@
 const pug = require('pug');
 const fs = require('fs');
 const rewire = require('rewire');
-const passport = require('passport');
 const routes = rewire('../../app/routes.js');
 const path = require('path');
+const Token = require('../../app/token_manager');
 
 describe('routes', () => {
     describe('>main', () => {
@@ -243,5 +243,37 @@ describe('routes', () => {
             expect(spy_set.calls.count()).toEqual(1);
             expect(spy_set.calls.argsFor(0)).toEqual([{'Content-Type': 'audio/mpeg'}]);
         });
-    })
+    });
+
+    describe('>handle_recoverpassword', () => {
+        const handle_recoverpassword = routes.__get__('handle_recoverpassword');
+
+        it('should be defined', () => {
+            expect(handle_recoverpassword).toBeDefined();
+        });
+
+        it('should render the file with an empty token', () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_getSocketToken = spyOn(Token, 'getSocketToken').and.returnValue('token_value');
+
+            expect(handle_recoverpassword(undefined, mock_res)).toBeUndefined();
+
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/password_recovery.pug', {token: 'token_value'}]);
+
+            routes.__set__('renderFile', renderFile_original);
+        });
+    });
+
 });
