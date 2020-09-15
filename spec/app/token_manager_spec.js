@@ -20,7 +20,7 @@ describe("Token Manager", () => {
 			});
 			expect(spy_sign.calls.argsFor(0)[1]).toEqual('TEST_SECRET');
 			expect(spy_sign.calls.argsFor(0)[2]).toEqual({
-				expiresIn: 60 * 10
+				expiresIn: 60 * 100
 			});
 		});
 
@@ -40,7 +40,7 @@ describe("Token Manager", () => {
 			});
 			expect(spy_sign.calls.argsFor(0)[1]).toEqual('TEST_SECRET2');
 			expect(spy_sign.calls.argsFor(0)[2]).toEqual({
-				expiresIn: 60 * 10
+				expiresIn: 60 * 100
 			});
 		});
 	});

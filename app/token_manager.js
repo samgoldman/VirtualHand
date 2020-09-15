@@ -10,8 +10,9 @@ const getSocketToken = user => {
 		payload.role = 'guest';
 	}
 
-	// Expires in 10 minutes
-	return jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 10});
+	// Expires in 100 minutes
+	// TODO: shorten and implement refresh process
+	return jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 100});
 }
 
 const verifyToken = (token, callback) => {
