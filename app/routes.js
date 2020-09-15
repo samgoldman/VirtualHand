@@ -118,12 +118,7 @@ module.exports = function (app, passport) {
 		failureFlash: true
 	}));
 
-	app.get('/signup', isNotLoggedIn, function (req, res) {
-		// render the page and pass in any flash data if it exists
-		res.send(renderFile(templates.signup, {
-			message: req.flash('signupMessage')
-		}));
-	});
+	app.get('/signup', isNotLoggedIn, handle_signup_get);
 
 	app.post('/signup', isNotLoggedIn, passport.authenticate('local-signup', {
 		successRedirect: '/home', // redirect to the secure home section
@@ -157,3 +152,10 @@ const handle_login = (req, res) => {
         message: req.flash('loginMessage')
     }));
 };
+
+const handle_signup_get = (req, res) => {
+	// render the page and pass in any flash data if it exists
+	res.send(renderFile(templates.signup, {
+		message: req.flash('signupMessage')
+	}));
+}

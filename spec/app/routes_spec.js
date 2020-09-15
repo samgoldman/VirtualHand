@@ -139,4 +139,42 @@ describe('routes', () => {
         });
     });
 
+    describe('>handle_signup_get', () => {
+        const handle_signup_get = routes.__get__('handle_signup_get');
+
+        it('should be defined', () => {
+            expect(handle_signup_get).toBeDefined();
+        });
+
+        it('should render the template with the flash message and send it', () => {
+            const mock_req = {
+                flash: () => 'flash_message'
+            };
+
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+
+            expect(handle_signup_get(mock_req, mock_res)).toBeUndefined();
+
+            expect(spy_flash.calls.count()).toEqual(1);
+            expect(spy_flash.calls.argsFor(0)).toEqual(['signupMessage']);
+
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/signup.pug', {message: 'flash_message'}]);
+
+            routes.__set__('renderFile', renderFile_original);
+        });
+    });
+
 });
