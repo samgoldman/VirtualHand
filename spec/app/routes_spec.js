@@ -3,6 +3,7 @@ const fs = require('fs');
 const rewire = require('rewire');
 const passport = require('passport');
 const routes = rewire('../../app/routes.js');
+const path = require('path');
 
 describe('routes', () => {
     describe('>main', () => {
@@ -205,4 +206,42 @@ describe('routes', () => {
             expect(spy_redirect.calls.argsFor(0)).toEqual(['/']);
         });
     });
+
+    describe('>handle_notification_audio', () => {
+        const handle_notification_audio = routes.__get__('handle_notification_audio');
+
+        it('should be defined', () => {
+            expect(handle_notification_audio).toBeDefined();
+        });
+
+        it('should set the content type and stream the audio', () => {
+            const mock_res = {
+                set: () => undefined
+            };
+
+            const mock_stream = {
+                pipe: () => undefined
+            };
+
+            const spy_join = spyOn(path, 'join').and.returnValue('joined_path');
+            const spy_createReadStream = spyOn(fs, 'createReadStream').and.returnValue(mock_stream);
+            const spy_pipe = spyOn(mock_stream, 'pipe').and.returnValue(undefined);
+            const spy_set = spyOn(mock_res, 'set').and.returnValue(undefined);
+
+            expect(handle_notification_audio(undefined, mock_res)).toBeUndefined();
+
+            expect(spy_join.calls.count()).toEqual(1);
+            expect(spy_join.calls.argsFor(0).length).toEqual(2);
+            expect(spy_join.calls.argsFor(0)[1]).toEqual('../client/static/ding.wav');
+
+            expect(spy_createReadStream.calls.count()).toEqual(1);
+            expect(spy_createReadStream.calls.argsFor(0)).toEqual(['joined_path']);
+
+            expect(spy_pipe.calls.count()).toEqual(1);
+            expect(spy_pipe.calls.argsFor(0)).toEqual([mock_res]);
+
+            expect(spy_set.calls.count()).toEqual(1);
+            expect(spy_set.calls.argsFor(0)).toEqual([{'Content-Type': 'audio/mpeg'}]);
+        });
+    })
 });

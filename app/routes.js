@@ -30,8 +30,6 @@ function renderFile(filename, data) {
 }
 
 module.exports = function (app, passport) {
-	const dingFilepath = path.join(__dirname + '/../client/static/ding.wav');
-	
 	fs.writeFileSync('./app/views/teacher/modules/hall_pass_list_item_template_compiled.js', pug.compileFileClient('./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: "listItemTemplate"}));
 	Object.keys(templates).map(k => templates[k]).map((val) => {compiledTemplates[val] = pug.compileFile(val, undefined)});
 
@@ -129,11 +127,12 @@ module.exports = function (app, passport) {
 		}));
 	});
 
-	app.get('/notification_audio', function (req, res) {
-		res.set({'Content-Type': 'audio/mpeg'});
-		let readStream = fs.createReadStream(dingFilepath);
-		readStream.pipe(res);
-	});
+	app.get('/notification_audio', handle_notification_audio);
+};
+
+const handle_notification_audio = (req, res) => {
+	res.set({'Content-Type': 'audio/mpeg'});
+	fs.createReadStream(path.join(__dirname, '../client/static/ding.wav')).pipe(res);
 };
 
 const handle_home = (req, res) => {
