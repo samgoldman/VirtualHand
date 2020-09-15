@@ -105,10 +105,7 @@ module.exports = function (app, passport) {
 			});
 	});
 
-	app.get('/logout', isLoggedIn, function (req, res) {
-		req.logout();
-		res.redirect('/');
-	});
+	app.get('/logout', isLoggedIn, handle_logout);
 
 	app.get(['/', '/login'], isNotLoggedIn, handle_login);
 
@@ -158,4 +155,10 @@ const handle_signup_get = (req, res) => {
 	res.send(renderFile(templates.signup, {
 		message: req.flash('signupMessage')
 	}));
-}
+};
+
+const handle_logout = (req, res) => {
+	req.logout();
+	res.redirect('/');
+};
+

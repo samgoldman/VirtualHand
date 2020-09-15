@@ -176,5 +176,33 @@ describe('routes', () => {
             routes.__set__('renderFile', renderFile_original);
         });
     });
+    
+    describe('>handle_logout', () => {
+        const handle_logout = routes.__get__('handle_logout');
 
+        it('should be defined', () => {
+            expect(handle_logout).toBeDefined();
+        });
+
+        it('should log the user out and redirect the user home', () => {
+            const mock_req = {
+                logout: () => undefined
+            };
+
+            const mock_res = {
+                redirect: () => undefined
+            };
+
+            const spy_logout = spyOn(mock_req, 'logout').and.callThrough();
+            const spy_redirect = spyOn(mock_res, 'redirect').and.callThrough();
+
+            expect(handle_logout(mock_req, mock_res)).toBeUndefined();
+
+            expect(spy_logout.calls.count()).toEqual(1);
+            expect(spy_logout.calls.argsFor(0)).toEqual([]);
+            
+            expect(spy_redirect.calls.count()).toEqual(1);
+            expect(spy_redirect.calls.argsFor(0)).toEqual(['/']);
+        });
+    });
 });
