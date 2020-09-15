@@ -164,4 +164,114 @@ describe('passport', () => {
             expect(spy_create.calls.argsFor(0)).toEqual([{username: 'test_username', password: 'hashed_val', email: 'example@test.com', role: 'teacher'}]);
         });
     });
+
+    describe('>loginStrategy', () => {
+        let loginStrategy = null;
+
+        beforeEach(() => {
+            loginStrategy = passport.__get__('loginStrategy');
+        });
+
+        it('should be defined', () => {
+            expect(loginStrategy).toBeDefined();
+        });
+
+        it('should allow the user to login if the user is found and the password is valid', async () => {
+            const mock_user = {
+                validPassword: () => undefined,
+                save: () => undefined
+            };
+
+            const mock_req = {
+                flash: () => 'flash_return_value'
+            };
+
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+            const spy_validPassword = spyOn(mock_user, 'validPassword').and.returnValue(true);
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_findOne = spyOn(User, 'findOne').and.returnValue(mock_user);
+            const spy_save = spyOn(mock_user, 'save').and.returnValue(new Promise(done => done('save_return_value')));
+
+            expect(await loginStrategy(mock_req, 'test_username', 'test_password', spy_done)).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
+
+            expect(spy_validPassword.calls.count()).toEqual(1);
+            expect(spy_validPassword.calls.argsFor(0)).toEqual(['test_password']);
+
+            expect(spy_flash.calls.count()).toEqual(0);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, 'save_return_value']);
+
+            expect(spy_save.calls.count()).toEqual(1);
+            expect(spy_save.calls.argsFor(0)).toEqual([]);
+        });
+
+        it('should not allow the user to login if the user is not found', async () => {
+            const mock_user = {
+                validPassword: () => undefined,
+                save: () => undefined
+            };
+
+            const mock_req = {
+                flash: () => 'flash_return_value'
+            };
+
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+            const spy_validPassword = spyOn(mock_user, 'validPassword').and.returnValue(true);
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_findOne = spyOn(User, 'findOne').and.returnValue(undefined);
+            const spy_save = spyOn(mock_user, 'save').and.returnValue(new Promise(done => done('save_return_value')));
+
+            expect(await loginStrategy(mock_req, 'test_username', 'test_password', spy_done)).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
+
+            expect(spy_validPassword.calls.count()).toEqual(0);
+
+            expect(spy_flash.calls.count()).toEqual(1);
+            expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, false, 'flash_return_value']);
+
+            expect(spy_save.calls.count()).toEqual(0);
+        });
+
+        it('should not allow the user to login if the password is not valid', async () => {
+            const mock_user = {
+                validPassword: () => undefined,
+                save: () => undefined
+            };
+
+            const mock_req = {
+                flash: () => 'flash_return_value'
+            };
+
+            const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
+            const spy_validPassword = spyOn(mock_user, 'validPassword').and.returnValue(false);
+            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
+            const spy_findOne = spyOn(User, 'findOne').and.returnValue(mock_user);
+            const spy_save = spyOn(mock_user, 'save').and.returnValue(new Promise(done => done('save_return_value')));
+
+            expect(await loginStrategy(mock_req, 'test_username', 'test_password', spy_done)).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
+
+            expect(spy_validPassword.calls.count()).toEqual(1);
+            expect(spy_validPassword.calls.argsFor(0)).toEqual(['test_password']);
+
+            expect(spy_flash.calls.count()).toEqual(1);
+            expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
+
+            expect(spy_done.calls.count()).toEqual(1);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, false, 'flash_return_value']);
+
+            expect(spy_save.calls.count()).toEqual(0);
+        });
+    });
 });

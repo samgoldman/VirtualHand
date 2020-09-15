@@ -32,14 +32,11 @@ const signupStrategy = async (req, username, password, done) => {
 };
 
 const loginStrategy = async (req, username, password, done) => {
-	try {
-		const user = await User.findOne({'username': username});
-		if (!user || !user.validPassword(password))
-			return done(null, false, req.flash('loginMessage', 'Incorrect credentials'));
+	const user = await User.findOne({'username': username});
+	if (!user || !user.validPassword(password))
+		done(null, false, req.flash('loginMessage', 'Incorrect credentials'));
+	else
 		done(null, await user.save());
-	} catch (err) {
-		done(err);
-	}
 };
 
 // expose this function to our app using module.exports
