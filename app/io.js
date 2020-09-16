@@ -6,12 +6,12 @@ const Course = require(MODEL_PATH + 'course').model;
 const AssistanceRequest = require(MODEL_PATH + 'assistanceRequest').model;
 const HallPassRequest = require(MODEL_PATH + 'hallPassRequest').model;
 const nodemailer = require('nodemailer');
-const Promise = require('bluebird');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
 const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest} = require('./io_methods/assistance_functions');
+const {addStudent, addStudents} = require('./io_methods/student_functions');
 
 let global_io = null;
 let userCount = 0;
@@ -93,34 +93,6 @@ function getRandomStudent(socket, cid) {
 		.then(function (enrollment) {
 			if (enrollment)
 				socket.emit('Response_RandomStudent', {'randomStudentName': enrollment.student.username});
-		});
-}
-
-function addStudent(student) {
-	return User.findOrCreate(student.username, student.password)
-		.then(function (user) {
-			user.role = 'student';
-			user.save();
-			return Enrollment.findOrCreate(student.cid, user._id, true);
-		})
-		.then(function () {
-			return User.find({username: student.username});
-		});
-}
-
-function addStudents(socket, cid, csv, defaultPassword) {
-	let csvSplit = csv.split(',');
-	let newStudents = [];
-	csvSplit.map((username) => {
-		newStudents.push({username: username, cid: cid, password: defaultPassword})
-	});
-
-	Promise.map(newStudents, addStudent)
-		.then(function () {
-			socket.emit('Response_AddStudents', {
-				success: true,
-				message: 'Students successfully added to the class.'
-			});
 		});
 }
 
