@@ -1,6 +1,5 @@
 // Load the models
 const MODEL_PATH = './models/';
-const User = require(MODEL_PATH + 'user').model;
 const Enrollment = require(MODEL_PATH + 'enrollment').model;
 const Course = require(MODEL_PATH + 'course').model;
 const AssistanceRequest = require(MODEL_PATH + 'assistanceRequest').model;
