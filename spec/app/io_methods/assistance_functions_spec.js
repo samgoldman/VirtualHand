@@ -1,5 +1,5 @@
 const AssistanceRequest = require('../../../app/models/assistanceRequest').model;
-const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest} = require('../../../app/io_methods/assistance_functions');
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest} = require('../../../app/io_methods/assistance_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 describe('assistance_functions', () => {
@@ -58,6 +58,44 @@ describe('assistance_functions', () => {
 
             expect(spy_now.calls.count()).toEqual(1);
             expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
+    });
+
+    describe('>initiateAssistanceRequest', () => {
+        it('should be defined', () => {
+            expect(initiateAssistanceRequest).toBeDefined();
+        });
+
+        it('should create a new assistance request and broadcast the change notification if one does not already exist', async () => {
+            const spy_findOne = spyOn(AssistanceRequest, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_create = spyOn(AssistanceRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+
+            expect(await initiateAssistanceRequest('test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{student: 'test_uid', course: 'test_cid', resolved: false}]);
+
+            expect(spy_create.calls.count()).toEqual(1);
+            expect(spy_create.calls.argsFor(0)).toEqual([{student: 'test_uid', course: 'test_cid', resolved: false}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_AssistanceRequestModified', null]);
+        });
+
+        it('should do nothing if an unresolved request already exists', async () => {
+            const spy_findOne = spyOn(AssistanceRequest, 'findOne').and.returnValue(new Promise(done => done('some_value')));
+            const spy_create = spyOn(AssistanceRequest, 'create').and.returnValue(new Promise(done => done(undefined)));
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+
+            expect(await initiateAssistanceRequest('test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{student: 'test_uid', course: 'test_cid', resolved: false}]);
+
+            expect(spy_create.calls.count()).toEqual(0);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(0);
         });
     });
 });
