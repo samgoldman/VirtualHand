@@ -11,7 +11,7 @@ const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
-const {sendAssistanceRequestStatus} = require('./io_methods/assistance_functions');
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest} = require('./io_methods/assistance_functions');
 
 let global_io = null;
 let userCount = 0;
@@ -153,14 +153,6 @@ function retrieveAssistanceRequests(socket, cids) {
 		.populate('student')
 		.then(function (requests) {
 			socket.emit('Response_RetrieveAssistanceRequests', {requests: requests});
-		});
-}
-
-function teacherResolveAssistanceRequest(arid) {
-	AssistanceRequest.findById(arid)
-		.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
-		.then(function () {
-			global_io.emit('Broadcast_AssistanceRequestModified');
 		});
 }
 
