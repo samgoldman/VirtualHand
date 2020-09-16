@@ -36,31 +36,9 @@ module.exports = function (app, passport) {
 
 	app.get('/home', isLoggedIn, handle_home);
 
-	app.get('/teacher/home', isLoggedIn, isTeacher, function(req, res) {
-		Course.taughtBy(req.user._id)
-			.then(function (courses) {
-				const renderData = {
-					user: req.user,
-					courses: courses,
-					token: Token.getSocketToken(req.user)
-				};
+	app.get('/teacher/home', isLoggedIn, isTeacher, handle_teacher_home);
 
-				res.send(renderFile(templates.teacher_home, renderData));
-			});
-	});
-
-	app.get('/teacher/hallpass', isLoggedIn, isTeacher, function(req, res) {
-		Course.taughtBy(req.user._id)
-			.then(function (courses) {
-				const renderData = {
-					user: req.user,
-					courses: courses,
-					token: Token.getSocketToken(req.user)
-				};
-
-				res.send(renderFile(templates.teacher_hall_pass, renderData));
-			});
-	});
+	app.get('/teacher/hallpass', isLoggedIn, isTeacher, handle_teacher_hallpass);
 
 	app.get('/teacher/history/hallpass/:cid', isLoggedIn, isTeacher, function(req, res) {
 		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
@@ -126,10 +104,28 @@ module.exports = function (app, passport) {
 	app.get('/notification_audio', handle_notification_audio);
 };
 
+const get_teacher_data = async (user) => {
+	const courses = await Course.taughtBy(user._id);
+
+	return {
+		user: user,
+		courses: courses,
+		token: Token.getSocketToken(user)
+	};
+};
+
+const handle_teacher_home = async (req, res) => {
+	res.send(renderFile(templates.teacher_home, await get_teacher_data(req.user)));
+};
+
+const handle_teacher_hallpass = async (req, res) => {
+	res.send(renderFile(templates.teacher_hall_pass, await get_teacher_data(req.user)));
+};
+
 const handle_recoverpassword = (req, res) => {
-		res.send(renderFile(templates.password_recovery, {
-			token: Token.getSocketToken(null)
-		}));
+	res.send(renderFile(templates.password_recovery, {
+		token: Token.getSocketToken(null)
+	}));
 };
 
 const handle_notification_audio = (req, res) => {

@@ -4,6 +4,7 @@ const rewire = require('rewire');
 const routes = rewire('../../app/routes.js');
 const path = require('path');
 const Token = require('../../app/token_manager');
+const Course = require('../../app/models/course').model;
 
 describe('routes', () => {
     describe('>main', () => {
@@ -343,5 +344,118 @@ describe('routes', () => {
             routes.__set__('compiledTemplates', compiledTemplates_original);
             process.env.VH_ENV = VH_ENV_original;
         });
-    })
+    });
+
+    describe('>get_teacher_data', () => {
+        const get_teacher_data = routes.__get__('get_teacher_data');
+
+        it('should be defined', () => {
+            expect(get_teacher_data).toBeDefined();
+        });
+
+        it('should retrieve the teacher\'s courses and a token and return the data', async () => {
+            const mock_user = {
+                _id: 'user_id'
+            };
+
+            const spy_taughtBy = spyOn(Course, 'taughtBy').and.returnValue(new Promise(done => done('taughtBy_return_value')));
+            const spy_getSocketToken = spyOn(Token, 'getSocketToken').and.returnValue('token_value');
+
+            expect(await get_teacher_data(mock_user)).toEqual({
+                user: mock_user,
+                courses: 'taughtBy_return_value',
+                token: 'token_value'
+            });
+
+            expect(spy_taughtBy.calls.count()).toEqual(1);
+            expect(spy_taughtBy.calls.argsFor(0)).toEqual(['user_id']);
+
+            expect(spy_getSocketToken.calls.count()).toEqual(1);
+            expect(spy_getSocketToken.calls.argsFor(0)).toEqual([mock_user]);
+
+            expect(mock_user._id).toEqual('user_id'); // Just make sure it hasn't changed
+        });
+    });
+
+    describe('>handle_teacher_home', () => {
+        const handle_teacher_home = routes.__get__('handle_teacher_home');
+
+        it('should be defined', () => {
+            expect(handle_teacher_home).toBeDefined();
+        });
+
+        it('should render and send the pug file', async () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const mock_req = {
+                user: 'user_value'
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+            const get_teacher_data_original = routes.__get__('get_teacher_data');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_get_teacher_data = jasmine.createSpy('get_teacher_home').and.returnValue(new Promise(done => done('teacher_data')));
+            routes.__set__('get_teacher_data', spy_get_teacher_data);
+
+            expect(await handle_teacher_home(mock_req, mock_res)).toBeUndefined();
+            
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/teacher/teacher_home.pug', 'teacher_data']);
+           
+            expect(spy_get_teacher_data.calls.count()).toEqual(1);
+            expect(spy_get_teacher_data.calls.argsFor(0)).toEqual([mock_req.user]);
+
+            routes.__set__('renderFile', renderFile_original);
+            routes.__set__('get_teacher_data', get_teacher_data_original);
+        });
+    });
+
+    describe('>handle_teacher_hallpass', () => {
+        const handle_teacher_hallpass = routes.__get__('handle_teacher_hallpass');
+
+        it('should be defined', () => {
+            expect(handle_teacher_hallpass).toBeDefined();
+        });
+
+        it('should render and send the pug file', async () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const mock_req = {
+                user: 'user_value'
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+            const get_teacher_data_original = routes.__get__('get_teacher_data');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_get_teacher_data = jasmine.createSpy('get_teacher_home').and.returnValue(new Promise(done => done('teacher_data')));
+            routes.__set__('get_teacher_data', spy_get_teacher_data);
+
+            expect(await handle_teacher_hallpass(mock_req, mock_res)).toBeUndefined();
+            
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/teacher/teacher_hall_pass.pug', 'teacher_data']);
+           
+            expect(spy_get_teacher_data.calls.count()).toEqual(1);
+            expect(spy_get_teacher_data.calls.argsFor(0)).toEqual([mock_req.user]);
+
+            routes.__set__('renderFile', renderFile_original);
+            routes.__set__('get_teacher_data', get_teacher_data_original);
+        });
+    });
 });
