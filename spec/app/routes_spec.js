@@ -5,6 +5,9 @@ const routes = rewire('../../app/routes.js');
 const path = require('path');
 const Token = require('../../app/token_manager');
 const Course = require('../../app/models/course').model;
+const AssistanceRequest = require('../../app/models/assistanceRequest').model;
+const HallPassRequest = require('../../app/models/hallPassRequest').model;
+const Enrollment = require('../../app/models/enrollment').model;
 
 describe('routes', () => {
     describe('>main', () => {
@@ -456,6 +459,176 @@ describe('routes', () => {
 
             routes.__set__('renderFile', renderFile_original);
             routes.__set__('get_teacher_data', get_teacher_data_original);
+        });
+    });
+
+    describe('>handle_teacher_hallpass_history', () => {
+        const handle_teacher_hallpass_history = routes.__get__('handle_teacher_hallpass_history');
+
+        it('should be defined', () => {
+            expect(handle_teacher_hallpass_history).toBeDefined();
+        });
+
+        it('should render and send the pug file', async () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const mock_req = {
+                user: {_id: 'user_id'},
+                params: {cid: 'course_id'}
+            };
+
+            const mock_documentQuery = {
+                populate: () => new Promise(done => done('populate_results'))
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined))); 
+            const spy_find = spyOn(HallPassRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_getSocketToken = spyOn(Token, 'getSocketToken').and.returnValue('token_value');
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+
+            expect(await handle_teacher_hallpass_history(mock_req, mock_res)).toBeUndefined();
+            
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/teacher/teacher_history_hall_pass.pug', {
+                user: {_id: 'user_id'},
+                requests: 'populate_results',
+                token: 'token_value'}]);
+            
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['course_id', 'user_id']);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'course_id'}]);
+
+            expect(spy_getSocketToken.calls.count()).toEqual(1);
+            expect(spy_getSocketToken.calls.argsFor(0)).toEqual([{_id: 'user_id'}]);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+            routes.__set__('renderFile', renderFile_original);
+        });
+    });
+
+    describe('>handle_teacher_assistance_request_history', () => {
+        const handle_teacher_assistance_request_history = routes.__get__('handle_teacher_assistance_request_history');
+
+        it('should be defined', () => {
+            expect(handle_teacher_assistance_request_history).toBeDefined();
+        });
+
+        it('should render and send the pug file', async () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const mock_req = {
+                user: {_id: 'user_id'},
+                params: {cid: 'course_id'}
+            };
+
+            const mock_documentQuery = {
+                populate: () => new Promise(done => done('populate_results'))
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined))); 
+            const spy_find = spyOn(AssistanceRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_getSocketToken = spyOn(Token, 'getSocketToken').and.returnValue('token_value');
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+
+            expect(await handle_teacher_assistance_request_history(mock_req, mock_res)).toBeUndefined();
+            
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/teacher/teacher_history_assistance_request.pug', {
+                user: {_id: 'user_id'},
+                requests: 'populate_results',
+                token: 'token_value'}]);
+            
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['course_id', 'user_id']);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'course_id'}]);
+
+            expect(spy_getSocketToken.calls.count()).toEqual(1);
+            expect(spy_getSocketToken.calls.argsFor(0)).toEqual([{_id: 'user_id'}]);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+            routes.__set__('renderFile', renderFile_original);
+        });
+    });
+
+    describe('>handle_student_home', () => {
+        const handle_student_home = routes.__get__('handle_student_home');
+
+        it('should be defined', () => {
+            expect(handle_student_home).toBeDefined();
+        });
+
+        it('should render and send the pug file', async () => {
+            const mock_res = {
+                send: () => undefined
+            };
+
+            const mock_req = {
+                user: {_id: 'user_id'},
+                params: {cid: 'course_id'}
+            };
+
+            const mock_documentQuery = {
+                populate: () => new Promise(done => done('populate_results'))
+            };
+
+            const renderFile_original = routes.__get__('renderFile');
+
+            const spy_send = spyOn(mock_res, 'send').and.callThrough();
+            const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
+            routes.__set__('renderFile', spy_renderFile);
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+            const spy_getSocketToken = spyOn(Token, 'getSocketToken').and.returnValue('token_value');
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+
+            expect(await handle_student_home(mock_req, mock_res)).toBeUndefined();
+            
+            expect(spy_send.calls.count()).toEqual(1);
+            expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
+
+            expect(spy_renderFile.calls.count()).toEqual(1);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/student/student_home.pug', {
+                user: {_id: 'user_id'},
+                enrollments: 'populate_results',
+                token: 'token_value'}]);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{student: 'user_id', valid: true, admitted: true}]);
+
+            expect(spy_getSocketToken.calls.count()).toEqual(1);
+            expect(spy_getSocketToken.calls.argsFor(0)).toEqual([{_id: 'user_id'}]);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['course']);
+
+            routes.__set__('renderFile', renderFile_original);
         });
     });
 });

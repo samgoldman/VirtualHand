@@ -40,46 +40,11 @@ module.exports = function (app, passport) {
 
 	app.get('/teacher/hallpass', isLoggedIn, isTeacher, handle_teacher_hallpass);
 
-	app.get('/teacher/history/hallpass/:cid', isLoggedIn, isTeacher, function(req, res) {
-		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
-			.then(() => {return HallPassRequest.find({course: req.params.cid}).populate('student')})
-			.then(function(requests) {
-				let renderData = {
-					user: req.user,
-					requests: requests,
-					token: Token.getSocketToken(req.user)
-				};
+	app.get('/teacher/history/hallpass/:cid', isLoggedIn, isTeacher, handle_teacher_hallpass_history);
 
-				res.send(renderFile(templates.teacher_hall_pass_history, renderData));
-			});
-	});
+	app.get('/teacher/history/assistancerequest/:cid', isLoggedIn, isTeacher, handle_teacher_assistance_request_history);
 
-	app.get('/teacher/history/assistancerequest/:cid', isLoggedIn, isTeacher, function(req, res) {
-		Course.verifyCourseTaughtBy(req.params.cid, req.user._id)
-			.then(() => {return AssistanceRequest.find({course: req.params.cid}).populate('student')})
-			.then(function(requests) {
-				const renderData = {
-					user: req.user,
-					requests: requests,
-					token: Token.getSocketToken(req.user)
-				};
-
-				res.send(renderFile(templates.teacher_assistance_request_history, renderData));
-			});
-	});
-
-	app.get('/student/home', isLoggedIn, isStudent, function(req, res) {
-		Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course')
-			.then(function (enrollments) {
-				const renderData = {
-					user: req.user,
-					enrollments: enrollments,
-					token: Token.getSocketToken(req.user)
-				};
-
-				res.send(renderFile(templates.student_home, renderData));
-			});
-	});
+	app.get('/student/home', isLoggedIn, isStudent, handle_student_home);
 
 	app.get('/logout', isLoggedIn, handle_logout);
 
@@ -105,11 +70,9 @@ module.exports = function (app, passport) {
 };
 
 const get_teacher_data = async (user) => {
-	const courses = await Course.taughtBy(user._id);
-
 	return {
 		user: user,
-		courses: courses,
+		courses: await Course.taughtBy(user._id),
 		token: Token.getSocketToken(user)
 	};
 };
@@ -159,3 +122,30 @@ const handle_logout = (req, res) => {
 	res.redirect('/');
 };
 
+const handle_teacher_hallpass_history = async (req, res) => {
+	await Course.verifyCourseTaughtBy(req.params.cid, req.user._id);
+	
+	res.send(renderFile(templates.teacher_hall_pass_history, {
+		user: req.user,
+		requests: await HallPassRequest.find({course: req.params.cid}).populate('student'),
+		token: Token.getSocketToken(req.user)
+	}));
+};
+
+const handle_teacher_assistance_request_history = async (req, res) => {
+	await Course.verifyCourseTaughtBy(req.params.cid, req.user._id);
+	
+	res.send(renderFile(templates.teacher_assistance_request_history, {
+		user: req.user,
+		requests: await AssistanceRequest.find({course: req.params.cid}).populate('student'),
+		token: Token.getSocketToken(req.user)
+	}));
+};
+
+const handle_student_home = async (req, res) => {
+	res.send(renderFile(templates.student_home, {
+		user: req.user,
+		enrollments: await Enrollment.find({student: req.user._id, valid: true, admitted: true}).populate('course'),
+		token: Token.getSocketToken(req.user)
+	}));
+};
