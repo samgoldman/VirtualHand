@@ -10,7 +10,7 @@ const {recoverPassword, changePassword, changeStudentPassword} = require("./io_m
 const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('./io_methods/course_functions');
 const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
 const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest} = require('./io_methods/assistance_functions');
-const {addStudent, addStudents} = require('./io_methods/student_functions');
+const {addStudent, addStudents, getRandomStudent} = require('./io_methods/student_functions');
 
 let global_io = null;
 let userCount = 0;
@@ -79,21 +79,6 @@ const route_connection = socket => {
 		socket.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 	}
 };
-
-function getRandomStudent(socket, cid) {
-	Enrollment.count({course: cid, valid: true, admitted: true})
-		.then(function (count) {
-			return Enrollment.findOne({
-				course: cid,
-				valid: true,
-				admitted: true
-			}).skip(Math.floor(Math.random() * count)).populate('student');
-		})
-		.then(function (enrollment) {
-			if (enrollment)
-				socket.emit('Response_RandomStudent', {'randomStudentName': enrollment.student.username});
-		});
-}
 
 function resolveAssistanceRequestByStudentAndClass(uid, cid) {
 	AssistanceRequest.find({student: uid, course: cid, resolved: false})

@@ -22,7 +22,14 @@ const addStudents = async (socket, cid, csv, defaultPassword) => {
 	});
 };
 
+// TODO: handle empty enrollments
+const getRandomStudent = async (socket, cid) => {
+	const enrollments = await Enrollment.find({course: cid, valid: true, admitted: true}).populate('student');
+	socket.emit('Response_RandomStudent', {'randomStudentName': enrollments[Math.floor(Math.random() * enrollments.length)].student.username});
+};
+
 module.exports = {
     addStudent: addStudent,
-    addStudents: addStudents
+	addStudents: addStudents,
+	getRandomStudent: getRandomStudent
 };

@@ -71,4 +71,49 @@ describe('student_functions', () => {
             });
         });
     });
+
+    describe('>getRandomStudent', () => {
+        it('should be defined', () => {
+            expect(student_functions.getRandomStudent).toBeDefined();
+        });
+
+        [{usernames: ['s1'], random: 0, expected: 's1'},
+         {usernames: ['s1'], random: .99, expected: 's1'},
+         {usernames: ['s1', 's2'], random: .15, expected: 's1'},
+         {usernames: ['s1', 's2'], random: .5, expected: 's2'}].forEach(testCase => {
+            const {usernames, random, expected} = testCase;
+            it(`should respond with ${expected} when ${usernames} are enrolled and ${random} is the random value`, async () => {
+                const enrollments = usernames.map(username => {
+                    return {student: {username: username}}
+                });
+
+                const mock_documentQuery = {
+                    populate: () => new Promise(done => done(enrollments))
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+
+                const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+                const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+                const spy_random = spyOn(Math, 'random').and.returnValue(random);
+                const spy_emit = spyOn(mock_socket, 'emit');
+
+                expect(await student_functions.getRandomStudent(mock_socket, 'test_cid')).toBeUndefined();
+
+                expect(spy_find.calls.count()).toEqual(1);
+                expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', valid: true, admitted: true}]);
+
+                expect(spy_populate.calls.count()).toEqual(1);
+                expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+                expect(spy_random.calls.count()).toEqual(1);
+                expect(spy_random.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RandomStudent', {'randomStudentName': expected}]);
+            });
+         });
+    });
 });
