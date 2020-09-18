@@ -64,7 +64,7 @@ const removeAllStudentsFromCourse = async (socket, uid, cid) => {
 		await Enrollment.find({course: cid, valid: true}).updateMany({valid: false});
 		socket.emit('Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'});
 	} catch (err) {
-		socket.emit('Request_RemoveAllStudents', {success: false, message: err.message});
+		socket.emit('Response_RemoveAllStudents', {success: false, message: err.message});
 	}
 };
 

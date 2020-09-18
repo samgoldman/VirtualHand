@@ -264,4 +264,66 @@ describe('student_functions', () => {
             expect(spy_emit.calls.argsFor(0)).toEqual(['Response_EnrollStudent', {success: true, message: 'Enrolled successfully: your teacher must now admit you into the class.'}]);
         });
     });
+
+    describe('>removeAllStudentsFromCourse', () => {
+        it('should be defined', () => {
+            expect(removeAllStudentsFromCourse).toBeDefined();
+        });
+
+        it('should not remove students if the course is not taught by the user', async () => {
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const mock_documentQuery = {
+                updateMany: () => new Promise(done => done(undefined))
+            };
+
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.throwError('error_message_not_taught');
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+            const spy_updateMany = spyOn(mock_documentQuery, 'updateMany').and.callThrough();
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+
+            expect(await removeAllStudentsFromCourse(mock_socket, 'test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['test_cid', 'test_uid']);
+
+            expect(spy_find.calls.count()).toEqual(0);
+
+            expect(spy_updateMany.calls.count()).toEqual(0);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RemoveAllStudents', {success: false, message: 'error_message_not_taught'}]);
+        });
+
+        it('should remove all students if the course is taught by the user', async () => {
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const mock_documentQuery = {
+                updateMany: () => new Promise(done => done(undefined))
+            };
+
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined)));
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+            const spy_updateMany = spyOn(mock_documentQuery, 'updateMany').and.callThrough();
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+
+            expect(await removeAllStudentsFromCourse(mock_socket, 'test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['test_cid', 'test_uid']);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', valid: true}]);
+
+            expect(spy_updateMany.calls.count()).toEqual(1);
+            expect(spy_updateMany.calls.argsFor(0)).toEqual([{valid: false}]);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'}]);
+        });
+    });
 });
