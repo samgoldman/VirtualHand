@@ -1,7 +1,7 @@
 const Course = require('../../../app/models/course').model;
 const User = require('../../../app/models/user').model;
 const Enrollment = require('../../../app/models/enrollment').model;
-const {createCourse, renameCourse, deleteCourse, retrieveCourseKey} = require('../../../app/io_methods/course_functions');
+const {createCourse, renameCourse, deleteCourse, retrieveCourseKey, assignNewCourseKey} = require('../../../app/io_methods/course_functions');
 
 const mock_socket = {
 	emit: () => {}
@@ -413,6 +413,40 @@ describe('Course Functions', () => {
 			expect(spy_emit.calls.count()).toEqual(1);
 			expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveCourseKey', {cid: 'other_cid', key: 'courseKey_2'}]);
 		});
+	});
 
+	describe('>assignNewCourseKey', () => {
+		it('should be defined', () => {
+			expect(assignNewCourseKey).toBeDefined();
+		});
+
+		it('should update the course with a new key and notify the user', async () => {
+			const mock_documentQuery = {
+				updateOne: () => new Promise(done => done(undefined))
+			};
+
+			const mock_socket = {
+				emit: () => undefined
+			};
+
+			const spy_generateCourseKey = spyOn(Course, 'generateCourseKey').and.returnValue('new_key');
+			const spy_findById = spyOn(Course, 'findById').and.returnValue(mock_documentQuery);
+			const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
+			const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+			expect(await assignNewCourseKey(mock_socket, 'test_cid')).toBeUndefined();
+
+			expect(spy_generateCourseKey.calls.count()).toEqual(1);
+			expect(spy_generateCourseKey.calls.argsFor(0)).toEqual([]);
+
+			expect(spy_findById.calls.count()).toEqual(1);
+			expect(spy_findById.calls.argsFor(0)).toEqual(['test_cid']);
+
+			expect(spy_updateOne.calls.count()).toEqual(1);
+			expect(spy_updateOne.calls.argsFor(0)).toEqual([{courseKey: 'new_key'}]);
+
+			expect(spy_emit.calls.count()).toEqual(1);
+			expect(spy_emit.calls.argsFor(0)).toEqual(['Response_AssignNewCourseKey']);
+		});
 	});
 });

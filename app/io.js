@@ -1,9 +1,8 @@
 // Load the models
-const MODEL_PATH = './models/';
-const Enrollment = require(MODEL_PATH + 'enrollment').model;
-const Course = require(MODEL_PATH + 'course').model;
-const AssistanceRequest = require(MODEL_PATH + 'assistanceRequest').model;
-const HallPassRequest = require(MODEL_PATH + 'hallPassRequest').model;
+const Enrollment = require('./models/enrollment').model;
+const Course = require('./models/course').model;
+const AssistanceRequest = require('./models/assistanceRequest').model;
+const HallPassRequest = require('./models/hallPassRequest').model;
 const nodemailer = require('nodemailer');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
@@ -124,17 +123,6 @@ function removeStudent(socket, cid, uid) {
 	Enrollment.find({course: cid, student: uid, valid: true}).update({valid: false})
 		.then(function () {
 			socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
-		});
-}
-
-function assignNewCourseKey(socket, cid) {
-	Course.findById(cid)
-		.update({courseKey: Course.generateCourseKey()})
-		.then(function () {
-			socket.emit('Response_AssignNewCourseKey', {success: true});
-		})
-		.catch(function () {
-			socket.emit('Response_AssignNewCourseKey', {success: false});
 		});
 }
 
