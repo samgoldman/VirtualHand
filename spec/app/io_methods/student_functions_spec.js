@@ -2,7 +2,7 @@ const User = require('../../../app/models/user').model;
 const Enrollment = require('../../../app/models/enrollment').model;
 
 const rewire = require('rewire');
-const { sendStudentsForClass } = require('../../../app/io_methods/student_functions');
+const { sendStudentsForClass, admitStudent, removeStudent, enrollStudent, removeAllStudentsFromCourse } = require('../../../app/io_methods/student_functions');
 const student_functions = rewire('../../../app/io_methods/student_functions');
 
 describe('student_functions', () => {
@@ -151,6 +151,68 @@ describe('student_functions', () => {
 
             expect(spy_emit.calls.count()).toEqual(1);
             expect(spy_emit.calls.argsFor(0)).toEqual(['Response_StudentsForClass', {enrollments: 'student_values'}]);
+        });
+    });
+
+    describe('>admitStudent', () => {
+        it('should be defined', () => {
+            expect(admitStudent).toBeDefined();
+        });
+
+        it('should find and admit the student', async () => {
+            const mock_documentQuery = {
+                updateOne: () => new Promise(done => done(undefined))
+            };
+
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+            const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await admitStudent(mock_socket, 'test_cid', 'test_uid')).toBeUndefined();
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', student: 'test_uid', valid: true}]);
+
+            expect(spy_updateOne.calls.count()).toEqual(1);
+            expect(spy_updateOne.calls.argsFor(0)).toEqual([{admitted: true}]);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_AdmitStudent', {cid: 'test_cid', student: 'test_uid'}]);
+        });
+    });
+
+    describe('>RemoveStudent', () => {
+        it('should be defined', () => {
+            expect(removeStudent).toBeDefined();
+        });
+
+        it('should find and remove the student', async () => {
+            const mock_documentQuery = {
+                updateOne: () => new Promise(done => done(undefined))
+            };
+
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+            const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await removeStudent(mock_socket, 'test_cid', 'test_uid')).toBeUndefined();
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', student: 'test_uid', valid: true}]);
+
+            expect(spy_updateOne.calls.count()).toEqual(1);
+            expect(spy_updateOne.calls.argsFor(0)).toEqual([{valid: false}]);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RemoveStudent', {cid: 'test_cid', student: 'test_uid'}]);
         });
     });
 });
