@@ -1,5 +1,6 @@
 const User = require('../models/user').model;
 const Enrollment = require('../models/enrollment').model;
+const Course = require('../models/course').model;
 const Promise = require('bluebird');
 
 const addStudent = async (username, password, course_id) => {
@@ -50,7 +51,7 @@ const enrollStudent = async (socket, sid, courseKey) => {
 		await Enrollment.findOrCreate(course._id, sid, false);
 		socket.emit('Response_EnrollStudent', {
 			success: true,
-			message: 'Enrolled sucessfully: your teacher must now admit you into the class.'
+			message: 'Enrolled successfully: your teacher must now admit you into the class.'
 		});
 	} else {
 		socket.emit('Response_EnrollStudent', {success: false, message: 'Course key is invalid'});

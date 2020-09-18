@@ -1,8 +1,10 @@
 const User = require('../../../app/models/user').model;
 const Enrollment = require('../../../app/models/enrollment').model;
+const Course = require('../../../app/models/course').model;
 
 const rewire = require('rewire');
 const { sendStudentsForClass, admitStudent, removeStudent, enrollStudent, removeAllStudentsFromCourse } = require('../../../app/io_methods/student_functions');
+const { model } = require('../../../app/models/user');
 const student_functions = rewire('../../../app/io_methods/student_functions');
 
 describe('student_functions', () => {
@@ -213,6 +215,53 @@ describe('student_functions', () => {
 
             expect(spy_emit.calls.count()).toEqual(1);
             expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RemoveStudent', {cid: 'test_cid', student: 'test_uid'}]);
+        });
+    });
+
+    describe('>enrollStudent', () => {
+        it('should be defined', () => {
+            expect(enrollStudent).toBeDefined();
+        });
+
+        it('>should not enroll the student if no matching course is found', async () => {
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done(undefined)));
+            const spy_findOrCreate = spyOn(Enrollment, 'findOrCreate').and.returnValue(new Promise(done => done(undefined)));
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await enrollStudent(mock_socket, 'test_student_id', 'course_key')).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{courseKey: 'course_key', valid: true}]);
+
+            expect(spy_findOrCreate.calls.count()).toEqual(0);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_EnrollStudent', {success: false, message: 'Course key is invalid'}]);
+        });
+
+        it('>should enroll the student if a matching course is found', async () => {
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_findOne = spyOn(Course, 'findOne').and.returnValue(new Promise(done => done({_id: 'course_id'})));
+            const spy_findOrCreate = spyOn(Enrollment, 'findOrCreate').and.returnValue(new Promise(done => done(undefined)));
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await enrollStudent(mock_socket, 'test_student_id', 'course_key_2')).toBeUndefined();
+
+            expect(spy_findOne.calls.count()).toEqual(1);
+            expect(spy_findOne.calls.argsFor(0)).toEqual([{courseKey: 'course_key_2', valid: true}]);
+
+            expect(spy_findOrCreate.calls.count()).toEqual(1);
+            expect(spy_findOrCreate.calls.argsFor(0)).toEqual(['course_id', 'test_student_id', false]);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_EnrollStudent', {success: true, message: 'Enrolled successfully: your teacher must now admit you into the class.'}]);
         });
     });
 });
