@@ -40,23 +40,8 @@ socket.on('Response_RetrieveHallPassRequests', function (data) {
 	}
 
 	requests.forEach((request) => {
-		// delta in seconds
-		let delta = Math.abs(Date.now() - new Date((request.granted?request.grantedTime:request.requestTime))) / 1000;
-
-		let days = Math.floor(delta / 86400);
-		delta -= days * 86400;
-		let hours = Math.floor(delta / 3600) % 24;
-		delta -= hours * 3600;
-		let minutes = Math.floor(delta / 60) % 60;
-		delta -= minutes * 60;
-		let seconds = parseInt(delta % 60);
-
-		let timeString = '';
-		if(days>0) timeString+= days + ':';
-		if(hours>0) timeString+= hours + ':';
-		timeString += ("0" + minutes).slice(-2) + ':' + ("0" + seconds).slice(-2);
-
-		let newItem = window.listItemTemplate({
+		const timeString = stopwatch_format(request.granted ? request.grantedTime : request.requestTime);
+		const newItem = window.listItemTemplate({
 			username: request.student.username,
 			hrid: request._id,
 			includeGrantButton: !request.granted,
