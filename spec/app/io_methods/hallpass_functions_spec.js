@@ -1,6 +1,7 @@
 const HallPassRequest = require('../../../app/models/hallPassRequest').model;
 const Enrollment = require('../../../app/models/enrollment').model;
-const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest} = require('../../../app/io_methods/hallpass_functions');
+const Course = require('../../../app/models/course').model;
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest, retrieveHallPassRequests, teacherResolveAllHallPassRequests} = require('../../../app/io_methods/hallpass_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 const mock_socket = {
@@ -409,6 +410,77 @@ describe('Hallpass Functions', () => {
 
             expect(spy_updateOne.calls.count()).toEqual(1);
             expect(spy_updateOne.calls.argsFor(0)).toEqual([{granted: true, grantedTime: 'res_time'}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_HallPassRequestModified', null]);
+
+            expect(spy_now.calls.count()).toEqual(1);
+            expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
+    });
+
+    describe('>retrieveHallPassRequests', () => {
+        it('should be defined', () => {
+            expect(retrieveHallPassRequests).toBeDefined();
+        });
+
+        it('should find unresolved hall pass requests and return them sorted and populated with student', async () => {
+            const mock_documentQuery = {
+                sort: () => mock_documentQuery,
+                populate: () => new Promise(done => done('request_values'))
+            };
+
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_find = spyOn(HallPassRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_sort = spyOn(mock_documentQuery, 'sort').and.callThrough();
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await retrieveHallPassRequests(mock_socket, 'test_cids')).toBeUndefined();
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: {$in: 'test_cids'}, resolved: false}]);
+
+            expect(spy_sort.calls.count()).toEqual(1);
+            expect(spy_sort.calls.argsFor(0)).toEqual(['requestTime']);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveHallPassRequests', {requests: 'request_values'}]);
+        });
+    });
+
+    describe('>teacherResolveAllHallPassRequests', () => {
+        it('should be defined', () => {
+            expect(teacherResolveAllHallPassRequests).toBeDefined();
+        });
+
+        it('should verify the course is taught by the user and update all requests to be resolve', async () => {
+            const mock_documentQuery = {
+                updateMany: () => new Promise(done => done(undefined))
+            };
+
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined)));
+            const spy_find = spyOn(HallPassRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_updateMany = spyOn(mock_documentQuery, 'updateMany').and.callThrough();
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
+
+            expect(await teacherResolveAllHallPassRequests('test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['test_cid', 'test_uid']);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', resolved: false}]);
+
+            expect(spy_updateMany.calls.count()).toEqual(1);
+            expect(spy_updateMany.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'teacher', resolvedTime: 'res_time'}]);
 
             expect(spy_broadcastGlobally.calls.count()).toEqual(1);
             expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_HallPassRequestModified', null]);

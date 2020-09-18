@@ -1,5 +1,7 @@
 const AssistanceRequest = require('../models/assistanceRequest').model;
+const Course = require('../models/course').model;
 const io_broadcaster = require('../io_broadcaster');
+const { teacherGrantHallPassRequest } = require('./hallpass_functions');
 
 const sendAssistanceRequestStatus = async (socket, uid, cid) => {
 	const count = await AssistanceRequest.countDocuments({course: cid, student: uid, resolved: false})
@@ -25,9 +27,23 @@ const resolveAssistanceRequestByStudentAndClass = async (uid, cid) => {
 	io_broadcaster.broadcastGlobally('Broadcast_AssistanceRequestModified', null);
 };
 
+const retrieveAssistanceRequests = async (socket, cids) => {
+	const requests = await AssistanceRequest.find({course: {$in: cids}, resolved: false})
+		.sort('requestTime').populate('student');
+	socket.emit('Response_RetrieveAssistanceRequests', {requests: requests});
+};
+
+const teacherResolveAllAssistanceRequests = async (uid, cid) => {
+	await Course.verifyCourseTaughtBy(cid, uid);
+	await AssistanceRequest.find({course: cid, resolved: false}).updateMany({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()});
+	io_broadcaster.broadcastGlobally('Broadcast_AssistanceRequestModified', null);
+};
+
 module.exports = {
 	sendAssistanceRequestStatus: sendAssistanceRequestStatus,
 	teacherResolveAssistanceRequest: teacherResolveAssistanceRequest,
 	initiateAssistanceRequest: initiateAssistanceRequest,
-	resolveAssistanceRequestByStudentAndClass: resolveAssistanceRequestByStudentAndClass
+	resolveAssistanceRequestByStudentAndClass: resolveAssistanceRequestByStudentAndClass,
+	retrieveAssistanceRequests: retrieveAssistanceRequests,
+	teacherResolveAllAssistanceRequests: teacherResolveAllAssistanceRequests 
 };

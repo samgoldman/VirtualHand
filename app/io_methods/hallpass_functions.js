@@ -1,6 +1,8 @@
 const HallPassRequest = require('../models/hallPassRequest').model;
 const Enrollment = require('../models/enrollment').model;
+const Course = require('../models/course').model;
 const io_broadcaster = require('../io_broadcaster');
+const { retrieveAssistanceRequests } = require('./assistance_functions');
 
 const sendHallPassRequestStatus = async (socket, uid, cid) => {
     const request = await HallPassRequest.findOne({course: cid, student: uid, resolved: false}).exec();
@@ -44,10 +46,24 @@ const teacherGrantHallPassRequest = async (hrid) => {
     io_broadcaster.broadcastGlobally('Broadcast_HallPassRequestModified', null);
 };
 
+const retrieveHallPassRequests = async (socket, cids) => {
+	const requests = await HallPassRequest.find({course: {$in: cids}, resolved: false})
+		.sort('requestTime').populate('student');
+    socket.emit('Response_RetrieveHallPassRequests', {requests: requests});
+}
+
+const teacherResolveAllHallPassRequests = async (uid, cid) => {
+	await Course.verifyCourseTaughtBy(cid, uid);
+	await HallPassRequest.find({course: cid, resolved: false}).updateMany({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()});
+	io_broadcaster.broadcastGlobally('Broadcast_HallPassRequestModified', null);
+};
+
 module.exports = {
     sendHallPassRequestStatus: sendHallPassRequestStatus,
     studentResolveHallPassRequest: studentResolveHallPassRequest,
     initiateHallPassRequest: initiateHallPassRequest,
     teacherResolveHallPassRequest: teacherResolveHallPassRequest,
-    teacherGrantHallPassRequest: teacherGrantHallPassRequest
+    teacherGrantHallPassRequest: teacherGrantHallPassRequest,
+    retrieveHallPassRequests: retrieveHallPassRequests,
+    teacherResolveAllHallPassRequests: teacherResolveAllHallPassRequests
 };

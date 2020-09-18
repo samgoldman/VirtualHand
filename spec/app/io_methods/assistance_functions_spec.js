@@ -1,5 +1,6 @@
 const AssistanceRequest = require('../../../app/models/assistanceRequest').model;
-const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass} = require('../../../app/io_methods/assistance_functions');
+const Course = require('../../../app/models/course').model;
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass, retrieveAssistanceRequests, teacherResolveAllAssistanceRequests} = require('../../../app/io_methods/assistance_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 describe('assistance_functions', () => {
@@ -130,4 +131,74 @@ describe('assistance_functions', () => {
         });
     });
 
+    describe('>retrieveAssistanceRequests', () => {
+        it('should be defined', () => {
+            expect(retrieveAssistanceRequests).toBeDefined();
+        });
+
+        it('should find unresolved assistance requests and return them sorted and populated with student', async () => {
+            const mock_documentQuery = {
+                sort: () => mock_documentQuery,
+                populate: () => new Promise(done => done('request_values'))
+            };
+
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_find = spyOn(AssistanceRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_sort = spyOn(mock_documentQuery, 'sort').and.callThrough();
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await retrieveAssistanceRequests(mock_socket, 'test_cids')).toBeUndefined();
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: {$in: 'test_cids'}, resolved: false}]);
+
+            expect(spy_sort.calls.count()).toEqual(1);
+            expect(spy_sort.calls.argsFor(0)).toEqual(['requestTime']);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RetrieveAssistanceRequests', {requests: 'request_values'}]);
+        });
+    });
+
+    describe('>teacherResolveAllAssistanceRequests', () => {
+        it('should be defined', () => {
+            expect(teacherResolveAllAssistanceRequests).toBeDefined();
+        });
+
+        it('should verify the course is taught by the user and update all requests to be resolve', async () => {
+            const mock_documentQuery = {
+                updateMany: () => new Promise(done => done(undefined))
+            };
+
+            const spy_verifyCourseTaughtBy = spyOn(Course, 'verifyCourseTaughtBy').and.returnValue(new Promise(done => done(undefined)));
+            const spy_find = spyOn(AssistanceRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_updateMany = spyOn(mock_documentQuery, 'updateMany').and.callThrough();
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
+
+            expect(await teacherResolveAllAssistanceRequests('test_uid', 'test_cid')).toBeUndefined();
+
+            expect(spy_verifyCourseTaughtBy.calls.count()).toEqual(1);
+            expect(spy_verifyCourseTaughtBy.calls.argsFor(0)).toEqual(['test_cid', 'test_uid']);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', resolved: false}]);
+
+            expect(spy_updateMany.calls.count()).toEqual(1);
+            expect(spy_updateMany.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'teacher', resolvedTime: 'res_time'}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_AssistanceRequestModified', null]);
+
+            expect(spy_now.calls.count()).toEqual(1);
+            expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
+    });
 });

@@ -2,6 +2,7 @@ const User = require('../../../app/models/user').model;
 const Enrollment = require('../../../app/models/enrollment').model;
 
 const rewire = require('rewire');
+const { sendStudentsForClass } = require('../../../app/io_methods/student_functions');
 const student_functions = rewire('../../../app/io_methods/student_functions');
 
 describe('student_functions', () => {
@@ -115,5 +116,41 @@ describe('student_functions', () => {
                 expect(spy_emit.calls.argsFor(0)).toEqual(['Response_RandomStudent', {'randomStudentName': expected}]);
             });
          });
+    });
+
+    describe('>sendStudentsForClass', () => {
+        it('should be defined', () => {
+            expect(sendStudentsForClass).toBeDefined();
+        });
+
+        it('should find all enrollements and sort them by username', async () => {
+            const mock_documentQuery = {
+                populate: () => mock_documentQuery,
+                sort: () => new Promise(done => done('student_values'))
+            };
+
+            const mock_socket = {
+                emit: () => undefined
+            };
+
+            const spy_find = spyOn(Enrollment, 'find').and.returnValue(mock_documentQuery);
+            const spy_sort = spyOn(mock_documentQuery, 'sort').and.callThrough();
+            const spy_populate = spyOn(mock_documentQuery, 'populate').and.callThrough();
+            const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+            expect(await sendStudentsForClass(mock_socket, 'test_cid')).toBeUndefined();
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{course: 'test_cid', valid: true}]);
+
+            expect(spy_sort.calls.count()).toEqual(1);
+            expect(spy_sort.calls.argsFor(0)).toEqual(['student.username']);
+
+            expect(spy_populate.calls.count()).toEqual(1);
+            expect(spy_populate.calls.argsFor(0)).toEqual(['student']);
+
+            expect(spy_emit.calls.count()).toEqual(1);
+            expect(spy_emit.calls.argsFor(0)).toEqual(['Response_StudentsForClass', {enrollments: 'student_values'}]);
+        });
     });
 });

@@ -1,15 +1,11 @@
 // Load the models
-const Enrollment = require('./models/enrollment').model;
-const Course = require('./models/course').model;
-const AssistanceRequest = require('./models/assistanceRequest').model;
-const HallPassRequest = require('./models/hallPassRequest').model;
 const nodemailer = require('nodemailer');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse, retrieveCourseKey, assignNewCourseKey} = require('./io_methods/course_functions');
-const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest} = require('./io_methods/hallpass_functions');
-const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass} = require('./io_methods/assistance_functions');
-const {addStudent, addStudents, getRandomStudent} = require('./io_methods/student_functions');
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest, retrieveHallPassRequests, teacherResolveAllHallPassRequests} = require('./io_methods/hallpass_functions');
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass, retrieveAssistanceRequests, teacherResolveAllAssistanceRequests} = require('./io_methods/assistance_functions');
+const {addStudent, addStudents, getRandomStudent, sendStudentsForClass, admitStudent, removeStudent, enrollStudent, removeAllStudentsFromCourse} = require('./io_methods/student_functions');
 
 let userCount = 0;
 let transporter = null;
@@ -77,91 +73,6 @@ const route_connection = socket => {
 		socket.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 	}
 };
-
-function retrieveAssistanceRequests(socket, cids) {
-	AssistanceRequest.find({course: {$in: cids}, resolved: false})
-		.sort('requestTime')
-		.populate('student')
-		.then(function (requests) {
-			socket.emit('Response_RetrieveAssistanceRequests', {requests: requests});
-		});
-}
-
-function teacherResolveAllAssistanceRequests(uid, cid) {
-	Course.verifyCourseTaughtBy(cid, uid)
-		.then(() => {return AssistanceRequest.find({course: cid, resolved: false});})
-		.then(function(requests) {
-			requests.forEach((request) => teacherResolveAssistanceRequest(request._id));
-		})
-		.catch((err) => {console.log(`Err: ${err}`)});
-}
-
-function sendStudentsForClass(socket, cid) {
-	Enrollment.find({course: cid, valid: true}).populate('student').sort('student.username')
-		.then(function (enrollments) {
-			socket.emit('Response_StudentsForClass', {enrollments: enrollments});
-		});
-}
-
-function admitStudent(socket, cid, uid) {
-	Enrollment.find({course: cid, student: uid, valid: true}).update({admitted: true})
-		.then(function () {
-			socket.emit('Response_AdmitStudent', {cid: cid, student: uid});
-		});
-}
-
-function removeStudent(socket, cid, uid) {
-	Enrollment.find({course: cid, student: uid, valid: true}).update({valid: false})
-		.then(function () {
-			socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
-		});
-}
-
-function enrollStudent(socket, sid, courseKey) {
-	Course.findOne({courseKey: courseKey, valid: true})
-		.then(function (course) {
-			if (!course) {
-				throw "Course Key is invalid";
-			}
-			return Enrollment.findOrCreate(course._id, sid, false);
-		})
-		.then(function () {
-			socket.emit('Response_EnrollStudent', {
-				success: true,
-				message: 'Enrolled sucessfully: your teacher must now admit you into the class.'
-			});
-		})
-		.catch(function (err) {
-			socket.emit('Response_EnrollStudent', {success: false, message: err});
-		})
-}
-
-function retrieveHallPassRequests(socket, cids) {
-	HallPassRequest.find({course: {$in: cids}, resolved: false})
-		.sort('requestTime')
-		.populate('student')
-		.then(function (requests) {
-			socket.emit('Response_RetrieveHallPassRequests', {requests: requests});
-		});
-}
-
-function teacherResolveAllHallPassRequests(uid, cid) {
-	Course.verifyCourseTaughtBy(cid, uid)
-		.then(() => {return HallPassRequest.find({course: cid, resolved: false});})
-		.then(function(requests) {
-			requests.forEach((request) => teacherResolveHallPassRequest(request._id));
-		})
-		.catch((err) => {console.log(`Err: ${err}`)});
-}
-
-function removeAllStudentsFromCourse(socket, uid, cid) {
-	Course.verifyCourseTaughtBy(cid, uid)
-		.then(() => {return Enrollment.find({course: cid, valid: true}).update({valid: false})})
-		.then(function() {
-			socket.emit('Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'});
-		})
-		.catch(err => socket.emit('Request_RemoveAllStudents', {success: false, message: err}));
-}
 
 module.exports = io => {
 	// Create the object used to send the emails

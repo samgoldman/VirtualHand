@@ -28,8 +28,52 @@ const getRandomStudent = async (socket, cid) => {
 	socket.emit('Response_RandomStudent', {'randomStudentName': enrollments[Math.floor(Math.random() * enrollments.length)].student.username});
 };
 
+const sendStudentsForClass = async (socket, cid) => {
+	const enrollments = await Enrollment.find({course: cid, valid: true})
+		.populate('student').sort('student.username');
+	socket.emit('Response_StudentsForClass', {enrollments: enrollments});
+};
+
+const admitStudent = async (socket, cid, uid) => {
+	await Enrollment.find({course: cid, student: uid, valid: true}).updateOne({admitted: true});
+	socket.emit('Response_AdmitStudent', {cid: cid, student: uid});
+};
+
+const removeStudent = async (socket, cid, uid) => {
+	await Enrollment.find({course: cid, student: uid, valid: true}).updateOne({valid: false});
+	socket.emit('Response_RemoveStudent', {cid: cid, student: uid});
+}
+
+const enrollStudent = async (socket, sid, courseKey) => {
+	const course = await Course.findOne({courseKey: courseKey, valid: true});
+	if (course) {
+		await Enrollment.findOrCreate(course._id, sid, false);
+		socket.emit('Response_EnrollStudent', {
+			success: true,
+			message: 'Enrolled sucessfully: your teacher must now admit you into the class.'
+		});
+	} else {
+		socket.emit('Response_EnrollStudent', {success: false, message: 'Course key is invalid'});
+	}
+};
+
+const removeAllStudentsFromCourse = async (socket, uid, cid) => {
+	try {
+		await Course.verifyCourseTaughtBy(cid, uid);
+		await Enrollment.find({course: cid, valid: true}).updateMany({valid: false});
+		socket.emit('Response_RemoveAllStudents', {success: true, message: 'Successfully removed all students'});
+	} catch (err) {
+		socket.emit('Request_RemoveAllStudents', {success: false, message: err.message});
+	}
+};
+
 module.exports = {
     addStudent: addStudent,
 	addStudents: addStudents,
-	getRandomStudent: getRandomStudent
+	getRandomStudent: getRandomStudent,
+	sendStudentsForClass: sendStudentsForClass,
+	admitStudent: admitStudent,
+	removeStudent: removeStudent,
+	enrollStudent: enrollStudent,
+	removeAllStudentsFromCourse: removeAllStudentsFromCourse
 };
