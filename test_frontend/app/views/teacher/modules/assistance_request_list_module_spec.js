@@ -1,6 +1,6 @@
 define((require) => {
 
-    describe('requester_module', () => {
+    describe('assistance_request_list_module', () => {
         beforeEach(() => {
             require('app/views/teacher/modules/assistance_request_list_module');
         });
