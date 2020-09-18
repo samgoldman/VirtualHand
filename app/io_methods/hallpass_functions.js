@@ -32,8 +32,22 @@ const initiateHallPassRequest = async (student_id, course_id) => {
     }
 }
 
+const teacherResolveHallPassRequest = async (hrid) => {
+	await HallPassRequest.findById(hrid)
+		.updateOne({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()});
+    io_broadcaster.broadcastGlobally('Broadcast_HallPassRequestModified', null);
+};
+
+const teacherGrantHallPassRequest = async (hrid) => {
+	await HallPassRequest.findById(hrid)
+		.updateOne({granted: true, grantedTime: Date.now()});
+    io_broadcaster.broadcastGlobally('Broadcast_HallPassRequestModified', null);
+};
+
 module.exports = {
     sendHallPassRequestStatus: sendHallPassRequestStatus,
     studentResolveHallPassRequest: studentResolveHallPassRequest,
-    initiateHallPassRequest: initiateHallPassRequest
+    initiateHallPassRequest: initiateHallPassRequest,
+    teacherResolveHallPassRequest: teacherResolveHallPassRequest,
+    teacherGrantHallPassRequest: teacherGrantHallPassRequest
 };

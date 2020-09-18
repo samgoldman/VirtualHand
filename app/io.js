@@ -7,11 +7,10 @@ const nodemailer = require('nodemailer');
 const Token = require('./token_manager');
 const {recoverPassword, changePassword, changeStudentPassword} = require("./io_methods/password_functions");
 const {createCourse, renameCourse, deleteCourse, retrieveCourseKey, assignNewCourseKey} = require('./io_methods/course_functions');
-const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('./io_methods/hallpass_functions');
-const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest} = require('./io_methods/assistance_functions');
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest} = require('./io_methods/hallpass_functions');
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass} = require('./io_methods/assistance_functions');
 const {addStudent, addStudents, getRandomStudent} = require('./io_methods/student_functions');
 
-let global_io = null;
 let userCount = 0;
 let transporter = null;
 
@@ -78,14 +77,6 @@ const route_connection = socket => {
 		socket.on('Request_DeleteCourse', data => deleteCourse(socket, socket.user_data.uid, data.cid));
 	}
 };
-
-function resolveAssistanceRequestByStudentAndClass(uid, cid) {
-	AssistanceRequest.find({student: uid, course: cid, resolved: false})
-		.update({resolved: true, resolved_type: 'student', resolvedTime: Date.now()})
-		.then(function () {
-			global_io.emit('Broadcast_AssistanceRequestModified');
-		});
-}
 
 function retrieveAssistanceRequests(socket, cids) {
 	AssistanceRequest.find({course: {$in: cids}, resolved: false})
@@ -154,14 +145,6 @@ function retrieveHallPassRequests(socket, cids) {
 		});
 }
 
-function teacherResolveHallPassRequest(hrid) {
-	HallPassRequest.findById(hrid)
-		.update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()})
-		.then(function(){
-			global_io.emit('Broadcast_HallPassRequestModified');
-		});
-}
-
 function teacherResolveAllHallPassRequests(uid, cid) {
 	Course.verifyCourseTaughtBy(cid, uid)
 		.then(() => {return HallPassRequest.find({course: cid, resolved: false});})
@@ -169,14 +152,6 @@ function teacherResolveAllHallPassRequests(uid, cid) {
 			requests.forEach((request) => teacherResolveHallPassRequest(request._id));
 		})
 		.catch((err) => {console.log(`Err: ${err}`)});
-}
-
-function teacherGrantHallPassRequest(hrid) {
-	HallPassRequest.findById(hrid)
-		.update({granted: true, grantedTime: Date.now()})
-		.then(function(){
-			global_io.emit('Broadcast_HallPassRequestModified');
-		});
 }
 
 function removeAllStudentsFromCourse(socket, uid, cid) {
@@ -197,8 +172,6 @@ module.exports = io => {
 			pass: process.env.VH_EMAIL_PASSWORD
 		}
 	});
-
-	global_io = io;
 
 	io.use(authenticateIO)
 		.on('connection', route_connection);

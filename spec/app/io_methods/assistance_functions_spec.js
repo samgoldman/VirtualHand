@@ -1,5 +1,5 @@
 const AssistanceRequest = require('../../../app/models/assistanceRequest').model;
-const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest} = require('../../../app/io_methods/assistance_functions');
+const {sendAssistanceRequestStatus, teacherResolveAssistanceRequest, initiateAssistanceRequest, resolveAssistanceRequestByStudentAndClass} = require('../../../app/io_methods/assistance_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 describe('assistance_functions', () => {
@@ -37,11 +37,11 @@ describe('assistance_functions', () => {
 
         it('should find and resolve the assistance request', async () => {
             const mock_documentQuery = {
-                update: () => new Promise(done => done(undefined))
+                updateOne: () => new Promise(done => done(undefined))
             };
 
             const spy_findById = spyOn(AssistanceRequest, 'findById').and.returnValue(mock_documentQuery);
-            const spy_update = spyOn(mock_documentQuery, 'update').and.callThrough();
+            const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
             const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
             const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
 
@@ -50,8 +50,8 @@ describe('assistance_functions', () => {
             expect(spy_findById.calls.count()).toEqual(1);
             expect(spy_findById.calls.argsFor(0)).toEqual(['test_ar_id']);
 
-            expect(spy_update.calls.count()).toEqual(1);
-            expect(spy_update.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'teacher', resolvedTime: 'res_time'}]);
+            expect(spy_updateOne.calls.count()).toEqual(1);
+            expect(spy_updateOne.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'teacher', resolvedTime: 'res_time'}]);
 
             expect(spy_broadcastGlobally.calls.count()).toEqual(1);
             expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_AssistanceRequestModified', null]);
@@ -98,4 +98,36 @@ describe('assistance_functions', () => {
             expect(spy_broadcastGlobally.calls.count()).toEqual(0);
         });
     });
+
+    describe('>resolveAssistanceRequestByStudentAndClass', () => {
+        it('should be defined', () => {
+            expect(resolveAssistanceRequestByStudentAndClass).toBeDefined()
+        });
+
+        it('should find and resolve the assistance request', async () => {
+            const mock_documentQuery = {
+                updateMany: () => new Promise(done => done(undefined))
+            };
+
+            const spy_find = spyOn(AssistanceRequest, 'find').and.returnValue(mock_documentQuery);
+            const spy_updateMany = spyOn(mock_documentQuery, 'updateMany').and.callThrough();
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
+
+            expect(await resolveAssistanceRequestByStudentAndClass('student_id', 'course_id')).toEqual(undefined);
+
+            expect(spy_find.calls.count()).toEqual(1);
+            expect(spy_find.calls.argsFor(0)).toEqual([{student: 'student_id', course: 'course_id', resolved: false}]);
+
+            expect(spy_updateMany.calls.count()).toEqual(1);
+            expect(spy_updateMany.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'student', resolvedTime: 'res_time'}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_AssistanceRequestModified', null]);
+
+            expect(spy_now.calls.count()).toEqual(1);
+            expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
+    });
+
 });

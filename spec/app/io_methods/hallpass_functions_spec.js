@@ -1,6 +1,6 @@
 const HallPassRequest = require('../../../app/models/hallPassRequest').model;
 const Enrollment = require('../../../app/models/enrollment').model;
-const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest} = require('../../../app/io_methods/hallpass_functions');
+const {sendHallPassRequestStatus, studentResolveHallPassRequest, initiateHallPassRequest, teacherResolveHallPassRequest, teacherGrantHallPassRequest} = require('../../../app/io_methods/hallpass_functions');
 const io_broadcaster = require('../../../app/io_broadcaster');
 
 const mock_socket = {
@@ -354,5 +354,67 @@ describe('Hallpass Functions', () => {
             expect(spy_log.calls.argsFor(0)[0]).toEqual(new Error('Search error'));
         });
 
+    });;
+
+    describe('>teacherResolveHallPassRequest', () => {
+        it('should be defined', () => {
+            expect(teacherResolveHallPassRequest).toBeDefined()
+        });
+
+        it('should find and resolve the hallpass request', async () => {
+            const mock_documentQuery = {
+                updateOne: () => new Promise(done => done(undefined))
+            };
+
+            const spy_findById = spyOn(HallPassRequest, 'findById').and.returnValue(mock_documentQuery);
+            const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
+
+            expect(await teacherResolveHallPassRequest('test_ar_id')).toEqual(undefined);
+
+            expect(spy_findById.calls.count()).toEqual(1);
+            expect(spy_findById.calls.argsFor(0)).toEqual(['test_ar_id']);
+
+            expect(spy_updateOne.calls.count()).toEqual(1);
+            expect(spy_updateOne.calls.argsFor(0)).toEqual([{resolved: true, resolved_type: 'teacher', resolvedTime: 'res_time'}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_HallPassRequestModified', null]);
+
+            expect(spy_now.calls.count()).toEqual(1);
+            expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
+    });
+
+    describe('>teacherGrantHallPassRequest', () => {
+        it('should be defined', () => {
+            expect(teacherGrantHallPassRequest).toBeDefined()
+        });
+
+        it('should find and resolve the hallpass request', async () => {
+            const mock_documentQuery = {
+                updateOne: () => new Promise(done => done(undefined))
+            };
+
+            const spy_findById = spyOn(HallPassRequest, 'findById').and.returnValue(mock_documentQuery);
+            const spy_updateOne = spyOn(mock_documentQuery, 'updateOne').and.callThrough();
+            const spy_broadcastGlobally = spyOn(io_broadcaster, 'broadcastGlobally').and.returnValue(undefined);
+            const spy_now = spyOn(Date, 'now').and.returnValue('res_time');
+
+            expect(await teacherGrantHallPassRequest('test_ar_id')).toEqual(undefined);
+
+            expect(spy_findById.calls.count()).toEqual(1);
+            expect(spy_findById.calls.argsFor(0)).toEqual(['test_ar_id']);
+
+            expect(spy_updateOne.calls.count()).toEqual(1);
+            expect(spy_updateOne.calls.argsFor(0)).toEqual([{granted: true, grantedTime: 'res_time'}]);
+
+            expect(spy_broadcastGlobally.calls.count()).toEqual(1);
+            expect(spy_broadcastGlobally.calls.argsFor(0)).toEqual(['Broadcast_HallPassRequestModified', null]);
+
+            expect(spy_now.calls.count()).toEqual(1);
+            expect(spy_now.calls.argsFor(0)).toEqual([]);
+        });
     });
 });

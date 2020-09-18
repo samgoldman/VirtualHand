@@ -7,7 +7,7 @@ const sendAssistanceRequestStatus = async (socket, uid, cid) => {
 };
 
 const teacherResolveAssistanceRequest = async (arid) => {
-	await AssistanceRequest.findById(arid).update({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()});
+	await AssistanceRequest.findById(arid).updateOne({resolved: true, resolved_type: 'teacher', resolvedTime: Date.now()});
 	io_broadcaster.broadcastGlobally('Broadcast_AssistanceRequestModified', null);
 };
 
@@ -19,8 +19,15 @@ const initiateAssistanceRequest = async (uid, cid) => {
 	} // Else do nothing
 };
 
+const resolveAssistanceRequestByStudentAndClass = async (uid, cid) => {
+	await AssistanceRequest.find({student: uid, course: cid, resolved: false})
+		.updateMany({resolved: true, resolved_type: 'student', resolvedTime: Date.now()});
+	io_broadcaster.broadcastGlobally('Broadcast_AssistanceRequestModified', null);
+};
+
 module.exports = {
 	sendAssistanceRequestStatus: sendAssistanceRequestStatus,
 	teacherResolveAssistanceRequest: teacherResolveAssistanceRequest,
-	initiateAssistanceRequest: initiateAssistanceRequest
+	initiateAssistanceRequest: initiateAssistanceRequest,
+	resolveAssistanceRequestByStudentAndClass: resolveAssistanceRequestByStudentAndClass
 };
