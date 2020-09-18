@@ -1,6 +1,6 @@
 function NewClassClicked() {
 	socket.emit('Request_CourseCreate', {
-		courseName: document.querySelector('#new_class_name').value() 
+		courseName: document.querySelector('#new_class_name').value
 	});
 };
 

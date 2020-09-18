@@ -34,5 +34,29 @@ define((require) => {
                 expect(mock_alert_box).toEqual({style: {display: 'none'}, innerHTML: ''});
             });
         });
+
+        describe('>NewClassClicked', () => {
+            it('should be defined', () => {
+                expect(NewClassClicked).toBeDefined();
+            });
+
+            it('should send the value to the server', () => {
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue({value: 'test_value'});
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+
+                expect(NewClassClicked()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#new_class_name']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_CourseCreate', {courseName: 'test_value'}]);
+            });
+        });
     });
 });
