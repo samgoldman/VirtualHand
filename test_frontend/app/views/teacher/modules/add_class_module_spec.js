@@ -119,6 +119,10 @@ define((require) => {
                 }
             });
 
+            beforeEach(() => {
+                spy_AddClass.calls.reset();
+            });
+
             it('should not add a class to the selector if the course was not successful', () => {
                 const mock_element = {
                     innerHTML: 'original_contents',
