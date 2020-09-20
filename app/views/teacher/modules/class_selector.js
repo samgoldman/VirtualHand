@@ -16,7 +16,7 @@ function UpdateManagementButtons() {
 	} else {
 		managementButtons.forEach(button => {
 			button.setAttribute('disabled', 'disabled');
-			button.classList.push('disabled');
+			button.classList.add('disabled');
 		});
 		document.querySelector('#ar_history_link').setAttribute('href', 'javascript:;');
 		document.querySelector('#hp_history_link').setAttribute('href', 'javascript:;');

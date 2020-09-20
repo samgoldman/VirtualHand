@@ -43,7 +43,7 @@ define((require) => {
                     setAttribute: () => undefined,
                     classList: {
                         remove: () => undefined,
-                        push: () => undefined
+                        add: () => undefined
                     }
                 };
 
@@ -57,7 +57,7 @@ define((require) => {
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
                 const spy_setAttribute_button = spyOn(mock_button, 'setAttribute').and.callThrough();
                 const spy_remove = spyOn(mock_button.classList, 'remove').and.callThrough();
-                const spy_push = spyOn(mock_button.classList, 'push').and.callThrough();
+                const spy_add = spyOn(mock_button.classList, 'add').and.callThrough();
                 const spy_setAttribute_link = spyOn(mock_link_element, 'setAttribute').and.callThrough();
 
                 expect(UpdateManagementButtons()).toBeUndefined();
@@ -83,7 +83,7 @@ define((require) => {
                 expect(spy_remove.calls.argsFor(0)).toEqual(['disabled']);
                 expect(spy_remove.calls.argsFor(1)).toEqual(['disabled']);
 
-                expect(spy_push.calls.count()).toEqual(0);
+                expect(spy_add.calls.count()).toEqual(0);
                 
                 expect(spy_setAttribute_link.calls.count()).toEqual(2);
                 expect(spy_setAttribute_link.calls.argsFor(0)).toEqual(['href', '/teacher/history/assistancerequest/selected_id']);
@@ -102,7 +102,7 @@ define((require) => {
                     setAttribute: () => undefined,
                     classList: {
                         remove: () => undefined,
-                        push: () => undefined
+                        add: () => undefined
                     }
                 };
 
@@ -116,7 +116,7 @@ define((require) => {
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
                 const spy_setAttribute_button = spyOn(mock_button, 'setAttribute').and.callThrough();
                 const spy_remove = spyOn(mock_button.classList, 'remove').and.callThrough();
-                const spy_push = spyOn(mock_button.classList, 'push').and.callThrough();
+                const spy_add = spyOn(mock_button.classList, 'add').and.callThrough();
                 const spy_setAttribute_link = spyOn(mock_link_element, 'setAttribute').and.callThrough();
 
                 expect(UpdateManagementButtons()).toBeUndefined();
@@ -139,9 +139,9 @@ define((require) => {
 
                 expect(spy_remove.calls.count()).toEqual(0);
 
-                expect(spy_push.calls.count()).toEqual(2);
-                expect(spy_push.calls.argsFor(0)).toEqual(['disabled']);
-                expect(spy_push.calls.argsFor(1)).toEqual(['disabled']);
+                expect(spy_add.calls.count()).toEqual(2);
+                expect(spy_add.calls.argsFor(0)).toEqual(['disabled']);
+                expect(spy_add.calls.argsFor(1)).toEqual(['disabled']);
                 
                 expect(spy_setAttribute_link.calls.count()).toEqual(2);
                 expect(spy_setAttribute_link.calls.argsFor(0)).toEqual(['href', 'javascript:;']);
@@ -160,7 +160,7 @@ define((require) => {
                     setAttribute: () => undefined,
                     classList: {
                         remove: () => undefined,
-                        push: () => undefined
+                        add: () => undefined
                     }
                 };
 
@@ -174,7 +174,7 @@ define((require) => {
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
                 const spy_setAttribute_button = spyOn(mock_button, 'setAttribute').and.callThrough();
                 const spy_remove = spyOn(mock_button.classList, 'remove').and.callThrough();
-                const spy_push = spyOn(mock_button.classList, 'push').and.callThrough();
+                const spy_add = spyOn(mock_button.classList, 'add').and.callThrough();
                 const spy_setAttribute_link = spyOn(mock_link_element, 'setAttribute').and.callThrough();
 
                 expect(UpdateManagementButtons()).toBeUndefined();
@@ -197,9 +197,9 @@ define((require) => {
 
                 expect(spy_remove.calls.count()).toEqual(0);
 
-                expect(spy_push.calls.count()).toEqual(2);
-                expect(spy_push.calls.argsFor(0)).toEqual(['disabled']);
-                expect(spy_push.calls.argsFor(1)).toEqual(['disabled']);
+                expect(spy_add.calls.count()).toEqual(2);
+                expect(spy_add.calls.argsFor(0)).toEqual(['disabled']);
+                expect(spy_add.calls.argsFor(1)).toEqual(['disabled']);
                 
                 expect(spy_setAttribute_link.calls.count()).toEqual(2);
                 expect(spy_setAttribute_link.calls.argsFor(0)).toEqual(['href', 'javascript:;']);
