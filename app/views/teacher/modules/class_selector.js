@@ -24,7 +24,7 @@ function UpdateManagementButtons() {
 }
 
 function getSelectedClassIds() {
-	return document.querySelectorAll('#class_selector option:checked').map(option => option.value);
+	return Array.prototype.slice.call(document.querySelectorAll('#class_selector option:checked')).map(option => option.value);
 }
 
 function AddClass(id, name) {
