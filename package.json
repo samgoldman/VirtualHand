@@ -30,8 +30,11 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "nyc --reporter=lcov jasmine && karma start --single-run --browsers ChromeHeadless",
-    "coverage": "codecov"
+    "back_unit": "jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json",
+    "front_unit": "karma start --single-run --browsers ChromeHeadless",
+    "integration": "jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json",
+    "test": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && karma start --single-run --browsers ChromeHeadless && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json",
+    "coverage": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && karma start --single-run --browsers ChromeHeadless && codecov -C -F unit && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && codecov -C -F integration"
   },
   "devDependencies": {
     "chai": "^4.2.0",
