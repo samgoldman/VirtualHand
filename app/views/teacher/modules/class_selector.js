@@ -1,73 +1,58 @@
-function ClassSelectorChanged() {
-	let options = $('#class_selector')[0].getElementsByTagName("option");
-	UpdateManagementButtons(options);
-}
-
 // This will enable the 4 management buttons iff there is a single
 // class selected
 function UpdateManagementButtons(options) {
-	let numSelected = 0;
-	for (let i = options.length; i--;) {
-		if (options[i].selected) {
-			numSelected++;
-		}
-	}
+	const numSelected = document.querySelectorAll('#class_selector option:checked').length;
 
-	const managementButtons = $('.management_button');
+	const managementButtons = document.querySelectorAll('.management_button');
 
 	if (numSelected === 1) {
-		managementButtons.removeAttr("disabled");
-		managementButtons.removeClass("disabled");
-		$('#ar_history_link').attr('href', '/teacher/history/assistancerequest/' + getSelectedClassId());
-		$('#hp_history_link').attr('href', '/teacher/history/hallpass/' + getSelectedClassId());
+		managementButtons.forEach(button => {
+			button.removeAttribute('disabled');
+			button.classList.remove('disabled');
+		});
+		const selected = getSelectedClassId();
+		document.querySelector('#ar_history_link').setAttribute('href', `/teacher/history/assistancerequest/${selected}`);
+		document.querySelector('#hp_history_link').setAttribute('href', `/teacher/history/hallpass/${selected}`);
 	} else {
-		managementButtons.attr("disabled", "disabled");
-		managementButtons.addClass("disabled");
-		$('#ar_history_link').attr('href', 'javascript:;');
-		$('#hp_history_link').attr('href', 'javascript:;');
+		managementButtons.forEach(button => {
+			button.setAttribute('disabled', 'disabled');
+			button.classList.push('disabled');
+		});
+		document.querySelector('#ar_history_link').setAttribute('href', 'javascript:;');
+		document.querySelector('#hp_history_link').setAttribute('href', 'javascript:;');
 	}
 }
 
 function getSelectedClassId() {
-	let options = $('#class_selector')[0].getElementsByTagName("option");
-	for (let i = options.length; i--;)
-		if (options[i].selected)
-			return options[i].value;
+	const option = document.querySelector("#class_selector").querySelector("option:checked");
+	return undefined !== option ? option.value : undefined;	
 }
 
 function getSelectedClassIds() {
-	let ids = [];
-	let options = $('#class_selector')[0].getElementsByTagName("option");
-	for (let i = options.length; i--;)
-		if (options[i].selected)
-			ids.push(options[i].value);
-	return ids;
+	return document.querySelectorAll('#class_selector option:checked').map(option => option.value);
 }
 
 function AddClass(id, name) {
-	let option = document.createElement("option");
-	option.value = id;
-	option.innerHTML = name;
-	$('#class_selector')[0].add(option);
+	const option = new Option(name, id);
+	document.querySelector('#class_selector').appendChild(option);
 	sortClasses();
 }
 
 function RemoveClass(id) {
-	$('#class_selector option[value=' + id + ']').remove();
+	const option = document.querySelector(`option[value=${id}]`);
+	document.querySelector('#class_selector').removeChild(option);
 }
 
 function RenameClass(id, name) {
-	let options = $('#class_selector')[0].getElementsByTagName("option");
-	for (let i = options.length; i--;)
-		if (options[i].value === id) {
-			options[i].innerHTML = name;
-		}
+	const option = document.querySelector(`option[value=${id}]`);
+	option.innerHTML = name;
 	sortClasses();
-	ClassSelectorChanged();
+	UpdateManagementButtons();
 }
 
-window.addEventListener("load", function () {
-	$('#class_selector').change(ClassSelectorChanged);
-
+function ClassSelectorInit_Teacher() {
+	document.querySelector('#class_selector').addEventListener('change', UpdateManagementButtons);
 	sortClasses();
-});
+}
+
+window.addEventListener("load", ClassSelectorInit_Teacher);
