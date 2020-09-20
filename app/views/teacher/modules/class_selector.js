@@ -1,6 +1,6 @@
 // This will enable the 4 management buttons iff there is a single
 // class selected
-function UpdateManagementButtons(options) {
+function UpdateManagementButtons() {
 	const numSelected = document.querySelectorAll('#class_selector option:checked').length;
 
 	const managementButtons = document.querySelectorAll('.management_button');
