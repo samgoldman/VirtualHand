@@ -32,33 +32,5 @@ define((require) => {
             });
         });
 
-        describe('>getSelectedClassId', () => {
-            it('should be defined', () => {
-                expect(getSelectedClassId).toBeDefined();
-            });
-
-            [
-                {option: undefined, expected: undefined},
-                {option: new Option('t', 'v1', false, true), expected: 'v1'},
-                {option: new Option('t', 'v2', true, true), expected: 'v2'},
-            ].forEach(testCase => {
-                it('should return the value of the first selected option or undefined if no such option', () => {
-                    const mock_element = {
-                        querySelector: () => undefined
-                    };
-
-                    const spy_document_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
-                    const spy_element_querySelector = spyOn(mock_element, 'querySelector').and.returnValue(testCase.option);
-
-                    expect(getSelectedClassId()).toEqual(testCase.expected);
-
-                    expect(spy_document_querySelector).toHaveBeenCalledTimes(1);
-                    expect(spy_document_querySelector.calls.argsFor(0)).toEqual(['#class_selector']);
-                    
-                    expect(spy_element_querySelector).toHaveBeenCalledTimes(1);
-                    expect(spy_element_querySelector.calls.argsFor(0)).toEqual(['option:checked']);
-                });
-            });
-        });
     });
 });

@@ -23,11 +23,6 @@ function UpdateManagementButtons(options) {
 	}
 }
 
-function getSelectedClassId() {
-	const option = document.querySelector("#class_selector").querySelector("option:checked");
-	return undefined !== option ? option.value : undefined;	
-}
-
 function getSelectedClassIds() {
 	return document.querySelectorAll('#class_selector option:checked').map(option => option.value);
 }
