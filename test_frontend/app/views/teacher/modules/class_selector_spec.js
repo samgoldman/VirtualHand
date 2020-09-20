@@ -207,5 +207,31 @@ define((require) => {
             });
         });
 
+        describe('>AddClass', () => {
+            it('should be defined', () => {
+                expect(AddClass).toBeDefined();
+            });
+
+            it('should create a new option, append it to the select element, and call sortClasses', () => {
+                const mock_element = {
+                    appendChild: () => undefined
+                };
+                
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_appendChild = spyOn(mock_element, 'appendChild').and.callThrough();
+                const spy_sortClasses = spyOn(window, 'sortClasses').and.returnValue(undefined);
+
+                expect(AddClass('test_id', 'test_name')).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#class_selector']);
+
+                expect(spy_appendChild.calls.count()).toEqual(1);
+                expect(spy_appendChild.calls.argsFor(0)).toEqual([new Option('test_name', 'test_id')]);
+
+                expect(spy_sortClasses.calls.count()).toEqual(1);
+                expect(spy_sortClasses.calls.argsFor(0)).toEqual([]);
+            });
+        });
     });
 });
