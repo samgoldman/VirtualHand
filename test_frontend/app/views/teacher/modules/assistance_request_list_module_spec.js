@@ -115,5 +115,74 @@ define((require) => {
                 });
             });
         });
+
+        describe('>KeyDownHandler', () => {
+            it('should be defined', () => {
+                expect(KeyDownHandler).toBeDefined();
+            });
+
+            [{event: new KeyboardEvent('keydown', {keyCode: 49, which: 49, key: '1'}), window_event: undefined, expected: 0},
+             {event: new KeyboardEvent('keydown', {keyCode: 50, which: 50, key: '2'}), window_event: undefined, expected: 1},
+             {event: new KeyboardEvent('keydown', {keyCode: 51, which: 51, key: '3'}), window_event: undefined, expected: 2},
+             {event: new KeyboardEvent('keydown', {keyCode: 52, which: 52, key: '4'}), window_event: undefined, expected: 3},
+             {event: new KeyboardEvent('keydown', {keyCode: 53, which: 53, key: '5'}), window_event: undefined, expected: 4},
+             {event: new KeyboardEvent('keydown', {keyCode: 49, which: 49, key: '1'}), window_event: true, expected: 0},
+             {event: new KeyboardEvent('keydown', {keyCode: 50, which: 50, key: '2'}), window_event: true, expected: 1},
+             {event: new KeyboardEvent('keydown', {keyCode: 51, which: 51, key: '3'}), window_event: true, expected: 2},
+             {event: new KeyboardEvent('keydown', {keyCode: 52, which: 52, key: '4'}), window_event: true, expected: 3},
+             {event: new KeyboardEvent('keydown', {keyCode: 53, which: 53, key: '5'}), window_event: true, expected: 4}].forEach(testCase => {
+                const {event, window_event, expected} = testCase;
+                it('should call handDown with the value of the key minus 1 if it is an integer', () => {
+                    const spy_handDown = jasmine.createSpy('handDown').and.stub();
+                    const spy_RequestRandomStudent = jasmine.createSpy('RequestRandomStudent').and.stub();
+                    const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.stub();
+
+                    const original_handDown = handDown;
+                    const original_RequestRandomStudent = undefined;
+                    const original_window_event = window.window_event;
+
+                    handDown = spy_handDown;
+                    RequestRandomStudent = spy_RequestRandomStudent;
+
+                    expect(KeyDownHandler(event)).toBeUndefined();
+
+                    expect(spy_handDown.calls.count()).toEqual(1);
+                    expect(spy_handDown.calls.argsFor(0)).toEqual([expected]);
+
+                    expect(spy_RequestRandomStudent.calls.count()).toEqual(0);
+
+                    expect(spy_getSelectedClassId.calls.count()).toEqual(0);
+
+                    handDown = original_handDown;
+                    RequestRandomStudent = original_RequestRandomStudent;
+                    window.event = original_window_event;
+                });
+            });
+
+            it('should call RequestRandomStudent for the selected class if the key is r', () => {
+                const spy_handDown = jasmine.createSpy('handDown').and.stub();
+                const spy_RequestRandomStudent = jasmine.createSpy('RequestRandomStudent').and.stub();
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('42');
+
+                const original_handDown = handDown;
+                const original_RequestRandomStudent = undefined;
+
+                handDown = spy_handDown;
+                RequestRandomStudent = spy_RequestRandomStudent;
+
+                expect(KeyDownHandler(new KeyboardEvent('keydown', {keyCode: 114}))).toBeUndefined();
+
+                expect(spy_handDown.calls.count()).toEqual(0);
+
+                expect(spy_RequestRandomStudent.calls.count()).toEqual(1);
+                expect(spy_RequestRandomStudent.calls.argsFor(0)).toEqual(['42'])
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+
+                handDown = original_handDown;
+                RequestRandomStudent = original_RequestRandomStudent;
+            });
+        });
     });
 });

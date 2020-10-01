@@ -23,7 +23,7 @@ const HandleRetrieveAssistanceRequests = data => {
 	}
 }
 
-const handDown = index => {
+function handDown(index) {
 	const listItem = document.querySelector(`#listItem${index}`);
 	if (listItem.getAttribute('value') !== "")
 		socket.emit('Request_TeacherResolveAssistanceRequest', {arid: listItem.getAttribute('value')});
