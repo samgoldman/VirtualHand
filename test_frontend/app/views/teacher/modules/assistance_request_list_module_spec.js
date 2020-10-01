@@ -19,6 +19,7 @@ define((require) => {
 
                     const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
                     const spy_getSelectedClassIds = jasmine.createSpy('getSelectedClassIds').and.returnValue(selectedCourseList);
+                    const original_getSelectedClassIds = getSelectedClassIds;
                     getSelectedClassIds = spy_getSelectedClassIds;
 
                     expect(RetrieveAssistanceRequests()).toBeUndefined();
@@ -28,6 +29,8 @@ define((require) => {
 
                     expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
                     expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
+                    
+                    getSelectedClassIds = original_getSelectedClassIds;
                 });
             });
         });
@@ -96,6 +99,7 @@ define((require) => {
 
                     const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
                     const spy_getSelectedClassIds = jasmine.createSpy('getSelectedClassIds').and.returnValue(selectedCourseList);
+                    const original_getSelectedClassIds = getSelectedClassIds;
                     getSelectedClassIds = spy_getSelectedClassIds;
 
                     expect(ClearAllAssistanceRequests()).toBeUndefined();
@@ -106,6 +110,8 @@ define((require) => {
 
                     expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
                     expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
+
+                    getSelectedClassIds = original_getSelectedClassIds;
                 });
             });
         });

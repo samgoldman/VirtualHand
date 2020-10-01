@@ -233,5 +233,26 @@ define((require) => {
                 expect(spy_sortClasses.calls.argsFor(0)).toEqual([]);
             });
         });
+
+        describe('>getSelectedClassIds', () => {
+            it('should be defined', () => {
+                expect(getSelectedClassId).toBeDefined();
+            });
+
+            [{options: [], expected: []}, 
+             {options: [{'value': 'v1'}], expected: ['v1']},
+             {options: [{'value': 'v1'}, {'value': 'v2', 'other_attr': 'v3'}], expected: ['v1', 'v2']}].forEach(testCase => {
+                const {options, expected} = testCase;
+
+                it('>should return the value of each of the selected options', () => {
+                    const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValue(options);
+
+                    expect(getSelectedClassIds()).toEqual(expected);
+
+                    expect(spy_querySelectorAll.calls.count()).toEqual(1);
+                    expect(spy_querySelectorAll.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+                });
+             });
+        });
     });
 });
