@@ -1,24 +1,22 @@
 let numRequests = 0;
 
 const HandleRetrieveAssistanceRequests = data => {
-	let requests = data.requests;
-
-	if (requests.length > numRequests) {
+	if (data.requests.length > numRequests) {
 		if (document.querySelector("#audioCheck").checked) {
 			document.querySelector("#ding").play();
 		}
 	}
-
-	numRequests = requests.length;
+	
+	numRequests = data.requests.length;
 
 	for (let i = 0; i < 5; i++) {
-		let listItem = document.querySelector(`#listItem${i}`);
-		if (i >= requests.length) {
+		const listItem = document.querySelector(`#listItem${i}`);
+		if (i >= data.requests.length) {
 			listItem.innerHTML = "";
 			listItem.setAttribute('value', "");
 		} else {
-			listItem.innerHTML = requests[i].student.username;
-			listItem.setAttribute('value', requests[i]._id);
+			listItem.innerHTML = data.requests[i].student.username;
+			listItem.setAttribute('value', data.requests[i]._id);
 		}
 	}
 }
