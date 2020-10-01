@@ -39,8 +39,7 @@ function RemoveClass(id) {
 }
 
 function RenameClass(id, name) {
-	const option = document.querySelector(`option[value=${id}]`);
-	option.innerHTML = name;
+	document.querySelector(`option[value=${id}]`).innerHTML = name;
 	sortClasses();
 	UpdateManagementButtons();
 }
