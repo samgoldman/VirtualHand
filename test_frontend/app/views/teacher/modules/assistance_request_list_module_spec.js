@@ -184,5 +184,240 @@ define((require) => {
                 RequestRandomStudent = original_RequestRandomStudent;
             });
         });
+
+        describe('>HandleRetrieveAssistanceRequests', () => {                
+            it('should be defined', () => {
+                expect(HandleRetrieveAssistanceRequests).toBeDefined();
+            });
+
+            it('should clear the listItems and not play the ding if there are 0 requests', () => {
+                numRequests = 0;
+
+                const mock_elements = [{innerHTML: 'e1', setAttribute: () => undefined},
+                    {innerHTML: 'e2', setAttribute: () => undefined},
+                    {innerHTML: 'e3', setAttribute: () => undefined},
+                    {innerHTML: 'e4', setAttribute: () => undefined},
+                    {innerHTML: 'e5', setAttribute: () => undefined},
+                    {innerHTML: 'e6', setAttribute: () => undefined}];
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_elements[0], mock_elements[1], mock_elements[2], mock_elements[3], mock_elements[4], mock_elements[5]);
+                const spy_setAttribute0 = spyOn(mock_elements[0], 'setAttribute').and.stub();
+                const spy_setAttribute1 = spyOn(mock_elements[1], 'setAttribute').and.stub();
+                const spy_setAttribute2 = spyOn(mock_elements[2], 'setAttribute').and.stub();
+                const spy_setAttribute3 = spyOn(mock_elements[3], 'setAttribute').and.stub();
+                const spy_setAttribute4 = spyOn(mock_elements[4], 'setAttribute').and.stub();
+                const spy_setAttribute5 = spyOn(mock_elements[5], 'setAttribute').and.stub();
+
+                const data = {requests: []};
+
+                expect(HandleRetrieveAssistanceRequests(data)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(5);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#listItem0']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#listItem1']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#listItem2']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#listItem3']);
+                expect(spy_querySelector.calls.argsFor(4)).toEqual(['#listItem4']);
+
+                expect(spy_setAttribute0.calls.count()).toEqual(1);
+                expect(spy_setAttribute0.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[0].innerHTML).toEqual('');
+
+                expect(spy_setAttribute1.calls.count()).toEqual(1);
+                expect(spy_setAttribute1.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[1].innerHTML).toEqual('');
+
+                expect(spy_setAttribute2.calls.count()).toEqual(1);
+                expect(spy_setAttribute2.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[2].innerHTML).toEqual('');
+
+                expect(spy_setAttribute3.calls.count()).toEqual(1);
+                expect(spy_setAttribute3.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[3].innerHTML).toEqual('');
+
+                expect(spy_setAttribute4.calls.count()).toEqual(1);
+                expect(spy_setAttribute4.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[4].innerHTML).toEqual('');
+
+                expect(spy_setAttribute5.calls.count()).toEqual(0);
+                expect(mock_elements[5].innerHTML).toEqual('e6');
+
+                expect(numRequests).toEqual(0);
+            });
+
+            it('should update the list items if there are multiple requests and not play the ding if there are fewer requests now', () => {
+                numRequests = 4;
+
+                const mock_elements = [{innerHTML: 'e1', setAttribute: () => undefined},
+                    {innerHTML: 'e2', setAttribute: () => undefined},
+                    {innerHTML: 'e3', setAttribute: () => undefined},
+                    {innerHTML: 'e4', setAttribute: () => undefined},
+                    {innerHTML: 'e5', setAttribute: () => undefined},
+                    {innerHTML: 'e6', setAttribute: () => undefined}];
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_elements[0], mock_elements[1], mock_elements[2], mock_elements[3], mock_elements[4], mock_elements[5]);
+                const spy_setAttribute0 = spyOn(mock_elements[0], 'setAttribute').and.stub();
+                const spy_setAttribute1 = spyOn(mock_elements[1], 'setAttribute').and.stub();
+                const spy_setAttribute2 = spyOn(mock_elements[2], 'setAttribute').and.stub();
+                const spy_setAttribute3 = spyOn(mock_elements[3], 'setAttribute').and.stub();
+                const spy_setAttribute4 = spyOn(mock_elements[4], 'setAttribute').and.stub();
+                const spy_setAttribute5 = spyOn(mock_elements[5], 'setAttribute').and.stub();
+
+                const data = {requests: [{student: {username: 'u1'}, _id: 'i1'}, {student: {username: 'u2'}, _id: 'i2'}, {student: {username: 'u3'}, _id: 'i3'}]};
+
+                expect(HandleRetrieveAssistanceRequests(data)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(5);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#listItem0']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#listItem1']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#listItem2']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#listItem3']);
+                expect(spy_querySelector.calls.argsFor(4)).toEqual(['#listItem4']);
+
+                expect(spy_setAttribute0.calls.count()).toEqual(1);
+                expect(spy_setAttribute0.calls.argsFor(0)).toEqual(['value', 'i1']);
+                expect(mock_elements[0].innerHTML).toEqual('u1');
+
+                expect(spy_setAttribute1.calls.count()).toEqual(1);
+                expect(spy_setAttribute1.calls.argsFor(0)).toEqual(['value', 'i2']);
+                expect(mock_elements[1].innerHTML).toEqual('u2');
+
+                expect(spy_setAttribute2.calls.count()).toEqual(1);
+                expect(spy_setAttribute2.calls.argsFor(0)).toEqual(['value', 'i3']);
+                expect(mock_elements[2].innerHTML).toEqual('u3');
+
+                expect(spy_setAttribute3.calls.count()).toEqual(1);
+                expect(spy_setAttribute3.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[3].innerHTML).toEqual('');
+
+                expect(spy_setAttribute4.calls.count()).toEqual(1);
+                expect(spy_setAttribute4.calls.argsFor(0)).toEqual(['value', '']);
+                expect(mock_elements[4].innerHTML).toEqual('');
+
+                expect(spy_setAttribute5.calls.count()).toEqual(0);
+                expect(mock_elements[5].innerHTML).toEqual('e6');
+
+                expect(numRequests).toEqual(3);
+            });
+
+            it('should update the list items if there are multiple requests and play the ding if the ding checkbox is checked', () => {
+                numRequests = 4;
+
+                const mock_elements = [{checked: true}, {play: () => undefined}, 
+                    {innerHTML: 'e1', setAttribute: () => undefined},
+                    {innerHTML: 'e2', setAttribute: () => undefined},
+                    {innerHTML: 'e3', setAttribute: () => undefined},
+                    {innerHTML: 'e4', setAttribute: () => undefined},
+                    {innerHTML: 'e5', setAttribute: () => undefined},
+                    {innerHTML: 'e6', setAttribute: () => undefined}];
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_elements[0], mock_elements[1], mock_elements[2], mock_elements[3], mock_elements[4], mock_elements[5], mock_elements[6], mock_elements[7]);
+                const spy_setAttribute0 = spyOn(mock_elements[2], 'setAttribute').and.stub();
+                const spy_setAttribute1 = spyOn(mock_elements[3], 'setAttribute').and.stub();
+                const spy_setAttribute2 = spyOn(mock_elements[4], 'setAttribute').and.stub();
+                const spy_setAttribute3 = spyOn(mock_elements[5], 'setAttribute').and.stub();
+                const spy_setAttribute4 = spyOn(mock_elements[6], 'setAttribute').and.stub();
+                const spy_setAttribute5 = spyOn(mock_elements[7], 'setAttribute').and.stub();                    
+                const mock_play = spyOn(mock_elements[1], 'play').and.stub();
+
+                const data = {requests: [{student: {username: 'u1'}, _id: 'i1'}, {student: {username: 'u2'}, _id: 'i2'}, {student: {username: 'u3'}, _id: 'i3'}, {student: {username: 'u4'}, _id: 'i4'}, {student: {username: 'u5'}, _id: 'i5'}, {student: {username: 'u6'}, _id: 'i6'}]};
+
+                expect(HandleRetrieveAssistanceRequests(data)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(7);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#audioCheck']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#ding']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#listItem0']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#listItem1']);
+                expect(spy_querySelector.calls.argsFor(4)).toEqual(['#listItem2']);
+                expect(spy_querySelector.calls.argsFor(5)).toEqual(['#listItem3']);
+                expect(spy_querySelector.calls.argsFor(6)).toEqual(['#listItem4']);
+
+                expect(spy_setAttribute0.calls.count()).toEqual(1);
+                expect(spy_setAttribute0.calls.argsFor(0)).toEqual(['value', 'i1']);
+                expect(mock_elements[2].innerHTML).toEqual('u1');
+
+                expect(spy_setAttribute1.calls.count()).toEqual(1);
+                expect(spy_setAttribute1.calls.argsFor(0)).toEqual(['value', 'i2']);
+                expect(mock_elements[3].innerHTML).toEqual('u2');
+
+                expect(spy_setAttribute2.calls.count()).toEqual(1);
+                expect(spy_setAttribute2.calls.argsFor(0)).toEqual(['value', 'i3']);
+                expect(mock_elements[4].innerHTML).toEqual('u3');
+
+                expect(spy_setAttribute3.calls.count()).toEqual(1);
+                expect(spy_setAttribute3.calls.argsFor(0)).toEqual(['value', 'i4']);
+                expect(mock_elements[5].innerHTML).toEqual('u4');
+
+                expect(spy_setAttribute4.calls.count()).toEqual(1);
+                expect(spy_setAttribute4.calls.argsFor(0)).toEqual(['value', 'i5']);
+                expect(mock_elements[6].innerHTML).toEqual('u5');
+
+                expect(spy_setAttribute5.calls.count()).toEqual(0);
+                expect(mock_elements[7].innerHTML).toEqual('e6');
+
+                expect(mock_play.calls.count()).toEqual(1);
+                expect(mock_play.calls.argsFor(0)).toEqual([]);
+
+                expect(numRequests).toEqual(6);
+            });
+
+            it('should update the list items if there are multiple requests and not play the ding if the ding checkbox is not', () => {
+                numRequests = 4;
+
+                const mock_elements = [{checked: false}, 
+                    {innerHTML: 'e1', setAttribute: () => undefined},
+                    {innerHTML: 'e2', setAttribute: () => undefined},
+                    {innerHTML: 'e3', setAttribute: () => undefined},
+                    {innerHTML: 'e4', setAttribute: () => undefined},
+                    {innerHTML: 'e5', setAttribute: () => undefined},
+                    {innerHTML: 'e6', setAttribute: () => undefined}];
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_elements[0], mock_elements[1], mock_elements[2], mock_elements[3], mock_elements[4], mock_elements[5], mock_elements[6]);
+                const spy_setAttribute0 = spyOn(mock_elements[1], 'setAttribute').and.stub();
+                const spy_setAttribute1 = spyOn(mock_elements[2], 'setAttribute').and.stub();
+                const spy_setAttribute2 = spyOn(mock_elements[3], 'setAttribute').and.stub();
+                const spy_setAttribute3 = spyOn(mock_elements[4], 'setAttribute').and.stub();
+                const spy_setAttribute4 = spyOn(mock_elements[5], 'setAttribute').and.stub();
+                const spy_setAttribute5 = spyOn(mock_elements[6], 'setAttribute').and.stub();                    
+
+                const data = {requests: [{student: {username: 'u1'}, _id: 'i1'}, {student: {username: 'u2'}, _id: 'i2'}, {student: {username: 'u3'}, _id: 'i3'}, {student: {username: 'u4'}, _id: 'i4'}, {student: {username: 'u5'}, _id: 'i5'}, {student: {username: 'u6'}, _id: 'i6'}]};
+
+                expect(HandleRetrieveAssistanceRequests(data)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(6);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#audioCheck']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#listItem0']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#listItem1']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#listItem2']);
+                expect(spy_querySelector.calls.argsFor(4)).toEqual(['#listItem3']);
+                expect(spy_querySelector.calls.argsFor(5)).toEqual(['#listItem4']);
+
+                expect(spy_setAttribute0.calls.count()).toEqual(1);
+                expect(spy_setAttribute0.calls.argsFor(0)).toEqual(['value', 'i1']);
+                expect(mock_elements[1].innerHTML).toEqual('u1');
+
+                expect(spy_setAttribute1.calls.count()).toEqual(1);
+                expect(spy_setAttribute1.calls.argsFor(0)).toEqual(['value', 'i2']);
+                expect(mock_elements[2].innerHTML).toEqual('u2');
+
+                expect(spy_setAttribute2.calls.count()).toEqual(1);
+                expect(spy_setAttribute2.calls.argsFor(0)).toEqual(['value', 'i3']);
+                expect(mock_elements[3].innerHTML).toEqual('u3');
+
+                expect(spy_setAttribute3.calls.count()).toEqual(1);
+                expect(spy_setAttribute3.calls.argsFor(0)).toEqual(['value', 'i4']);
+                expect(mock_elements[4].innerHTML).toEqual('u4');
+
+                expect(spy_setAttribute4.calls.count()).toEqual(1);
+                expect(spy_setAttribute4.calls.argsFor(0)).toEqual(['value', 'i5']);
+                expect(mock_elements[5].innerHTML).toEqual('u5');
+
+                expect(spy_setAttribute5.calls.count()).toEqual(0);
+                expect(mock_elements[6].innerHTML).toEqual('e6');
+
+                expect(numRequests).toEqual(6);
+            });
+        });
     });
 });
