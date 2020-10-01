@@ -280,5 +280,42 @@ define((require) => {
                 });
             });
         });
+
+        describe('>RenameClass', () => {
+            it('should be defined', () => {
+                expect(RenameClass).toBeDefined();
+            });
+
+            it('should update the corresponding option\'s text, sort the classes, and update the management buttons', () => {
+                const mock_element = {innerHTML: 'original_name'};
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+
+                const spy_sortClasses = jasmine.createSpy('sortClasses').and.stub();
+                const spy_UpdateManagementButtons = jasmine.createSpy('UpdateManagementButtons').and.stub();
+
+                const original_sortClasses = sortClasses;
+                const original_UpdateManagementButtons = UpdateManagementButtons;
+
+                sortClasses = spy_sortClasses;
+                UpdateManagementButtons = spy_UpdateManagementButtons;
+
+                expect(RenameClass('test_id', 'test_name')).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['option[value=test_id]']);
+
+                expect(spy_sortClasses.calls.count()).toEqual(1);
+                expect(spy_sortClasses.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_UpdateManagementButtons.calls.count()).toEqual(1);
+                expect(spy_UpdateManagementButtons.calls.argsFor(0)).toEqual([]);
+
+                expect(mock_element.innerHTML).toEqual('test_name');
+
+                sortClasses = original_sortClasses;
+                UpdateManagementButtons = original_UpdateManagementButtons;
+            });
+        });
     });
 });
