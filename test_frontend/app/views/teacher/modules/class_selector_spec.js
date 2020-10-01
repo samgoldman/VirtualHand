@@ -254,5 +254,31 @@ define((require) => {
                 });
              });
         });
+
+        describe('>RemoveClass', () => {
+            it('should be defined', () => {
+                expect(RemoveClass).toBeDefined();
+            });
+
+            ['a', 'xyz'].forEach(id => {
+                it('should find the option for the given id and remove it from the class selector', () => {                        
+                    const mock_element = {
+                        removeChild: () => undefined
+                    };
+
+                    const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(`option_value${id}`, mock_element);
+                    const spy_removeChild = spyOn(mock_element, 'removeChild').and.callThrough();
+
+                    expect(RemoveClass(id)).toBeUndefined();
+
+                    expect(spy_querySelector.calls.count()).toEqual(2);
+                    expect(spy_querySelector.calls.argsFor(0)).toEqual([`option[value=${id}]`]);
+                    expect(spy_querySelector.calls.argsFor(1)).toEqual(['#class_selector']);
+
+                    expect(spy_removeChild.calls.count()).toEqual(1);
+                    expect(spy_removeChild.calls.argsFor(0)).toEqual([`option_value${id}`]);
+                });
+            });
+        });
     });
 });
