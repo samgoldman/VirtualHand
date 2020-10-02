@@ -269,5 +269,97 @@ define((require) => {
                 expect(spy_querySelector.calls.argsFor(0)).toEqual(['#student_selector option:checked']);
             });
         });
+
+        describe('>changeStudentPassword', () => {
+            it('should be defined', () => {
+                expect(changeStudentPassword).toBeDefined();
+            });
+
+            it('should send the request to the server', () => {
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_emit = spyOn(mock_socket, 'emit').and.callThrough();
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('test_id_39');
+                const spy_getSelectedStudentOption = spyOn(window, 'getSelectedStudentOption').and.returnValue({value: 'some_student'});
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue({value: '1234'});
+
+                expect(changeStudentPassword()).toBeUndefined();
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_ChangeStudentPassword', {cid: 'test_id_39', sid: 'some_student', password: '1234'}]);
+
+                expect(spy_getSelectedClassId.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_getSelectedStudentOption.calls.count()).toEqual(1);
+                expect(spy_getSelectedStudentOption.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#new_student_pw']);
+            });
+        });
+
+        describe('>handleResponseGetStudents', () => {
+            it('should be defined', () => {
+                expect(handleReponseGetStudents).toBeDefined();
+            });
+
+            it('should not add any options if there are no enrollments', () => {
+                const mock_selector = {
+                    innerHTML: 'some_html_here',
+                    add: () => undefined
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_selector);
+                const spy_add = spyOn(mock_selector, 'add').and.stub();
+
+                expect(handleReponseGetStudents({enrollments: []})).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#student_selector']);
+
+                expect(spy_add.calls.count()).toEqual(0);
+
+                expect(mock_selector.innerHTML).toEqual('');
+            });
+
+            it('should not add options if there are no enrollments and give the option additional classes for any enrollment not admitted', () => {
+                const mock_selector = {
+                    innerHTML: 'some_html_here',
+                    add: () => undefined
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_selector);
+                const spy_add = spyOn(mock_selector, 'add').and.stub();
+
+                const data = {enrollments: [
+                    {student: {username: 'name1', _id: '1'}, admitted: true},
+                    {student: {username: 'name12', _id: '9'}, admitted: false},
+                    {student: {username: 'name19', _id: '42'}, admitted: true}
+                ]};
+
+                const expected_option_1 = new Option('name1', '1');
+
+                const expected_option_2 = new Option('name12', '9');
+                expected_option_2.classList = 'bg-info not-admitted ';
+
+                const expected_option_3 = new Option('name19', '42');
+
+                expect(handleReponseGetStudents(data)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#student_selector']);
+
+                expect(spy_add.calls.count()).toEqual(3);
+                expect(spy_add.calls.argsFor(0)).toEqual([expected_option_1]);
+                expect(spy_add.calls.argsFor(1)).toEqual([expected_option_2]);
+                expect(spy_add.calls.argsFor(2)).toEqual([expected_option_3]);
+
+                expect(mock_selector.innerHTML).toEqual('');
+            });
+        });
     });
 });

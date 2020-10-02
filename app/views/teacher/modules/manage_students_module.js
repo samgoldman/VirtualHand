@@ -22,7 +22,7 @@ function getSelectedStudentOption() {
 }
 
 function handleReponseGetStudents(data) {
-	const student_selector = document.getElementById("student_selector");
+	const student_selector = document.querySelector("#student_selector");
 	student_selector.innerHTML = "";
 	data.enrollments.forEach(enrollment => {
 		const option = new Option(enrollment.student.username, enrollment.student._id);
