@@ -1,28 +1,27 @@
 function AddStudentsClicked() {
-	let csv = document.getElementById('addStudentsCSV').value;
-	let defaultPassword = document.getElementById('addStudentsDefaultPassword').value;
 	socket.emit('Request_AddStudents', {
 		cid: getSelectedClassId(),
-		csv: csv,
-		defaultPassword: defaultPassword
+		csv: document.querySelector('#addStudentsCSV').value,
+		defaultPassword: document.querySelector('#addStudentsDefaultPassword').value
 	});
 }
 
-socket.on('Response_AddStudents', function (data) {
-	console.log('AddStudents Response');
-	document.getElementById("enrollAlert").innerHTML += '<p>' + data.message + '</p>';
-	document.getElementById("enrollAlert").style.display = "block";
-});
+function handleResponseAddStudents(data) {
+	document.querySelector("#enrollAlert").innerHTML += '<p>' + data.message + '</p>';
+	document.querySelector("#enrollAlert").style.display = "block";
+}
 
-window.addEventListener("load", function () {
-	$('#addStudentsSubmit').each(function () {
-		this.addEventListener('click', AddStudentsClicked);
-	});
+function clearAddStudentModal() {
+	document.querySelector('#addStudentsCSV').value = '';
+	document.querySelector('#addStudentsDefaultPassword').value = '';
+	document.querySelector("#enrollAlert").innerHTML = '';
+	document.querySelector("#enrollAlert").style.display = "none";
+}
 
-	$(".add-students-modal").on("hidden.bs.modal", function(){
-		$('#addStudentsCSV').val('');
-		$('#addStudentsDefaultPassword').val('');
-		document.getElementById("enrollAlert").innerHTML += '';
-		document.getElementById("enrollAlert").style.display = "none";
-	});
-});
+function addStudentsModuleInit() {
+	document.querySelector('#addStudentsSubmit').addEventListener('click', AddStudentsClicked);
+	socket.on('Response_AddStudents', handleResponseAddStudents);
+	$(".add-students-modal").on("hidden.bs.modal", clearAddStudentModal);
+}
+
+window.addEventListener("load", addStudentsModuleInit);
