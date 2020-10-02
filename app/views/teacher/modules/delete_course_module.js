@@ -24,7 +24,7 @@ function clearDeleteCourseModal() {
 }
 
 function populateDeleteCourseModule() {
-	document.querySelector('#delete_class_classname').innerHTML = document.querySelector('#class_selector option:checked').textContent;
+	document.querySelector('#delete_class_classname').innerText = document.querySelector('#class_selector option:checked').textContent;
 }
 
 function initDeleteCourseModule() {

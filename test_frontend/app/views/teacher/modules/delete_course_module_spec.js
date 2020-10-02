@@ -157,7 +157,7 @@ define((require) => {
 
             it('should populate the span with the name of the selected class', () => {
                 const mock_element = {
-                    innerHTML: 'original_contents',
+                    innerText: 'original_contents',
                     style: {
                         display: 'block'
                     }
@@ -171,7 +171,7 @@ define((require) => {
                 expect(spy_querySelector.calls.argsFor(0)).toEqual(['#delete_class_classname']);
                 expect(spy_querySelector.calls.argsFor(1)).toEqual(['#class_selector option:checked']);
 
-                expect(mock_element).toEqual({innerHTML: 'some_class_name', style: {display: 'block'}});
+                expect(mock_element).toEqual({innerText: 'some_class_name', style: {display: 'block'}});
             });
         });
 
