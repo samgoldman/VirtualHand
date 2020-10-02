@@ -44,7 +44,7 @@ function handleResponseRetrieveHallPassRequests(data) {
 		if(request.granted)
 			document.querySelector('#out_of_room_div').innerHTML += newItem;
 		else
-			document.querySelecotr('#waiting_for_pass_div').innerHTML += newItem;
+			document.querySelector('#waiting_for_pass_div').innerHTML += newItem;
 	});
 }
 

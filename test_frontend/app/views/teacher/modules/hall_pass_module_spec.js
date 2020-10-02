@@ -100,6 +100,7 @@ define((require) => {
 
                 const spy_clearHallPassDivs = spyOn(window, 'clearHallPassDivs').and.stub();
                 const spy_countGranted = spyOn(window, 'countGranted').and.returnValue(3); // This would never happen with 0 requests, but test edge case just in case
+                const spy_grantPass = spyOn(window, 'grantPass').and.stub();
                 const spy_stopwatch_format = spyOn(window, 'stopwatch_format').and.returnValue('dummy_value');
                 const spy_listItemTemplate = jasmine.createSpy('listItemTemplate').and.returnValue('dummy_value2');
                 window.listItemTemplate = spy_listItemTemplate;
@@ -113,11 +114,106 @@ define((require) => {
                 expect(spy_countGranted.calls.count()).toEqual(1);
                 expect(spy_countGranted.calls.argsFor(0)).toEqual([[]]); // Called with empty list
 
+                expect(spy_grantPass.calls.count()).toEqual(0);
+
                 expect(spy_stopwatch_format.calls.count()).toEqual(0);
                 
                 expect(spy_listItemTemplate.calls.count()).toEqual(0);
                 
                 expect(spy_querySelector.calls.count()).toEqual(0);
+
+                expect(mock_element.innerHTML).toEqual('');
+            });
+
+            it('should clear the divs and, add all requests to their appropriate div and if there is no request granted, grant one', () => {
+                const mock_element = {
+                    innerHTML: ''
+                };
+
+                const spy_clearHallPassDivs = spyOn(window, 'clearHallPassDivs').and.stub();
+                const spy_countGranted = spyOn(window, 'countGranted').and.returnValue(0); 
+                const spy_grantPass = spyOn(window, 'grantPass').and.stub();
+                const spy_stopwatch_format = spyOn(window, 'stopwatch_format').and.returnValues('sf1', 'sf2', 'sf3');
+                const spy_listItemTemplate = jasmine.createSpy('listItemTemplate').and.returnValues('t1', 't2', 't3');
+                window.listItemTemplate = spy_listItemTemplate;
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+
+                const requests = [{granted: false, _id: 'i1', student: {username: 's1'}, grantedTime: 'gt', requestTime: 'rt'}, 
+                                  {granted: false, _id: 'i2', student: {username: 's2'}, grantedTime: 'gt', requestTime: 'rt'},
+                                  {granted: false, _id: 'i3', student: {username: 's3'}, grantedTime: 'gt', requestTime: 'rt'}]
+
+                expect(handleResponseRetrieveHallPassRequests({requests: requests})).toBeUndefined();
+
+                expect(spy_clearHallPassDivs.calls.count()).toEqual(1);
+                expect(spy_clearHallPassDivs.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_countGranted.calls.count()).toEqual(1);
+                expect(spy_countGranted.calls.argsFor(0)).toEqual([requests]); 
+
+                expect(spy_grantPass.calls.count()).toEqual(1);
+                expect(spy_grantPass.calls.argsFor(0)).toEqual(['i1']);
+
+                expect(spy_stopwatch_format.calls.count()).toEqual(3);
+                expect(spy_stopwatch_format.calls.argsFor(0)).toEqual(['rt']);
+                expect(spy_stopwatch_format.calls.argsFor(1)).toEqual(['rt']);
+                expect(spy_stopwatch_format.calls.argsFor(2)).toEqual(['rt']);
+                
+                expect(spy_listItemTemplate.calls.count()).toEqual(3);
+                expect(spy_listItemTemplate.calls.argsFor(0)).toEqual([{username: 's1', hrid: 'i1', includeGrantButton: true, time: 'sf1'}]);
+                expect(spy_listItemTemplate.calls.argsFor(1)).toEqual([{username: 's2', hrid: 'i2', includeGrantButton: true, time: 'sf2'}]);
+                expect(spy_listItemTemplate.calls.argsFor(2)).toEqual([{username: 's3', hrid: 'i3', includeGrantButton: true, time: 'sf3'}]);
+                
+                expect(spy_querySelector.calls.count()).toEqual(3);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#waiting_for_pass_div']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#waiting_for_pass_div']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#waiting_for_pass_div']);
+                
+                expect(mock_element.innerHTML).toEqual('t1t2t3');
+            });
+
+            it('should clear the divs and, add all requests to their appropriate div and if there is request granted, grant none', () => {
+                const mock_element = {
+                    innerHTML: ''
+                };
+
+                const spy_clearHallPassDivs = spyOn(window, 'clearHallPassDivs').and.stub();
+                const spy_countGranted = spyOn(window, 'countGranted').and.returnValue(1); 
+                const spy_grantPass = spyOn(window, 'grantPass').and.stub();
+                const spy_stopwatch_format = spyOn(window, 'stopwatch_format').and.returnValues('sf1', 'sf2', 'sf3');
+                const spy_listItemTemplate = jasmine.createSpy('listItemTemplate').and.returnValues('t1', 't2', 't3');
+                window.listItemTemplate = spy_listItemTemplate;
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+
+                const requests = [{granted: false, _id: 'i1', student: {username: 's1'}, grantedTime: 'gt', requestTime: 'rt'}, 
+                                  {granted: true, _id: 'i2', student: {username: 's2'}, grantedTime: 'gt', requestTime: 'rt'},
+                                  {granted: false, _id: 'i3', student: {username: 's3'}, grantedTime: 'gt', requestTime: 'rt'}]
+
+                expect(handleResponseRetrieveHallPassRequests({requests: requests})).toBeUndefined();
+
+                expect(spy_clearHallPassDivs.calls.count()).toEqual(1);
+                expect(spy_clearHallPassDivs.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_countGranted.calls.count()).toEqual(1);
+                expect(spy_countGranted.calls.argsFor(0)).toEqual([requests]); 
+
+                expect(spy_grantPass.calls.count()).toEqual(0);
+
+                expect(spy_stopwatch_format.calls.count()).toEqual(3);
+                expect(spy_stopwatch_format.calls.argsFor(0)).toEqual(['rt']);
+                expect(spy_stopwatch_format.calls.argsFor(1)).toEqual(['gt']);
+                expect(spy_stopwatch_format.calls.argsFor(2)).toEqual(['rt']);
+                
+                expect(spy_listItemTemplate.calls.count()).toEqual(3);
+                expect(spy_listItemTemplate.calls.argsFor(0)).toEqual([{username: 's1', hrid: 'i1', includeGrantButton: true, time: 'sf1'}]);
+                expect(spy_listItemTemplate.calls.argsFor(1)).toEqual([{username: 's2', hrid: 'i2', includeGrantButton: false, time: 'sf2'}]);
+                expect(spy_listItemTemplate.calls.argsFor(2)).toEqual([{username: 's3', hrid: 'i3', includeGrantButton: true, time: 'sf3'}]);
+                
+                expect(spy_querySelector.calls.count()).toEqual(3);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#waiting_for_pass_div']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#out_of_room_div']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#waiting_for_pass_div']);
+                
+                expect(mock_element.innerHTML).toEqual('t1t2t3'); // TODO: should test with separate mock elements
             });
         });
     });
