@@ -28,6 +28,29 @@ define((require) => {
             });
         });
 
+        describe('>handleResponseChangeStudentPassword', () => {
+            it('should be defined', () => {
+                expect(handleResponseChangeStudentPassword).toBeDefined();
+            });
+
+            it('should clear+hide the alert box', () => {
+                const mock_alert_box = {
+                    style: {display: 'none'},
+                    innerText: ''
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_alert_box, mock_alert_box);
+
+                expect(handleResponseChangeStudentPassword({message: 'success message'})).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(2);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#manage_students_alert_box']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#manage_students_alert_box']);
+
+                expect(mock_alert_box).toEqual({style: {display: 'block'}, innerText: 'success message'});
+            });
+        });
+
         describe('>RequestStudents', () => {
             it('should be defined', () => {
                 expect(RequestStudents).toBeDefined();
