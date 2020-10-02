@@ -186,5 +186,73 @@ define((require) => {
                 expect(spy_socket_on.calls.argsFor(3)).toEqual(['Response_StudentsForClass', handleReponseGetStudents]);
             });
         });
+
+        describe('>StudentSelectorChanged', () => {
+            it('should be defined', () => {
+                expect(StudentSelectorChanged).toBeDefined();
+            });
+
+            it('should enable the remove student and change student password and disable admit student if the student is admitted', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined,
+                    setAttribute: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.stub();
+                const spy_setAttribute = spyOn(mock_element, 'setAttribute').and.stub();
+                const spy_getSelectedStudentOption = spyOn(window, 'getSelectedStudentOption').and.returnValue({className: 'someclass'})
+
+                expect(StudentSelectorChanged()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(4);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#remove_student']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#new_student_pw']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#new_student_pw_submit']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#admit_student']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(3);
+                expect(spy_removeAttribute.calls.argsFor(0)).toEqual(['disabled']);
+                expect(spy_removeAttribute.calls.argsFor(1)).toEqual(['disabled']);
+                expect(spy_removeAttribute.calls.argsFor(2)).toEqual(['disabled']);
+
+                expect(spy_setAttribute.calls.count()).toEqual(1);
+                expect(spy_setAttribute.calls.argsFor(0)).toEqual(['disabled', 'disabled']);
+
+                expect(spy_getSelectedStudentOption).toHaveBeenCalledTimes(1);
+                expect(spy_getSelectedStudentOption).toHaveBeenCalledWith();
+            })
+            
+            it('should enable the remove student, disable change student password and enable admit student if the student is not admitted', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined,
+                    setAttribute: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.stub();
+                const spy_setAttribute = spyOn(mock_element, 'setAttribute').and.stub();
+                const spy_getSelectedStudentOption = spyOn(window, 'getSelectedStudentOption').and.returnValue({className: 'someclass not-admitted otherclass'})
+
+                expect(StudentSelectorChanged()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(4);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#remove_student']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#new_student_pw']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#new_student_pw_submit']);
+                expect(spy_querySelector.calls.argsFor(3)).toEqual(['#admit_student']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(2);
+                expect(spy_removeAttribute.calls.argsFor(0)).toEqual(['disabled']);
+                expect(spy_removeAttribute.calls.argsFor(1)).toEqual(['disabled']);
+
+                expect(spy_setAttribute.calls.count()).toEqual(2);
+                expect(spy_setAttribute.calls.argsFor(0)).toEqual(['disabled', 'disabled']);
+                expect(spy_setAttribute.calls.argsFor(1)).toEqual(['disabled', 'disabled']);
+
+                expect(spy_getSelectedStudentOption).toHaveBeenCalledTimes(1);
+                expect(spy_getSelectedStudentOption).toHaveBeenCalledWith();
+            })
+        });
     });
 });
