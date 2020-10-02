@@ -1,6 +1,3 @@
-socket.on('Broadcast_HallPassRequestModified', function () {
-	RetrieveHallPassRequests();
-});
 function RetrieveHallPassRequests() {
 	socket.emit('Request_RetrieveHallPassRequests', {cids: getSelectedClassIds()});
 }
@@ -14,32 +11,36 @@ function grantPass(hrid) {
 }
 
 function ClearAllHallPassRequests() {
-	getSelectedClassIds().forEach((key) => {
+	getSelectedClassIds().forEach(key => {
 		socket.emit('Request_TeacherResolveAllHallPassRequests', {cid: key});
 	});
 }
 
-socket.on('Response_RetrieveHallPassRequests', function (data) {
-	let requests = data.requests;
+function clearHallPassDivs() {
+	document.querySelector('#out_of_room_div').innerHTML = '';
+	document.querySelector('#waiting_for_pass_div').innerHTML = '';
+}
 
-	let outDiv = $('#out_of_room_div')[0];
-	let waitingDiv = $('#waiting_for_pass_div')[0];
-
-	outDiv.innerHTML = "";
-	waitingDiv.innerHTML = "";
-
+function countGranted(requests){
 	let numOut = 0;
 
 	requests.forEach((request) => {
 		if(request.granted)
 			numOut++;
 	});
+	return numOut;
+}
 
-	if(numOut === 0 && requests.length > 0) {
-		grantPass(requests[0]._id);
+function handleResponseRetrieveHallPassRequests(data) {
+	clearHallPassDivs();
+
+	const numOut = countGranted(data.requests);
+
+	if(numOut === 0 && data.requests.length > 0) {
+		grantPass(data.requests[0]._id);
 	}
 
-	requests.forEach((request) => {
+	data.requests.forEach((request) => {
 		const timeString = stopwatch_format(request.granted ? request.grantedTime : request.requestTime);
 		const newItem = window.listItemTemplate({
 			username: request.student.username,
@@ -47,14 +48,19 @@ socket.on('Response_RetrieveHallPassRequests', function (data) {
 			includeGrantButton: !request.granted,
 			time: timeString});
 		if(request.granted)
-			outDiv.innerHTML += newItem;
+			document.querySelector('#out_of_room_div').innerHTML += newItem;
 		else
-			waitingDiv.innerHTML += newItem;
+			document.querySelecotr('#waiting_for_pass_div').innerHTML += newItem;
 	});
-});
-window.addEventListener("load", function () {
-	$('#class_selector').change(RetrieveHallPassRequests);
-	$('#clear-all-hp').click(ClearAllHallPassRequests);
-});
+}
 
-setInterval(RetrieveHallPassRequests, 1000);
+function initHallPassModule() {
+	socket.on('Broadcast_HallPassRequestModified', RetrieveHallPassRequests);
+	socket.on('Response_RetrieveHallPassRequests', handleResponseRetrieveHallPassRequests);
+	document.querySelector('#class_selector').addEventListener('change', RetrieveHallPassRequests);
+	document.querySelector('#clear-all-hp').addEventListener('click', ClearAllHallPassRequests);
+
+	setInterval(RetrieveHallPassRequests, 1000);
+}
+
+window.addEventListener("load", initHallPassModule);
