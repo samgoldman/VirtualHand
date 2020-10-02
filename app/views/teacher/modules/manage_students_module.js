@@ -1,11 +1,10 @@
 function StudentSelectorChanged() {
+	document.querySelector('#remove_student').removeAttribute("disabled");
 	if (getSelectedStudentOption().className.indexOf('not-admitted') === -1) {
-		document.querySelector('#remove_student').removeAttribute("disabled");
 		document.querySelector('#new_student_pw').removeAttribute("disabled");
 		document.querySelector('#new_student_pw_submit').removeAttribute("disabled");
 		document.querySelector('#admit_student').setAttribute("disabled", "disabled");
 	} else {
-		document.querySelector('#remove_student').removeAttribute("disabled");
 		document.querySelector('#new_student_pw').setAttribute("disabled", "disabled");
 		document.querySelector('#new_student_pw_submit').setAttribute("disabled", "disabled");
 		document.querySelector('#admit_student').removeAttribute("disabled");
