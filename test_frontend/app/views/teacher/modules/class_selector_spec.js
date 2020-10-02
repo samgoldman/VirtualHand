@@ -272,7 +272,7 @@ define((require) => {
                     expect(RemoveClass(id)).toBeUndefined();
 
                     expect(spy_querySelector.calls.count()).toEqual(2);
-                    expect(spy_querySelector.calls.argsFor(0)).toEqual([`option[value=${id}]`]);
+                    expect(spy_querySelector.calls.argsFor(0)).toEqual([`option[value="${id}"]`]);
                     expect(spy_querySelector.calls.argsFor(1)).toEqual(['#class_selector']);
 
                     expect(spy_removeChild.calls.count()).toEqual(1);
@@ -303,7 +303,7 @@ define((require) => {
                 expect(RenameClass('test_id', 'test_name')).toBeUndefined();
 
                 expect(spy_querySelector.calls.count()).toEqual(1);
-                expect(spy_querySelector.calls.argsFor(0)).toEqual(['option[value=test_id]']);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['option[value="test_id"]']);
 
                 expect(spy_sortClasses.calls.count()).toEqual(1);
                 expect(spy_sortClasses.calls.argsFor(0)).toEqual([]);

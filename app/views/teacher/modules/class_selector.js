@@ -34,12 +34,12 @@ function AddClass(id, name) {
 }
 
 function RemoveClass(id) {
-	const option = document.querySelector(`option[value=${id}]`);
+	const option = document.querySelector(`option[value="${id}"]`);
 	document.querySelector('#class_selector').removeChild(option);
 }
 
 function RenameClass(id, name) {
-	document.querySelector(`option[value=${id}]`).innerHTML = name;
+	document.querySelector(`option[value="${id}"]`).innerHTML = name;
 	sortClasses();
 	UpdateManagementButtons();
 }
