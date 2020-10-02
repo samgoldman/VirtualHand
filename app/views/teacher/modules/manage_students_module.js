@@ -22,7 +22,7 @@ function getSelectedStudentOption() {
 	return document.querySelector('#student_selector option:checked');
 }
 
-socket.on('Response_StudentsForClass', function (data) {
+function handleReponseGetStudents(data) {
 	const student_selector = document.getElementById("student_selector");
 	student_selector.innerHTML = "";
 	data.enrollments.forEach(enrollment => {
@@ -32,7 +32,7 @@ socket.on('Response_StudentsForClass', function (data) {
 		}
 		student_selector.add(option);
 	});
-});
+}
 
 function RemoveStudent() {
 	socket.emit('Request_RemoveStudent', {
@@ -52,7 +52,7 @@ function changeStudentPassword() {
 	socket.emit('Request_ChangeStudentPassword', {
 		cid: getSelectedClassId(),
 		sid: getSelectedStudentOption().value,
-		password: $('#new_student_pw').val()
+		password: document.querySelector('#new_student_pw').value
 	})
 }
 
@@ -71,13 +71,14 @@ function initManageStudentsModule() {
 	document.querySelector('#manage_students_button').addEventListener('click', RequestStudents);
 	document.querySelector('#remove_student').addEventListener('click', RemoveStudent);
 	document.querySelector('#admit_student').addEventListener('click', AdmitStudent);
-	document.querySelector('#new_student_pw_submit').click(changeStudentPassword);
+	document.querySelector('#new_student_pw_submit').addEventListener('click', changeStudentPassword);
 
 	$(".manage-students-modal").on("hidden.bs.modal", clearManageStudentsModal);
 
 	socket.on('Response_ChangeStudentPassword', handleResponseChangeStudentPassword);
 	socket.on('Response_AdmitStudent', 	RequestStudents);
 	socket.on('Response_RemoveStudent', RequestStudents);
+	socket.on('Response_StudentsForClass', handleReponseGetStudents);
 }
 
 window.addEventListener("load", initManageStudentsModule);
