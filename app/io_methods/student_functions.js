@@ -4,7 +4,13 @@ const Course = require('../models/course').model;
 const Promise = require('bluebird');
 
 const addStudent = async (username, password, course_id) => {
-	const user = await User.findOrCreate(username, password)
+	const user = await User.findOrCreate(username, password);
+
+	if (undefined === user.role) {
+		user.role = 'student';
+		await user.save();
+	}
+
 	if (user.role === 'student') {
 		await Enrollment.findOrCreate(course_id, user._id, true);
 		return `${username} successfully added to the class`;
