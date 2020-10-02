@@ -22,13 +22,7 @@ function clearHallPassDivs() {
 }
 
 function countGranted(requests){
-	let numOut = 0;
-
-	requests.forEach((request) => {
-		if(request.granted)
-			numOut++;
-	});
-	return numOut;
+	return requests.reduce((total, request) => total + (request.granted ? 1 : 0), 0);
 }
 
 function handleResponseRetrieveHallPassRequests(data) {
