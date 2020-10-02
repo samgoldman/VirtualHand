@@ -87,5 +87,38 @@ define((require) => {
                 expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
             });
         });
+
+        describe('>handleResponseRetrieveHallPassRequests', () => {
+            it('should be defined', () => {
+                expect(handleResponseRetrieveHallPassRequests).toBeDefined();
+            });
+
+            it('should clear the divs and not add or grant anything if the number of requests is zero', () => {
+                const mock_element = {
+                    innerHTML: ''
+                };
+
+                const spy_clearHallPassDivs = spyOn(window, 'clearHallPassDivs').and.stub();
+                const spy_countGranted = spyOn(window, 'countGranted').and.returnValue(3); // This would never happen with 0 requests, but test edge case just in case
+                const spy_stopwatch_format = spyOn(window, 'stopwatch_format').and.returnValue('dummy_value');
+                const spy_listItemTemplate = jasmine.createSpy('listItemTemplate').and.returnValue('dummy_value2');
+                window.listItemTemplate = spy_listItemTemplate;
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+
+                expect(handleResponseRetrieveHallPassRequests({requests: []})).toBeUndefined();
+
+                expect(spy_clearHallPassDivs.calls.count()).toEqual(1);
+                expect(spy_clearHallPassDivs.calls.argsFor(0)).toEqual([]);
+
+                expect(spy_countGranted.calls.count()).toEqual(1);
+                expect(spy_countGranted.calls.argsFor(0)).toEqual([[]]); // Called with empty list
+
+                expect(spy_stopwatch_format.calls.count()).toEqual(0);
+                
+                expect(spy_listItemTemplate.calls.count()).toEqual(0);
+                
+                expect(spy_querySelector.calls.count()).toEqual(0);
+            });
+        });
     });
 });
