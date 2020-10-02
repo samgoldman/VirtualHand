@@ -419,5 +419,63 @@ define((require) => {
                 expect(numRequests).toEqual(6);
             });
         });
+
+        describe('>handDown', () => {
+            it('should be defined', () => {
+                expect(handDown).toBeDefined();
+            });
+
+            it('should check if the listItem has a value and if it doesn\'t, do nothing', () => {
+                const mock_element = {
+                    getAttribute: () => undefined
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_getAttribute = spyOn(mock_element, 'getAttribute').and.returnValue('');
+                const spy_emit = spyOn(socket, 'emit').and.stub();
+
+                expect(handDown(3)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#listItem3']);
+
+                expect(spy_getAttribute.calls.count()).toEqual(1);
+                expect(spy_getAttribute.calls.argsFor(0)).toEqual(['value']);
+
+                expect(spy_emit.calls.count()).toEqual(0);
+            });
+
+            it('should check if the listItem has a value and if it does, emit a request to the server', () => {
+                const mock_element = {
+                    getAttribute: () => undefined
+                };
+
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_getAttribute = spyOn(mock_element, 'getAttribute').and.returnValue('some_value');
+                const spy_emit = spyOn(socket, 'emit').and.stub();
+
+                expect(handDown(42)).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#listItem42']);
+
+                expect(spy_getAttribute.calls.count()).toEqual(2);
+                expect(spy_getAttribute.calls.argsFor(0)).toEqual(['value']);
+                expect(spy_getAttribute.calls.argsFor(1)).toEqual(['value']);
+
+                expect(spy_emit.calls.count()).toEqual(1);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_TeacherResolveAssistanceRequest', {arid: 'some_value'}])
+            });
+        });
     });
 });
