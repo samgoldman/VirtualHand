@@ -216,5 +216,115 @@ define((require) => {
                 expect(mock_element.innerHTML).toEqual('t1t2t3'); // TODO: should test with separate mock elements
             });
         });
+
+        describe('>initHallPassModule', () => {
+            it('should be defined', () => {
+                expect(initHallPassModule).toBeDefined();
+            });
+
+            it('should init event listeners and socket handlers', () => {
+                const mock_socket = {
+                    on: () => undefined
+                };
+                socket = mock_socket;
+
+                const mock_element = {
+                    addEventListener: () => undefined
+                }
+
+                const spy_on = spyOn(mock_socket, 'on').and.stub();
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_element);
+                const spy_addEventListener = spyOn(mock_element, 'addEventListener').and.stub();
+                const spy_setInterval = spyOn(window, 'setInterval').and.stub();
+
+                expect(initHallPassModule()).toBeUndefined();
+
+                expect(spy_on.calls.count()).toEqual(2);
+                expect(spy_on.calls.argsFor(0)).toEqual(['Broadcast_HallPassRequestModified', RetrieveHallPassRequests]);
+                expect(spy_on.calls.argsFor(1)).toEqual(['Response_RetrieveHallPassRequests', handleResponseRetrieveHallPassRequests]);
+
+                expect(spy_querySelector.calls.count()).toEqual(2);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#class_selector']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#clear-all-hp']);
+
+                expect(spy_addEventListener.calls.count()).toEqual(2);
+                expect(spy_addEventListener.calls.argsFor(0)).toEqual(['change', RetrieveHallPassRequests]);
+                expect(spy_addEventListener.calls.argsFor(1)).toEqual(['click', ClearAllHallPassRequests]);
+
+                expect(spy_setInterval.calls.count()).toEqual(1);
+                expect(spy_setInterval.calls.argsFor(0)).toEqual([RetrieveHallPassRequests, 1000]);
+            });
+        });
+       
+        describe('>clearHallPassDivs', () => {
+            it('should be defined', () => {
+                expect(clearHallPassDivs).toBeDefined();
+            });
+
+            it('should clear both divs', () => {
+                const mock_element_1 = {
+                    innerHTML: 'a'
+                };
+
+                const mock_element_2 = {
+                    innerHTML: 'aaaa'
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_element_1, mock_element_2);
+
+                expect(clearHallPassDivs()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(2);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#out_of_room_div']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#waiting_for_pass_div']);
+
+                expect(mock_element_1).toEqual({innerHTML: ''});
+                expect(mock_element_2).toEqual({innerHTML: ''});
+            });
+        });
+
+
+        describe('>ClearAllHallPassRequests', () => {
+            it('should be defined', () => {
+                expect(ClearAllHallPassRequests).toBeDefined();
+            });
+
+            it('should do nothing if no class is selected', () => {
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_emit = spyOn(mock_socket, 'emit').and.stub();
+                const spy_getSelectedClassIds = spyOn(window, 'getSelectedClassIds').and.returnValue([]);
+
+                expect(ClearAllHallPassRequests()).toBeUndefined();
+
+                expect(spy_emit.calls.count()).toEqual(0);
+                
+                expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
+            });
+
+            it('should make a clear request for each selected class', () => {
+                const mock_socket = {
+                    emit: () => undefined
+                };
+                socket = mock_socket;
+
+                const spy_emit = spyOn(mock_socket, 'emit').and.stub();
+                const spy_getSelectedClassIds = spyOn(window, 'getSelectedClassIds').and.returnValue(['a', '1', '3']);
+
+                expect(ClearAllHallPassRequests()).toBeUndefined();
+
+                expect(spy_emit.calls.count()).toEqual(3);
+                expect(spy_emit.calls.argsFor(0)).toEqual(['Request_TeacherResolveAllHallPassRequests', {cid: 'a'}]);
+                expect(spy_emit.calls.argsFor(1)).toEqual(['Request_TeacherResolveAllHallPassRequests', {cid: '1'}]);
+                expect(spy_emit.calls.argsFor(2)).toEqual(['Request_TeacherResolveAllHallPassRequests', {cid: '3'}]);
+                
+                expect(spy_getSelectedClassIds.calls.count()).toEqual(1);
+                expect(spy_getSelectedClassIds.calls.argsFor(0)).toEqual([]);
+            });
+        });
     });
 });
