@@ -1,15 +1,14 @@
 function StudentSelectorChanged() {
-	let selectedStudentOption = getSelectedStudentOption();
-	if (selectedStudentOption.className.indexOf('not-admitted') === -1) {
-		$('#remove_student').removeAttr("disabled");
-		$('#new_student_pw').removeAttr("disabled");
-		$('#new_student_pw_submit').removeAttr("disabled");
-		$('#admit_student').attr("disabled", "disabled");
+	if (getSelectedStudentOption().className.indexOf('not-admitted') === -1) {
+		document.querySelector('#remove_student').removeAttribute("disabled");
+		document.querySelector('#new_student_pw').removeAttribute("disabled");
+		document.querySelector('#new_student_pw_submit').removeAttribute("disabled");
+		document.querySelector('#admit_student').setAttribute("disabled", "disabled");
 	} else {
-		$('#remove_student').removeAttr("disabled");
-		$('#new_student_pw').attr("disabled", "disabled");
-		$('#new_student_pw_submit').attr("disabled", "disabled");
-		$('#admit_student').removeAttr("disabled");
+		document.querySelector('#remove_student').removeAttribute("disabled");
+		document.querySelector('#new_student_pw').setAttribute("disabled", "disabled");
+		document.querySelector('#new_student_pw_submit').setAttribute("disabled", "disabled");
+		document.querySelector('#admit_student').removeAttribute("disabled");
 	}
 }
 
@@ -20,25 +19,19 @@ function RequestStudents() {
 }
 
 function getSelectedStudentOption() {
-	let options = $('#student_selector')[0].getElementsByTagName("option");
-	for (let i = options.length; i--;)
-		if (options[i].selected)
-			return options[i];
+	return document.querySelector('#student_selector option:checked');
 }
 
 socket.on('Response_StudentsForClass', function (data) {
-	let enrollments = data.enrollments;
-	let sSelect = document.getElementById("student_selector");
-	sSelect.innerHTML = "";
-	for (let i = 0; i < enrollments.length; i++) {
-		let option = document.createElement("option");
-		option.text = enrollments[i].student.username;
-		option.value = enrollments[i].student._id;
-		if (enrollments[i].admitted === false) {
-			option.className += ' bg-info not-admitted ';
+	const student_selector = document.getElementById("student_selector");
+	student_selector.innerHTML = "";
+	data.enrollments.forEach(enrollment => {
+		const option = new Option(enrollment.student.username, enrollment.student._id);
+		if (enrollment.admitted === false) {
+			option.className = 'bg-info not-admitted ';
 		}
-		sSelect.add(option);
-	}
+		student_selector.add(option);
+	});
 });
 
 function RemoveStudent() {
@@ -48,20 +41,12 @@ function RemoveStudent() {
 	})
 }
 
-socket.on('Response_RemoveStudent', function () {
-	RequestStudents();
-});
-
 function AdmitStudent() {
 	socket.emit('Request_AdmitStudent', {
 		cid: getSelectedClassId(),
 		sid: getSelectedStudentOption().value
 	})
 }
-
-socket.on('Response_AdmitStudent', function () {
-	RequestStudents();
-});
 
 function changeStudentPassword() {
 	socket.emit('Request_ChangeStudentPassword', {
@@ -71,20 +56,28 @@ function changeStudentPassword() {
 	})
 }
 
-socket.on('Response_ChangeStudentPassword', function (data) {
-	$('#manage_students_alert_box').text(data.message);
-	document.getElementById('manage_students_alert_box').style.display = "block";
-});
+function handleResponseChangeStudentPassword(data) {
+	document.querySelector('#manage_students_alert_box').innerText = data.message;
+	document.querySelector('#manage_students_alert_box').style.display = "block";
+}
 
-window.addEventListener("load", function () {
-	$('#student_selector').change(StudentSelectorChanged);
-	$('#manage_students_button').click(RequestStudents);
-	$('#remove_student').click(RemoveStudent);
-	$('#admit_student').click(AdmitStudent);
-	$('#new_student_pw_submit').click(changeStudentPassword);
+function clearManageStudentsModal() {
+	document.querySelector('#manage_students_alert_box').innerText = '';
+	document.querySelector('#manage_students_alert_box').style.display = "none";
+}
 
-	$(".manage-students-modal").on("hidden.bs.modal", function(){
-		$('#manage_students_alert_box').text('');
-		document.getElementById('manage_students_alert_box').style.display = "none";
-	});
-});
+function initManageStudentsModule() {
+	document.querySelector('#student_selector').addEventListener('change', StudentSelectorChanged);
+	document.querySelector('#manage_students_button').addEventListener('click', RequestStudents);
+	document.querySelector('#remove_student').addEventListener('click', RemoveStudent);
+	document.querySelector('#admit_student').addEventListener('click', AdmitStudent);
+	document.querySelector('#new_student_pw_submit').click(changeStudentPassword);
+
+	$(".manage-students-modal").on("hidden.bs.modal", clearManageStudentsModal);
+
+	socket.on('Response_ChangeStudentPassword', handleResponseChangeStudentPassword);
+	socket.on('Response_AdmitStudent', 	RequestStudents);
+	socket.on('Response_RemoveStudent', RequestStudents);
+}
+
+window.addEventListener("load", initManageStudentsModule);
