@@ -16,7 +16,7 @@ describe('student_functions', () => {
         it('should return a failure message if the user exists and is not a student', async () => {
             const spy_user_findOrCreate = spyOn(User, 'findOrCreate').and.returnValue(new Promise(done => done({role: 'teacher'})));
             const spy_enrollment_findOrCreate = spyOn(Enrollment, 'findOrCreate').and.returnValue(new Promise(done => done(undefined)));
-
+            
             expect(await student_functions.addStudent('test_user_1', 'test_pwd', 'course_id')).toEqual('test_user_1 is not a student and was not added to the class');
 
             expect(spy_user_findOrCreate.calls.count()).toEqual(1);
@@ -25,7 +25,7 @@ describe('student_functions', () => {
             expect(spy_enrollment_findOrCreate.calls.count()).toEqual(0);
         });
 
-        it('should create an enrollment and return a failure message if the user is a student', async () => {
+        it('should create an enrollment and return a success message if the user is a student', async () => {
             const spy_user_findOrCreate = spyOn(User, 'findOrCreate').and.returnValue(new Promise(done => done({role: 'student', _id: 'user_id'})));
             const spy_enrollment_findOrCreate = spyOn(Enrollment, 'findOrCreate').and.returnValue(new Promise(done => done(undefined)));
 
@@ -36,6 +36,27 @@ describe('student_functions', () => {
 
             expect(spy_enrollment_findOrCreate.calls.count()).toEqual(1);
             expect(spy_enrollment_findOrCreate.calls.argsFor(0)).toEqual(['course_id', 'user_id', true])
+        });
+
+        it('should set the role to student, create an enrollment and return a success message if the user has no role', async () => {
+            const mock_user = {save: () => new Promise(done => done(undefined)), _id: 'user_id'};
+
+            const spy_user_findOrCreate = spyOn(User, 'findOrCreate').and.returnValue(new Promise(done => done(mock_user)));
+            const spy_enrollment_findOrCreate = spyOn(Enrollment, 'findOrCreate').and.returnValue(new Promise(done => done(undefined)));
+            const spy_save = spyOn(mock_user, 'save').and.callThrough();
+
+            expect(await student_functions.addStudent('test_user_2', 'test_pwd', 'course_id')).toEqual('test_user_2 successfully added to the class');
+
+            expect(spy_user_findOrCreate.calls.count()).toEqual(1);
+            expect(spy_user_findOrCreate.calls.argsFor(0)).toEqual(['test_user_2', 'test_pwd']);
+
+            expect(spy_enrollment_findOrCreate.calls.count()).toEqual(1);
+            expect(spy_enrollment_findOrCreate.calls.argsFor(0)).toEqual(['course_id', 'user_id', true])
+
+            expect(spy_save.calls.count()).toEqual(1);
+            expect(spy_save.calls.argsFor(0)).toEqual([]);
+
+            expect(mock_user.role).toEqual('student');
         });
     });
 
