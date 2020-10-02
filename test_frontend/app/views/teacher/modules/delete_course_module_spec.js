@@ -174,5 +174,57 @@ define((require) => {
                 expect(mock_element).toEqual({innerHTML: 'some_class_name', style: {display: 'block'}});
             });
         });
+
+        describe('>DeleteCourseConfirmClassname', () => {
+            it('should be defined', () => {
+                expect(DeleteCourseConfirmClassname).toBeDefined();
+            });
+
+            it('should disable the submission button if the values do not match', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined,
+                    setAttribute: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues({textContent: 'some_text_1'}, {value: 'some_text_2'}, mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.stub();
+                const spy_setAttribute = spyOn(mock_element, 'setAttribute').and.stub();
+
+                expect(DeleteCourseConfirmClassname()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(3);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#delete_class_confirm']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#delete_class_submit']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(0);
+
+                expect(spy_setAttribute.calls.count()).toEqual(1);
+                expect(spy_setAttribute.calls.argsFor(0)).toEqual(['disabled', 'disabled'])
+            });
+
+            it('should enable the submission button if the values match', () => {
+                const mock_element = {
+                    removeAttribute: () => undefined,
+                    setAttribute: () => undefined
+                }
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues({textContent: 'some_text_3'}, {value: 'some_text_3'}, mock_element);
+                const spy_removeAttribute = spyOn(mock_element, 'removeAttribute').and.stub();
+                const spy_setAttribute = spyOn(mock_element, 'setAttribute').and.stub();
+
+                expect(DeleteCourseConfirmClassname()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(3);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+                expect(spy_querySelector.calls.argsFor(1)).toEqual(['#delete_class_confirm']);
+                expect(spy_querySelector.calls.argsFor(2)).toEqual(['#delete_class_submit']);
+
+                expect(spy_removeAttribute.calls.count()).toEqual(1);
+                expect(spy_removeAttribute.calls.argsFor(0)).toEqual(['disabled']);
+
+                expect(spy_setAttribute.calls.count()).toEqual(0);
+            });
+        })
     });
 });
