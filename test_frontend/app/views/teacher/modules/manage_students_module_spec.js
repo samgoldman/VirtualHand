@@ -221,7 +221,7 @@ define((require) => {
 
                 expect(spy_getSelectedStudentOption).toHaveBeenCalledTimes(1);
                 expect(spy_getSelectedStudentOption).toHaveBeenCalledWith();
-            })
+            });
             
             it('should enable the remove student, disable change student password and enable admit student if the student is not admitted', () => {
                 const mock_element = {
@@ -252,7 +252,22 @@ define((require) => {
 
                 expect(spy_getSelectedStudentOption).toHaveBeenCalledTimes(1);
                 expect(spy_getSelectedStudentOption).toHaveBeenCalledWith();
-            })
+            });
+        });
+
+        describe('>getSelectedStudentOption', () => {
+            it('should be defined', () => {
+                expect(getSelectedStudentOption).toBeDefined();
+            });
+
+            it('should return the result of a query for the selected option', () => {
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValue('some_value_here');
+
+                expect(getSelectedStudentOption()).toEqual('some_value_here');
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#student_selector option:checked']);
+            });
         });
     });
 });
