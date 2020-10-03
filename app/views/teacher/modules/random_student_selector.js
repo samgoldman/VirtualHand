@@ -1,33 +1,26 @@
 function UpdateRandomStudentSelector() {
-	let options = $('#class_selector')[0].getElementsByTagName("option");
-	document.getElementById('randomStudentButtons').innerHTML = "<p><strong>Select a random student:</strong></p>";
-	for (let i = 0; i < options.length; i++) {
-		if (options[i].selected) {
-			let newDiv = document.createElement('div');
-			newDiv.className = "unselectable listItem";
-			newDiv.innerHTML = options[i].innerHTML;
-			newDiv.setAttribute('value', options[i].value);
-			newDiv.setAttribute('onclick', "RequestRandomStudent('" + options[i].value + "')");
-			document.getElementById('randomStudentButtons').appendChild(newDiv);
-			document.getElementById('randomStudentButtons').appendChild(document.createElement('div'));
-		}
-	}
+	const buttonsDiv = document.querySelector('#randomStudentButtons')
+	buttonsDiv.innerHTML = "<h5><strong>Select a random student:</strong></h5>";
+	document.querySelectorAll('#class_selector option:checked').forEach(option => {
+		buttonsDiv.innerHTML += `<div class='unselectable listItem' value='${option.value}' onclick='RequestRandomStudent("${option.value}")'>${option.innerHTML}</div><div></div>`;
+	});
 }
 
 function RequestRandomStudent(cid) {
 	socket.emit('Request_RandomStudent', {cid: cid});
 }
 
-socket.on("Response_RandomStudent", function (data) {
-	if (document.getElementById('random_student') !== null) {
-		document.getElementById('random_student').innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ' + data.randomStudentName
+function handleResponseRandomStudent(data) {
+	if (document.querySelector('#random_student') !== null) {
+		document.querySelector('#random_student').innerHTML = `<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ${data.randomStudentName}`;
+	} else {
+		document.querySelector('#randomStudentButtons').innerHTML += `<div id="random_student" class="alert alert-info alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ${data.randomStudentName}</div>`;
 	}
-	else {
-		document.getElementById('randomStudentButtons').innerHTML += '<div id="random_student" class="alert alert-info alert-dismissable">' +
-			'<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: ' + data.randomStudentName + '</div>';
-	}
-});
+}
 
-window.addEventListener("load", function () {
-	$('#class_selector').change(UpdateRandomStudentSelector);
-});
+function initRandomStudentSelector() {
+	socket.on("Response_RandomStudent", handleResponseRandomStudent);
+	document.querySelector('#class_selector').addEventListener('change', UpdateRandomStudentSelector);
+}
+
+window.addEventListener("load", initRandomStudentSelector);

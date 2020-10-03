@@ -134,15 +134,13 @@ define((require) => {
                 const {event, window_event, expected} = testCase;
                 it('should call handDown with the value of the key minus 1 if it is an integer', () => {
                     const spy_handDown = jasmine.createSpy('handDown').and.stub();
-                    const spy_RequestRandomStudent = jasmine.createSpy('RequestRandomStudent').and.stub();
+                    const spy_RequestRandomStudent = spyOn(window, 'RequestRandomStudent').and.stub();
                     const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.stub();
 
                     const original_handDown = handDown;
-                    const original_RequestRandomStudent = undefined;
                     const original_window_event = window.window_event;
 
                     handDown = spy_handDown;
-                    RequestRandomStudent = spy_RequestRandomStudent;
 
                     expect(KeyDownHandler(event)).toBeUndefined();
 
@@ -154,21 +152,18 @@ define((require) => {
                     expect(spy_getSelectedClassId.calls.count()).toEqual(0);
 
                     handDown = original_handDown;
-                    RequestRandomStudent = original_RequestRandomStudent;
                     window.event = original_window_event;
                 });
             });
 
             it('should call RequestRandomStudent for the selected class if the key is r', () => {
                 const spy_handDown = jasmine.createSpy('handDown').and.stub();
-                const spy_RequestRandomStudent = jasmine.createSpy('RequestRandomStudent').and.stub();
+                const spy_RequestRandomStudent = spyOn(window, 'RequestRandomStudent').and.stub();
                 const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('42');
 
                 const original_handDown = handDown;
-                const original_RequestRandomStudent = undefined;
 
                 handDown = spy_handDown;
-                RequestRandomStudent = spy_RequestRandomStudent;
 
                 expect(KeyDownHandler(new KeyboardEvent('keydown', {keyCode: 114}))).toBeUndefined();
 
@@ -181,7 +176,6 @@ define((require) => {
                 expect(spy_getSelectedClassId.calls.argsFor(0)).toEqual([]);
 
                 handDown = original_handDown;
-                RequestRandomStudent = original_RequestRandomStudent;
             });
         });
 
