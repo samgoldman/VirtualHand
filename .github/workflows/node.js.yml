@@ -34,6 +34,7 @@ jobs:
         SESSION_SECRET: ${{secrets.SESSION_SECRET}}
         VH_EMAIL: ${{secrets.VH_EMAIL}}
         VH_EMAIL_PASSWORD: ${{secrets.VH_EMAIL_PASSWORD}}
+    - run: mkdir screenshots
     - uses: actions/upload-artifact@v2
       with:
           name: puppeteer-screenshots
