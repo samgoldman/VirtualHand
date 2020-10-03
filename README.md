@@ -14,5 +14,3 @@ Warning! This branch will auto-deploy to the overland server every night at midn
 - VH_EMAIL : The email address for automated emails
 - VH_EMAIL_PASSWORD : the email address password
 - VH_ENV : if set to 'DEVELOPMENT', routing will compile Pug files each time so server doesn't have to be restarted when messing with views
-
-Talk to Sam about using existing values for the database and emails.
