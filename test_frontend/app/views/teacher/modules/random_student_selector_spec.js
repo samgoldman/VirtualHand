@@ -94,5 +94,68 @@ define((require) => {
                 expect(mock_element.innerHTML).toEqual('original_contents<div id="random_student" class="alert alert-info alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a> Random student: name 2</div>');
             });
         });
+
+        describe('>UpdateRandomStudentSelector', () => {
+            it('should be defined', () => {
+                expect(UpdateRandomStudentSelector).toBeDefined();
+            });
+
+            it('should set the heading and not add an buttons if there are no classes selected', () => {
+                const mock_element = {
+                    innerHTML: 'original_contents'
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_element);
+                const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues([]);
+
+                expect(UpdateRandomStudentSelector()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#randomStudentButtons']);
+
+                expect(spy_querySelectorAll.calls.count()).toEqual(1);
+                expect(spy_querySelectorAll.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+
+                expect(mock_element.innerHTML).toEqual('<h5><strong>Select a random student:</strong></h5>');
+            });
+
+            it('should set the heading and add a button if there is a class selected', () => {
+                const mock_element = {
+                    innerHTML: 'original_contents'
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_element);
+                const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues([{value: 'v1', innerHTML: 'n1'}]);
+
+                expect(UpdateRandomStudentSelector()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#randomStudentButtons']);
+
+                expect(spy_querySelectorAll.calls.count()).toEqual(1);
+                expect(spy_querySelectorAll.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+
+                expect(mock_element.innerHTML).toEqual(`<h5><strong>Select a random student:</strong></h5><div class='unselectable listItem' value='v1' onclick='RequestRandomStudent("v1")'>n1</div><div></div>`);
+            });
+
+            it('should set the heading and add buttons if there is are classes selected', () => {
+                const mock_element = {
+                    innerHTML: 'original_contents'
+                };
+
+                const spy_querySelector = spyOn(document, 'querySelector').and.returnValues(mock_element);
+                const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues([{value: 'v1', innerHTML: 'n1'}, {value: 'v2', innerHTML: 'n2'}]);
+
+                expect(UpdateRandomStudentSelector()).toBeUndefined();
+
+                expect(spy_querySelector.calls.count()).toEqual(1);
+                expect(spy_querySelector.calls.argsFor(0)).toEqual(['#randomStudentButtons']);
+
+                expect(spy_querySelectorAll.calls.count()).toEqual(1);
+                expect(spy_querySelectorAll.calls.argsFor(0)).toEqual(['#class_selector option:checked']);
+
+                expect(mock_element.innerHTML).toEqual(`<h5><strong>Select a random student:</strong></h5><div class='unselectable listItem' value='v1' onclick='RequestRandomStudent("v1")'>n1</div><div></div><div class='unselectable listItem' value='v2' onclick='RequestRandomStudent("v2")'>n2</div><div></div>`);
+            });
+        });
     });
 });
