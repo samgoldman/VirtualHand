@@ -35,10 +35,11 @@ jobs:
         SESSION_SECRET: ${{secrets.SESSION_SECRET}}
         VH_EMAIL: ${{secrets.VH_EMAIL}}
         VH_EMAIL_PASSWORD: ${{secrets.VH_EMAIL_PASSWORD}}
-      uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v2
       with:
           name: puppeteer-screenshots
           path: screenshots/
+      if: always()
     - run: npm run coverage
       env:
         CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
