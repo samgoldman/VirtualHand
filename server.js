@@ -1,17 +1,17 @@
 const express = require('express');
 const app = express();
-let passport = require('passport');
-let flash = require('connect-flash');
-let mongoose = require('mongoose');
-let Promise = require('bluebird');
-let express_session = require('express-session');
-let serve_static = require('serve-static');
-let cookie_parser = require('cookie-parser');
-let body_parser = require('body-parser');
+const passport = require('passport');
+const flash = require('connect-flash');
+const mongoose = require('mongoose');
+const Promise = require('bluebird');
+const express_session = require('express-session');
+const serve_static = require('serve-static');
+const cookie_parser = require('cookie-parser');
+const body_parser = require('body-parser');
 const mongoStore = require('connect-mongo')(express_session);
 
-let port = process.env.PORT || 8080;
-let mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
+const port = process.env.PORT || 8080;
+const mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURL, {
@@ -49,12 +49,16 @@ app.use('/css/webfonts', serve_static(`${__dirname}/node_modules/@fortawesome/fo
 
 require('./app/routes.js')(app, passport);
 
-let server = require('http').createServer(app);
+const server = require('http').createServer(app);
 
-let io = require('socket.io')(server);
+const io = require('socket.io')(server);
 require('./app/io_broadcaster').init(io);
 require('./app/io.js')(io);
 
 server.listen(port, function () {
   console.log(`Example app listening on port ${port}!`)
 });
+
+module.exports = {
+    server: server
+}
