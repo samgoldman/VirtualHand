@@ -4,9 +4,13 @@ const {nukeDatabase} = require('../helpers/integration_helpers');
 const randomstring = require('randomstring');
 
 describe('login', () => {
-    afterEach(nukeDatabase);
+    let browser, page, originalTimeout;
 
-    let browser, page;
+    beforeAll(() => {
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    });
+
     beforeEach(async () => {
         browser = await puppeteer.launch();
         
@@ -15,7 +19,12 @@ describe('login', () => {
     });
 
     afterEach(() =>{
+        nukeDatabase();
         browser.close();
+    });
+
+    afterAll(() => {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
 
     it('display a non-specific notification if the username is not correct', async () => {
