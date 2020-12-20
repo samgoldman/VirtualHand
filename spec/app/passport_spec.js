@@ -236,7 +236,7 @@ describe('passport', () => {
             expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
 
             expect(spy_done.calls.count()).toEqual(1);
-            expect(spy_done.calls.argsFor(0)).toEqual([null, false, 'flash_return_value']);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, false]);
 
             expect(spy_save.calls.count()).toEqual(0);
         });
@@ -269,7 +269,7 @@ describe('passport', () => {
             expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
 
             expect(spy_done.calls.count()).toEqual(1);
-            expect(spy_done.calls.argsFor(0)).toEqual([null, false, 'flash_return_value']);
+            expect(spy_done.calls.argsFor(0)).toEqual([null, false]);
 
             expect(spy_save.calls.count()).toEqual(0);
         });
