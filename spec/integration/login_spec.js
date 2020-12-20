@@ -18,8 +18,8 @@ describe('login', () => {
         await page.goto('http://localhost:8080/login');
     });
 
-    afterEach(() =>{
-        nukeDatabase();
+    afterEach(async () =>{
+        await nukeDatabase();
         browser.close();
     });
 
@@ -38,11 +38,10 @@ describe('login', () => {
         
         await page.click('button[type=submit]', {delay: 20});
 
-        await page.waitForTimeout(1000);
-
-        await page.screenshot({path: 'screenshots/incorrect_username_3.jpg'});
+        await page.waitForTimeout(500);
         
         expect(await page.title()).toEqual('Virtual Hand Login');
+        await page.screenshot({path: 'screenshots/incorrect_username_3.jpg'});
         
         await page.waitForSelector('div.alert');
         const alert = await page.$('div.alert');
