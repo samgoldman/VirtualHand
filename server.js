@@ -37,12 +37,13 @@ app.use(passport.session());
 
 app.set('trust proxy', 1);
 
-const resourceLimiter = rateLimit({
+// Limit all requests to one per second
+const rateLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 5
+    max: 60
   });
 
-app.use('/notification_audio', resourceLimiter);
+app.use(rateLimiter);
 
 app.use(flash());
 
