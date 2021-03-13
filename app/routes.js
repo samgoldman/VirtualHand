@@ -92,8 +92,8 @@ const handle_recoverpassword = (req, res) => {
 };
 
 const handle_notification_audio = (req, res) => {
-	res.set({'Content-Type': 'audio/mpeg'});
-	fs.createReadStream(path.join(__dirname, '../client/static/ding.wav')).pipe(res);
+	res.set({'Content-Type': 'audio/ogg'});
+	fs.createReadStream(path.join(__dirname, '../client/static/ding.ogg')).pipe(res);
 };
 
 const handle_home = (req, res) => {

@@ -9,6 +9,7 @@ const serve_static = require('serve-static');
 const cookie_parser = require('cookie-parser');
 const body_parser = require('body-parser');
 const mongoStore = require('connect-mongo')(express_session);
+const rateLimit = require("express-rate-limit");
 
 const port = process.env.PORT || 8080;
 const mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
@@ -33,6 +34,15 @@ app.use(express_session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.set('trust proxy', 1);
+
+const resourceLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5
+  });
+
+app.use('/notification_audio', resourceLimiter);
 
 app.use(flash());
 

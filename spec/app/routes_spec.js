@@ -236,7 +236,7 @@ describe('routes', () => {
 
             expect(spy_join.calls.count()).toEqual(1);
             expect(spy_join.calls.argsFor(0).length).toEqual(2);
-            expect(spy_join.calls.argsFor(0)[1]).toEqual('../client/static/ding.wav');
+            expect(spy_join.calls.argsFor(0)[1]).toEqual('../client/static/ding.ogg');
 
             expect(spy_createReadStream.calls.count()).toEqual(1);
             expect(spy_createReadStream.calls.argsFor(0)).toEqual(['joined_path']);
@@ -245,7 +245,7 @@ describe('routes', () => {
             expect(spy_pipe.calls.argsFor(0)).toEqual([mock_res]);
 
             expect(spy_set.calls.count()).toEqual(1);
-            expect(spy_set.calls.argsFor(0)).toEqual([{'Content-Type': 'audio/mpeg'}]);
+            expect(spy_set.calls.argsFor(0)).toEqual([{'Content-Type': 'audio/ogg'}]);
         });
     });
 
