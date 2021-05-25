@@ -11,23 +11,27 @@ describe('login', () => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     });
 
-    beforeEach(async () => {
+    beforeEach(async (done) => {
         browser = await puppeteer.launch();
         
         page = await browser.newPage();
         await page.goto('http://localhost:8080/login');
+
+        done();
     });
 
-    afterEach(async () =>{
+    afterEach(async (done) =>{
         await nukeDatabase();
         browser.close();
+
+        done();
     });
 
     afterAll(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
 
-    it('display a non-specific notification if the username is not correct', async () => {
+    it('display a non-specific notification if the username is not correct', async (done) => {
         expect(await page.title()).toEqual('Virtual Hand Login');
         
         await page.screenshot({path: 'screenshots/incorrect_username_1.jpg'});
@@ -46,5 +50,7 @@ describe('login', () => {
         await page.waitForSelector('div.alert');
         const alert = await page.$('div.alert');
         expect(await page.evaluate(el => el.textContent, alert)).toEqual('Incorrect credentials');
+
+        done();
     });
 })
