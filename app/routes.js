@@ -50,18 +50,22 @@ module.exports = function (app, passport) {
 
 	app.get(['/', '/login'], isNotLoggedIn, handle_login);
 
-	app.post('/login', isNotLoggedIn, passport.authenticate('local-login', {
-		successRedirect: '/home', // redirect to the secure home section
-		failureRedirect: '/login', // redirect back to the login page if there is an error
-		failureFlash: true
-	}));
+	app.post('/login', isNotLoggedIn, function(req, res, next) {
+		passport.authenticate('local-login', function(err, user, info) {
+		  if (err) { return next(err); }
+		  if (!user) { return res.send(renderFile(templates.login, {message: 'Incorrect credentials'})); }
+		  req.logIn(user, function(err) {
+			if (err) { return next(err); }
+			return res.redirect('/home');
+		  });
+		})(req, res, next);
+	  });
 
 	app.get('/signup', isNotLoggedIn, handle_signup_get);
 
 	app.post('/signup', isNotLoggedIn, passport.authenticate('local-signup', {
 		successRedirect: '/home', // redirect to the secure home section
 		failureRedirect: '/signup', // redirect back to the signup page if there is an error
-		failureFlash: true
 	}));
 
 	app.get('/recoverpassword', isNotLoggedIn, handle_recoverpassword);
@@ -105,9 +109,7 @@ const handle_home = (req, res) => {
 };
 
 const handle_login = (req, res) => {
-    res.send(renderFile(templates.login, {
-        message: req.flash('loginMessage')
-    }));
+    res.send(renderFile(templates.login));
 };
 
 const handle_signup_get = (req, res) => {

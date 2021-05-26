@@ -34,7 +34,6 @@ const signupStrategy = async (req, username, password, done) => {
 const loginStrategy = async (req, username, password, done) => {
 	const user = await User.findOne({'username': username});
 	if (!user || !user.validPassword(password)) {	
-		req.flash('loginMessage', 'Incorrect credentials');
 		done(null, false);
 	} else
 		done(null, await user.save());

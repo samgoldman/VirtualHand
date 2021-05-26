@@ -14,7 +14,7 @@ html
 
 
 				//show any messages that come back with authentication
-				if message !== null && message.length > 0
+				if message !== null && message != undefined && message.length > 0
 					.alert.alert-danger #{message}
 
 				form(action='/login', method='post')
