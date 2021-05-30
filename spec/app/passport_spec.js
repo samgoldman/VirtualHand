@@ -216,12 +216,10 @@ describe('passport', () => {
             };
 
             const mock_req = {
-                flash: () => 'flash_return_value'
             };
 
             const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
             const spy_validPassword = spyOn(mock_user, 'validPassword').and.returnValue(true);
-            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
             const spy_findOne = spyOn(User, 'findOne').and.returnValue(undefined);
             const spy_save = spyOn(mock_user, 'save').and.returnValue(new Promise(done => done('save_return_value')));
 
@@ -231,9 +229,6 @@ describe('passport', () => {
             expect(spy_findOne.calls.argsFor(0)).toEqual([{username: 'test_username'}]);
 
             expect(spy_validPassword.calls.count()).toEqual(0);
-
-            expect(spy_flash.calls.count()).toEqual(1);
-            expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
 
             expect(spy_done.calls.count()).toEqual(1);
             expect(spy_done.calls.argsFor(0)).toEqual([null, false]);
@@ -248,12 +243,10 @@ describe('passport', () => {
             };
 
             const mock_req = {
-                flash: () => 'flash_return_value'
             };
 
             const spy_done = jasmine.createSpy('done').and.returnValue(undefined);
             const spy_validPassword = spyOn(mock_user, 'validPassword').and.returnValue(false);
-            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
             const spy_findOne = spyOn(User, 'findOne').and.returnValue(mock_user);
             const spy_save = spyOn(mock_user, 'save').and.returnValue(new Promise(done => done('save_return_value')));
 
@@ -264,9 +257,6 @@ describe('passport', () => {
 
             expect(spy_validPassword.calls.count()).toEqual(1);
             expect(spy_validPassword.calls.argsFor(0)).toEqual(['test_password']);
-
-            expect(spy_flash.calls.count()).toEqual(1);
-            expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage', 'Incorrect credentials']);
 
             expect(spy_done.calls.count()).toEqual(1);
             expect(spy_done.calls.argsFor(0)).toEqual([null, false]);
