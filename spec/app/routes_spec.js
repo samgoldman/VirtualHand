@@ -67,16 +67,12 @@ describe('routes', () => {
 
             expect(spy_post.calls.count()).toEqual(2);
             expect(spy_post.calls.argsFor(0)[0]).toEqual('/login');
-            expect(spy_post.calls.argsFor(0)[2]).toEqual('authenticate_return');
             expect(spy_post.calls.argsFor(1)[0]).toEqual('/signup');
             expect(spy_post.calls.argsFor(1)[2]).toEqual('authenticate_return');
 
-            expect(spy_authenticate.calls.count()).toEqual(2);
+            expect(spy_authenticate.calls.count()).toEqual(1);
             expect(spy_authenticate.calls.argsFor(0)).toEqual([
-                'local-login', {successRedirect: '/home', failureRedirect: '/login', failureFlash: true}
-            ]);
-            expect(spy_authenticate.calls.argsFor(1)).toEqual([
-                'local-signup', {successRedirect: '/home', failureRedirect: '/signup', failureFlash: true}
+                'local-signup', {successRedirect: '/home', failureRedirect: '/signup'}
             ]);
         });
     });
@@ -115,7 +111,6 @@ describe('routes', () => {
 
         it('should render the template with the flash message and send it', () => {
             const mock_req = {
-                flash: () => 'flash_message'
             };
 
             const mock_res = {
@@ -124,21 +119,17 @@ describe('routes', () => {
 
             const renderFile_original = routes.__get__('renderFile');
 
-            const spy_flash = spyOn(mock_req, 'flash').and.callThrough();
             const spy_send = spyOn(mock_res, 'send').and.callThrough();
             const spy_renderFile = jasmine.createSpy('renderFile').and.returnValue('rendered_value');
             routes.__set__('renderFile', spy_renderFile);
 
             expect(handle_login(mock_req, mock_res)).toBeUndefined();
 
-            expect(spy_flash.calls.count()).toEqual(1);
-            expect(spy_flash.calls.argsFor(0)).toEqual(['loginMessage']);
-
             expect(spy_send.calls.count()).toEqual(1);
             expect(spy_send.calls.argsFor(0)).toEqual(['rendered_value']);
 
             expect(spy_renderFile.calls.count()).toEqual(1);
-            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/login.pug', {message: 'flash_message'}]);
+            expect(spy_renderFile.calls.argsFor(0)).toEqual(['./app/views/login.pug']);
 
             routes.__set__('renderFile', renderFile_original);
         });
