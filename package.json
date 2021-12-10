@@ -32,11 +32,9 @@
   },
   "scripts": {
     "start": "node server.js",
-    "back_unit": "jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json",
-    "front_unit": "karma start --single-run --browsers ChromeHeadless",
-    "integration": "jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json",
-    "test": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json",
-    "coverage": "curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && ./codecov -v -Z -F unit && rm -rf ./coverage && ls -al && nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless && ./codecov -v -Z -F unit && rm -rf ./coverage && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json && ./codecov -v -Z -F integration"
+    "back_unit": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json",
+    "front_unit": "nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless",
+    "integration": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json"
   },
   "devDependencies": {
     "chai": "^4.3.4",
