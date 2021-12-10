@@ -2,7 +2,6 @@ const HallPassRequest = require('../models/hallPassRequest').model;
 const Enrollment = require('../models/enrollment').model;
 const Course = require('../models/course').model;
 const io_broadcaster = require('../io_broadcaster');
-const { retrieveAssistanceRequests } = require('./assistance_functions');
 
 const sendHallPassRequestStatus = async (socket, uid, cid) => {
     const request = await HallPassRequest.findOne({course: cid, student: uid, resolved: false}).exec();

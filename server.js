@@ -6,10 +6,10 @@ const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const express_session = require('express-session');
 const serve_static = require('serve-static');
-const cookie_parser = require('cookie-parser');
 const body_parser = require('body-parser');
-const mongoStore = require('connect-mongo')(express_session);
+const NongoStore = require('connect-mongo');
 const rateLimit = require("express-rate-limit");
+const MongoStore = require('connect-mongo');
 
 const port = process.env.PORT || 8080;
 const mongoURL = process.env.MONGODB_URI || process.env.MONGO_URL;
@@ -24,8 +24,8 @@ require('./app/passport')(passport);
 
 app.use(express_session({
 	secret : process.env.SESSION_SECRET,
-    store : new mongoStore({
-        mongooseConnection : mongoose.connection
+    store : MongoStore.create({
+        "mongoUrl": mongoURL
     }), // connect-mongo session store
     proxy : true,
     resave : true,
@@ -48,7 +48,6 @@ app.use('/teacher/history', rateLimiter);
 
 app.use(flash());
 
-app.use(cookie_parser()); // read cookies (needed for auth)
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: true })); // get information from html forms
 app.use(serve_static(`${__dirname}/public`));
@@ -68,7 +67,7 @@ require('./app/io_broadcaster').init(io);
 require('./app/io.js')(io);
 
 server.listen(port, function () {
-  console.log(`Example app listening on port ${port}!`)
+  console.log(`Virtual Hand listening on port ${port}!`)
 });
 
 module.exports = {

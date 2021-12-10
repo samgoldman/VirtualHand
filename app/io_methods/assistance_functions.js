@@ -1,7 +1,6 @@
 const AssistanceRequest = require('../models/assistanceRequest').model;
 const Course = require('../models/course').model;
 const io_broadcaster = require('../io_broadcaster');
-const { teacherGrantHallPassRequest } = require('./hallpass_functions');
 
 const sendAssistanceRequestStatus = async (socket, uid, cid) => {
 	const count = await AssistanceRequest.countDocuments({course: cid, student: uid, resolved: false})
