@@ -40,7 +40,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm back_unit
+    - run: npm run back_unit
       env:    
         ADMIN_INITIAL_PASSWORD: ${{secrets.ADMIN_INITIAL_PASSWORD}}
         JWT_SECRET: ${{secrets.JWT_SECRET}}
@@ -68,7 +68,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm front_unit
+    - run: npm run front_unit
       env:    
         ADMIN_INITIAL_PASSWORD: ${{secrets.ADMIN_INITIAL_PASSWORD}}
         JWT_SECRET: ${{secrets.JWT_SECRET}}
@@ -98,7 +98,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: mkdir screenshots
-    - run: npm integration
+    - run: npm run integration
       env:    
         ADMIN_INITIAL_PASSWORD: ${{secrets.ADMIN_INITIAL_PASSWORD}}
         JWT_SECRET: ${{secrets.JWT_SECRET}}
