@@ -36,7 +36,7 @@
     "front_unit": "karma start --single-run --browsers ChromeHeadless",
     "integration": "jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json",
     "test": "nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json",
-    "coverage": "curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && ./codecov -Z -F unittests && nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless && ./codecov -Z -F unittests && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json && ./codecov -Z -F integration"
+    "coverage": "curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_unit.json && ./codecov -Z -F && rm -rf ./coverage && nyc --reporter=lcov karma start --single-run --browsers ChromeHeadless && ./codecov -Z -F && rm -rf ./coverage && nyc --reporter=lcov jasmine JASMINE_CONFIG_PATH=spec/support/jasmine_integrate.json && ./codecov -Z -F integration"
   },
   "devDependencies": {
     "chai": "^4.3.4",
