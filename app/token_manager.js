@@ -11,7 +11,6 @@ const getSocketToken = user => {
 	}
 
 	// Expires in 100 minutes
-	// TODO: shorten and implement refresh process
 	return jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 * 100});
 }
 

@@ -213,7 +213,7 @@ define((require) => {
                 expect(spy_querySelector.calls.argsFor(1)).toEqual(['#out_of_room_div']);
                 expect(spy_querySelector.calls.argsFor(2)).toEqual(['#waiting_for_pass_div']);
                 
-                expect(mock_element.innerHTML).toEqual('t1t2t3'); // TODO: should test with separate mock elements
+                expect(mock_element.innerHTML).toEqual('t1t2t3');
             });
         });
 

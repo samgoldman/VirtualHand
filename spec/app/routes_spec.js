@@ -40,7 +40,6 @@ describe('routes', () => {
             expect(spy_compileFileClient.calls.count()).toEqual(1);
             expect(spy_compileFileClient.calls.argsFor(0)).toEqual(['./app/views/teacher/modules/hall_pass_list_item_template.pug', {name: 'listItemTemplate'}]);
 
-            //TODO Expanded testing
             expect(spy_compileFile.calls.count()).toEqual(8);
             expect(spy_compileFile.calls.argsFor(0)).toEqual(['./app/views/student/student_home.pug', undefined]);
             expect(spy_compileFile.calls.argsFor(1)).toEqual(['./app/views/teacher/teacher_home.pug', undefined]);
@@ -51,7 +50,6 @@ describe('routes', () => {
             expect(spy_compileFile.calls.argsFor(6)).toEqual(['./app/views/teacher/teacher_history_hall_pass.pug', undefined]);
             expect(spy_compileFile.calls.argsFor(7)).toEqual(['./app/views/teacher/teacher_history_assistance_request.pug', undefined]);
 
-            //TODO improve testing for get and post
             expect(spy_get.calls.count()).toEqual(11);
             expect(spy_get.calls.argsFor(0)[0]).toEqual('/home');
             expect(spy_get.calls.argsFor(1)[0]).toEqual('/teacher/home');

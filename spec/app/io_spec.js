@@ -196,10 +196,6 @@ describe('io', () => {
             });
         });
 
-        // TODO
-        // For now, it's not very feasible to test the handlers attached
-        // Once all are broken out, change this to check each one
-
         [{role: 'guest', expected_events: ['disconnect', 'Request_RecoverPassword']},
          {role: 'admin', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange']},
          {role: 'student', expected_events: ['disconnect', 'Request_RecoverPassword', 'Request_PasswordChange', 'Request_AssistanceRequestStatus', 'Request_InitiateAssistanceRequest', 'Request_ResolveAssistanceRequest', 'Request_EnrollStudent', 'Request_HallPassRequestStatus', 'Request_InitiateHallPassRequest', 'Request_StudentResolveHallPassRequest']},
