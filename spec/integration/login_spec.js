@@ -32,12 +32,12 @@ describe('login', () => {
 
         await page.screenshot({path: 'screenshots/incorrect_username_1.jpg'});
 
-        let username = randomstring.generate(8);
-        let password = randomstring.generate(8);
-        console.log("Username, password: ", username, password);
+        let test_username = randomstring.generate(8);
+        let test_password = randomstring.generate(8);
+        console.log("Test username, Test password: ", test_username, test_password);
 
-        await page.type('input[name=username]', username, {delay: 20});
-        await page.type('input[name=password]', password, {delay: 20});
+        await page.type('input[name=username]', test_username, {delay: 20});
+        await page.type('input[name=password]', test_password, {delay: 20});
         await page.screenshot({path: 'screenshots/incorrect_username_2.jpg'});
         
         await page.click('button[type=submit]', {delay: 20});
