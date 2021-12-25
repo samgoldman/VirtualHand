@@ -4,8 +4,6 @@
 
 # VirtualHand
 
-Warning! This branch will auto-deploy to the overland server every night at midnight!
-
 ## Environmental Variables Required to Run:
 - ADMIN_INITIAL_PASSWORD : The initial password for the administrator account (currently unused)
 - JWT_SECRET : the secret for jsonwebtoken (random string)
