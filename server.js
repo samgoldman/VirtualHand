@@ -7,7 +7,6 @@ const Promise = require('bluebird');
 const express_session = require('express-session');
 const serve_static = require('serve-static');
 const body_parser = require('body-parser');
-const NongoStore = require('connect-mongo');
 const rateLimit = require("express-rate-limit");
 const MongoStore = require('connect-mongo');
 
@@ -23,12 +22,12 @@ mongoose.connect(mongoURL, {
 require('./app/passport')(passport);
 
 app.use(express_session({
-	secret : process.env.SESSION_SECRET,
-    store : MongoStore.create({
+	secret: process.env.SESSION_SECRET,
+    store: MongoStore.create({
         "mongoUrl": mongoURL
     }), // connect-mongo session store
-    proxy : true,
-    resave : true,
+    proxy: true,
+    resave: true,
     name: 'sessionID',
     saveUninitialized : true
 }));
