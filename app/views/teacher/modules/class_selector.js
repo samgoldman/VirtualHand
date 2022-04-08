@@ -11,8 +11,10 @@ function UpdateManagementButtons() {
 			button.classList.remove('disabled');
 		});
 		const selected = getSelectedClassId();
-		document.querySelector('#ar_history_link').setAttribute('href', `/teacher/history/assistancerequest/${selected}`);
-		document.querySelector('#hp_history_link').setAttribute('href', `/teacher/history/hallpass/${selected}`);
+		// Parse hex to string and back to string, splitting in half because large number
+		const selected_escaped = parseInt(selected.substr(0, 12), 16).toString(16).padStart(12, '0') + parseInt(selected.substr(12), 16).toString(16).padStart(12, '0');
+		document.querySelector('#ar_history_link').setAttribute('href', `/teacher/history/assistancerequest/${selected_escaped}`);
+		document.querySelector('#hp_history_link').setAttribute('href', `/teacher/history/hallpass/${selected_escaped}`);
 	} else {
 		managementButtons.forEach(button => {
 			button.setAttribute('disabled', 'disabled');

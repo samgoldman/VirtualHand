@@ -22,14 +22,17 @@ mongoose.connect(mongoURL, {
 require('./app/passport')(passport);
 
 app.use(express_session({
-	secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
     store: MongoStore.create({
         "mongoUrl": mongoURL
     }), // connect-mongo session store
     proxy: true,
     resave: true,
     name: 'sessionID',
-    saveUninitialized : true
+    saveUninitialized : true,
+    cookie: {
+        secure: true
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
