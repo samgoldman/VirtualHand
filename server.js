@@ -36,14 +36,12 @@ app.use(passport.session());
 
 app.set('trust proxy', 1);
 
-// Limit certain requests to 5 per minute
+// Rate limit all requests
 const rateLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 5
   });
-
-app.use('/notification_audio', rateLimiter);
-app.use('/teacher/history', rateLimiter);
+app.use(rateLimiter);
 
 app.use(flash());
 
