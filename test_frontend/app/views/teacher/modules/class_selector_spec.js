@@ -51,7 +51,7 @@ define((require) => {
                     setAttribute: () => undefined
                 };
 
-                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('selected_id');
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('60ac82bb6f3c077eb079bddb');
                 const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues(['one_option'], [mock_button, mock_button]);
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_link_element);
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
@@ -86,8 +86,8 @@ define((require) => {
                 expect(spy_add.calls.count()).toEqual(0);
                 
                 expect(spy_setAttribute_link.calls.count()).toEqual(2);
-                expect(spy_setAttribute_link.calls.argsFor(0)).toEqual(['href', '/teacher/history/assistancerequest/selected_id']);
-                expect(spy_setAttribute_link.calls.argsFor(1)).toEqual(['href', '/teacher/history/hallpass/selected_id']);
+                expect(spy_setAttribute_link.calls.argsFor(0)).toEqual(['href', '/teacher/history/assistancerequest/60ac82bb6f3c077eb079bddb']);
+                expect(spy_setAttribute_link.calls.argsFor(1)).toEqual(['href', '/teacher/history/hallpass/60ac82bb6f3c077eb079bddb']);
             });
         });
 
@@ -110,7 +110,7 @@ define((require) => {
                     setAttribute: () => undefined
                 };
 
-                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('selected_id');
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('60ac82bb6f3c077eb079bddb');
                 const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues([/**no options selected */], [mock_button, mock_button]);
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_link_element);
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
@@ -168,7 +168,7 @@ define((require) => {
                     setAttribute: () => undefined
                 };
 
-                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('selected_id');
+                const spy_getSelectedClassId = spyOn(window, 'getSelectedClassId').and.returnValue('60ac82bb6f3c077eb079bddb');
                 const spy_querySelectorAll = spyOn(document, 'querySelectorAll').and.returnValues(['selection 1', 'selection 2'], [mock_button, mock_button]);
                 const spy_querySelector = spyOn(document, 'querySelector').and.returnValue(mock_link_element);
                 const spy_removeAttribute = spyOn(mock_button, 'removeAttribute').and.callThrough();
