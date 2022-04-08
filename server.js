@@ -36,12 +36,22 @@ app.use(passport.session());
 
 app.set('trust proxy', 1);
 
-// Rate limit all requests
+// Limit certain requests to 5 per minute
 const rateLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 5
   });
-app.use(rateLimiter);
+
+app.use('/notification_audio', rateLimiter);
+app.use('/teacher/history', rateLimiter);
+app.use('/recoverpassword', rateLimiter);
+app.use('/signup', rateLimiter);
+app.use('/login', rateLimiter);
+app.use('/logout', rateLimiter);
+app.use('/student/home', rateLimiter);
+app.use('/teacher/hallpass', rateLimiter);
+app.use('/teacher/home', rateLimiter);
+app.use('/home', rateLimiter);
 
 app.use(flash());
 
