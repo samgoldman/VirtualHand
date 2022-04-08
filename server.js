@@ -44,6 +44,14 @@ const rateLimiter = rateLimit({
 
 app.use('/notification_audio', rateLimiter);
 app.use('/teacher/history', rateLimiter);
+app.use('/recoverpassword', rateLimiter);
+app.use('/signup', rateLimiter);
+app.use('/login', rateLimiter);
+app.use('/logout', rateLimiter);
+app.use('/student/home', rateLimiter);
+app.use('/teacher/hallpass', rateLimiter);
+app.use('/teacher/home', rateLimiter);
+app.use('/home', rateLimiter);
 
 app.use(flash());
 
