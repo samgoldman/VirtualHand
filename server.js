@@ -29,7 +29,10 @@ app.use(express_session({
     proxy: true,
     resave: true,
     name: 'sessionID',
-    saveUninitialized : true
+    saveUninitialized : true,
+    cookie: {
+        secure: true
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
