@@ -10,7 +10,9 @@ function UpdateManagementButtons() {
 			button.removeAttribute('disabled');
 			button.classList.remove('disabled');
 		});
-		const selected = escapeHtml(getSelectedClassId());
+		const selected = getSelectedClassId();
+		// Parse hex to string and back to string, splitting in half because large number
+		const selected_escaped = parseInt(selected.substr(0, 12), 16).toString(16).padStart(12, '0') + parseInt(selected.substr(12), 16).toString(16).padStart(12, '0');
 		document.querySelector('#ar_history_link').setAttribute('href', `/teacher/history/assistancerequest/${selected}`);
 		document.querySelector('#hp_history_link').setAttribute('href', `/teacher/history/hallpass/${selected}`);
 	} else {
@@ -47,10 +49,6 @@ function RenameClass(id, name) {
 function ClassSelectorInit_Teacher() {
 	document.querySelector('#class_selector').addEventListener('change', UpdateManagementButtons);
 	sortClasses();
-}
-
-function escapeHtml(string) {
-    return string.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 }
 
 window.addEventListener("load", ClassSelectorInit_Teacher);
